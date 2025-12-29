@@ -6,9 +6,9 @@
 
 enabled_site_setting :anime_database_enabled
 
-register_topic_custom_field_type("anime_mal_id", :string)
-
 after_initialize do
+  register_topic_custom_field_type("anime_mal_id", :string)
+
   module ::AnimeDatabase
     class Engine < ::Rails::Engine
       engine_name "anime_database"
