@@ -4,10 +4,10 @@ A premium Discourse plugin that adds a MyAnimeList-style database to your forum.
 
 ## Screenshots
 
-![Anime Database Overview](/home/asa/.gemini/antigravity/brain/49f35ab2-478e-4820-809c-66b9c0490c6e/anime_database_overview_mockup_1767046061816.png)
+![Anime Database Overview](assets/screenshots/overview.png)
 *Anime Overview Grid*
 
-![Anime Detail Page](/home/asa/.gemini/antigravity/brain/49f35ab2-478e-4820-809c-66b9c0490c6e/anime_detail_page_mockup_1767046082999.png)
+![Anime Detail Page](assets/screenshots/detail.png)
 *Detailed Anime View with Discussion*
 
 ## Features
