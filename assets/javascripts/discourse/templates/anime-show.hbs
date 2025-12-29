@@ -1,0 +1,54 @@
+<div class="anime-detail-container">
+    <div class="anime-detail-header">
+        <div class="anime-detail-image">
+            <img src={{model.images.jpg.large_image_url}} alt={{model.title}} />
+        </div>
+        <div class="anime-detail-info">
+            <h1>{{model.title}}</h1>
+            <div class="anime-rating">
+                <span class="label">Score:</span>
+                <span class="value">{{model.score}}</span>
+            </div>
+            <div class="anime-meta">
+                <p><strong>Status:</strong> {{model.status}}</p>
+                <p><strong>Episodes:</strong> {{model.episodes}}</p>
+                <p><strong>Aired:</strong> {{model.aired.string}}</p>
+            </div>
+            <div class="anime-genres">
+                {{#each model.genres as |genre|}}
+                <span class="genre-tag">{{genre.name}}</span>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    <div class="anime-synopsis">
+        <h2>Synopsis</h2>
+        <p>{{model.synopsis}}</p>
+    </div>
+
+    {{#if model.trailer.embed_url}}
+    <div class="anime-trailer">
+        <h2>Trailer</h2>
+        <iframe src={{model.trailer.embed_url}} width="100%" height="500" frameborder="0" allowfullscreen></iframe>
+    </div>
+    {{/if}}
+
+    <div class="anime-comments">
+        <h2>Discussion</h2>
+        {{#if model.topic_id}}
+        <div class="anime-topic-link">
+            <a href="/t/{{model.topic_slug}}/{{model.topic_id}}" class="btn btn-primary">
+                {{d-icon "comments"}} View discussion on the forum
+            </a>
+        </div>
+        {{else}}
+        <div class="no-comments">
+            <p>No discussion started yet for this anime.</p>
+            <button type="button" class="btn btn-default" {{action "createDiscussion" }}>
+                {{d-icon "plus"}} Start a Discussion
+            </button>
+        </div>
+        {{/if}}
+    </div>
+</div>

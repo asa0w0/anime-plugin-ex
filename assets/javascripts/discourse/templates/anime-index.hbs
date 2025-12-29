@@ -1,0 +1,8 @@
+<div class="anime-database-container">
+  <h1>Anime Database</h1>
+  <div class="anime-grid">
+    {{#each model as |anime|}}
+      <AnimeCard @anime={{anime}} />
+    {{/each}}
+  </div>
+</div>
