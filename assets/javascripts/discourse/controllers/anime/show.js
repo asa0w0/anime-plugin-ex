@@ -12,6 +12,7 @@ export default class ShowController extends Controller {
 
         this.composer.open({
             action: "createTopic",
+            draftKey: "anime-new-discussion",
             topicTitle: `Discussion: ${this.model.title}`,
             topicCategoryId: categoryId > 0 ? categoryId : null,
             topicBody: `Discussing ${this.model.title}\n\n[quote]\n${this.model.synopsis}\n[/quote]`,
