@@ -6,8 +6,6 @@ export default {
         withPluginApi("1.34.0", (api) => {
             api.serializeOnCreate("anime_mal_id");
 
-            api.renderInOutlet("user-main-nav", "user-watchlist-nav");
-
             api.modifyClass("model:composer", {
                 pluginId: "anime-plugin-ex",
 
