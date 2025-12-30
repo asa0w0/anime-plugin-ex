@@ -8,19 +8,6 @@ export default {
 
             api.addRoute("user.watchlist", "/u/:username/watchlist");
 
-            api.modifyClass("component:user-nav", {
-                pluginId: "anime-plugin-ex",
-                constructor() {
-                    this._super(...arguments);
-                    this.navItems.push({
-                        route: "user.watchlist",
-                        label: "Watchlist",
-                        icon: "list-ul",
-                        pluginId: "anime-plugin-ex"
-                    });
-                }
-            });
-
             api.modifyClass("model:composer", {
                 pluginId: "anime-plugin-ex",
 
