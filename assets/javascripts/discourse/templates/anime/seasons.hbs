@@ -9,8 +9,9 @@
                 <span class="year-label">{{year}}</span>
                 <div class="season-buttons">
                     {{#each this.seasons as |season|}}
-                    <button type="button" class="btn btn-default season-btn {{season}}" {{on "click" (fn
-                        this.changeSeason year season)}}>
+                    <button type="button"
+                        class="btn btn-default season-btn {{season}} {{if (and (eq year this.selectedYear) (eq season this.selectedSeason)) "
+                        active"}}" {{on "click" (fn this.changeSeason year season)}}>
                         {{season}}
                     </button>
                     {{/each}}

@@ -6,6 +6,9 @@ import { tracked } from "@glimmer/tracking";
 export default class SeasonsController extends Controller {
     @service router;
 
+    @tracked selectedYear;
+    @tracked selectedSeason;
+
     seasons = ["winter", "spring", "summer", "fall"];
 
     get currentYear() {
@@ -19,6 +22,8 @@ export default class SeasonsController extends Controller {
 
     @action
     changeSeason(year, season) {
+        this.selectedYear = year;
+        this.selectedSeason = season;
         this.router.transitionTo("anime.seasons_detail", year, season);
     }
 }

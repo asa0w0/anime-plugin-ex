@@ -9,4 +9,19 @@ export default class SeasonsRoute extends Route {
         }
         return ajax(url);
     }
+
+    setupController(controller, model) {
+        super.setupController(controller, model);
+        const params = this.paramsFor(this.routeName);
+        controller.selectedYear = params.year || new Date().getFullYear();
+        controller.selectedSeason = params.season || this.getCurrentSeason();
+    }
+
+    getCurrentSeason() {
+        const month = new Date().getMonth();
+        if (month <= 2) return "winter";
+        if (month <= 5) return "spring";
+        if (month <= 8) return "summer";
+        return "fall";
+    }
 }

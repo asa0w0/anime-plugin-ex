@@ -505,3 +505,122 @@
   color: var(--primary-medium);
   font-style: italic;
 }
+
+// Seasonal Page Styles
+.seasons-page {
+  .seasons-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding: 60px 40px;
+    background: linear-gradient(to bottom, var(--secondary), var(--primary-very-low));
+    border-radius: 30px;
+    box-shadow: var(--shadow-card);
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-bottom: 15px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: var(--primary-medium);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.5;
+    }
+  }
+
+  .season-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+
+    .year-group {
+      text-align: center;
+
+      .year-label {
+        font-weight: 800;
+        display: block;
+        margin-bottom: 15px;
+        color: var(--primary);
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .season-buttons {
+        display: flex;
+        gap: 10px;
+
+        .season-btn {
+          text-transform: capitalize;
+          padding: 10px 20px;
+          border-radius: 12px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          background: var(--secondary);
+          border: 1px solid var(--primary-low);
+          color: var(--primary-high);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &.winter:hover {
+            border-color: #3498db;
+            color: #3498db;
+            background: rgba(52, 152, 219, 0.05);
+          }
+
+          &.spring:hover {
+            border-color: #2ecc71;
+            color: #2ecc71;
+            background: rgba(46, 204, 113, 0.05);
+          }
+
+          &.summer:hover {
+            border-color: #f1c40f;
+            color: #f1c40f;
+            background: rgba(241, 196, 15, 0.05);
+          }
+
+          &.fall:hover {
+            border-color: #e67e22;
+            color: #e67e22;
+            background: rgba(230, 126, 34, 0.05);
+          }
+
+          &:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-low);
+          }
+
+          &.active {
+            &.winter {
+              background: #3498db;
+              color: white;
+              border-color: #3498db;
+            }
+
+            &.spring {
+              background: #2ecc71;
+              color: white;
+              border-color: #2ecc71;
+            }
+
+            &.summer {
+              background: #f1c40f;
+              color: white;
+              border-color: #f1c40f;
+            }
+
+            &.fall {
+              background: #e67e22;
+              color: white;
+              border-color: #e67e22;
+            }
+          }
+        }
+      }
+    }
+  }
+}
