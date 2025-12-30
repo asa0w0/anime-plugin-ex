@@ -6,6 +6,10 @@
 
 enabled_site_setting :anime_database_enabled
 
+register_asset "stylesheets/common/anime-database.scss"
+register_svg_icon "comments"
+register_svg_icon "plus"
+
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
 

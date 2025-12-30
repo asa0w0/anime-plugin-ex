@@ -1,4 +1,5 @@
-.anime-database-container, .anime-detail-container {
+.anime-database-container,
+.anime-detail-container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -14,7 +15,7 @@
 .anime-card-link {
   text-decoration: none;
   color: inherit;
-  
+
   &:hover {
     text-decoration: none;
   }
@@ -24,7 +25,7 @@
   background: var(--secondary);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
   display: flex;
@@ -33,7 +34,7 @@
 
   &:hover {
     transform: translateY(-10px);
-    box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
     border-color: var(--tertiary);
   }
 
@@ -53,8 +54,9 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(var(--tertiary-rgb), 0.9);
-      color: white;
+      background: var(--tertiary);
+      opacity: 0.9;
+      color: var(--secondary);
       padding: 4px 8px;
       border-radius: 8px;
       font-weight: bold;
@@ -91,7 +93,7 @@
   background: var(--secondary);
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--primary-low);
 
   @media (max-width: 768px) {
@@ -103,7 +105,7 @@
   .anime-detail-image img {
     width: 300px;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   }
 
   .anime-detail-info {
@@ -118,7 +120,7 @@
     .anime-rating {
       font-size: 1.5rem;
       margin-bottom: 20px;
-      
+
       .value {
         color: var(--tertiary);
         font-weight: bold;
@@ -127,6 +129,7 @@
 
     .anime-meta {
       margin-bottom: 20px;
+
       p {
         margin: 5px 0;
         font-size: 1.1rem;
@@ -169,5 +172,5 @@
   margin-bottom: 40px;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
