@@ -71,52 +71,60 @@
     {{/if}}
 
     <div class="anime-discussion-section">
-        <h2>Discussions</h2>
-        {{#if this.model.topics}}
-        <div class="existing-topics-list">
-            {{#each this.model.topics as |topic|}}
-            <div class="anime-topic-item">
-                <a href="/t/{{topic.slug}}/{{topic.id}}" class="topic-title">
-                    {{d-icon "comments"}} {{topic.title}}
-                </a>
-                <span class="topic-meta">
-                    {{topic.post_count}} posts • Last active {{format-date topic.last_posted_at}}
-                </span>
-            </div>
-            {{/each}}
+        <div class="discussion-header">
+            <h2>Community Discussions</h2>
+            {{#if this.currentUser}}
+            <button type="button" class="btn btn-primary" {{on "click" (fn this.createDiscussion "general" )}}>
+                {{d-icon "plus"}} Start General Discussion
+            </button>
+            {{/if}}
         </div>
 
-        <div class="more-discussions">
-            <h3>Start another discussion</h3>
-            {{#if this.currentUser}}
-            <div class="discussion-buttons">
-                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "general" )}}>
-                    {{d-icon "plus"}} General Discussion
-                </button>
-                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "episodes" )}}>
-                    {{d-icon "plus"}} New Episodes
-                </button>
+        <div class="discussion-grid-layout">
+            <div class="general-discussions">
+                <h3>General Chat</h3>
+                {{#if this.generalTopics}}
+                <div class="topic-list">
+                    {{#each this.generalTopics as |topic|}}
+                    <div class="anime-topic-item">
+                        <a href="/t/{{topic.slug}}/{{topic.id}}" class="topic-title">
+                            {{d-icon "comments"}} {{topic.title}}
+                        </a>
+                        <span class="topic-meta">
+                            {{topic.post_count}} posts • {{format-date topic.last_posted_at}}
+                        </span>
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <p class="no-topics-msg">No general discussions yet.</p>
+                {{/if}}
             </div>
-            {{else}}
-            <p class="login-prompt">Please <a href="/login">log in</a> to start a new discussion.</p>
-            {{/if}}
-        </div>
-        {{else}}
-        <div class="no-comments">
-            <p>No discussion started yet for this anime.</p>
-            {{#if this.currentUser}}
-            <div class="discussion-buttons">
-                <button type="button" class="btn btn-primary" {{on "click" (fn this.createDiscussion "general" )}}>
-                    {{d-icon "plus"}} Start Main Discussion
-                </button>
-                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "episodes" )}}>
-                    {{d-icon "plus"}} Discuss Episodes
-                </button>
+
+            <div class="episode-discussions">
+                <h3>Episode Discussions</h3>
+                <div class="episode-selector-grid">
+                    {{#each this.episodeList as |ep|}}
+                    <button type="button" class="episode-btn {{if (find-by this.episodeTopics " episode_number" (concat
+                        ep)) "has-discussion" }}" {{on "click" (fn this.createDiscussion "episodes" ep)}}>
+                        {{ep}}
+                    </button>
+                    {{/each}}
+                </div>
+
+                {{#if this.episodeTopics}}
+                <div class="topic-list episode-topic-list">
+                    <h4>Latest Episode Threads</h4>
+                    {{#each this.episodeTopics as |topic|}}
+                    <div class="anime-topic-item mini">
+                        <a href="/t/{{topic.slug}}/{{topic.id}}" class="topic-title">
+                            <span class="ep-tag">Ep {{topic.episode_number}}</span> {{topic.title}}
+                        </a>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
             </div>
-            {{else}}
-            <p class="login-prompt">Please <a href="/login">log in</a> to start the first discussion!</p>
-            {{/if}}
         </div>
-        {{/if}}
     </div>
 </div>
