@@ -23,7 +23,7 @@ export default class ShowController extends Controller {
             topicTitle: title,
             topicCategoryId: categoryId > 0 ? categoryId : null,
             topicBody: `Discussing ${this.model.title}\n\n[quote]\n${this.model.synopsis}\n[/quote]`,
-            topicCustomFields: { anime_mal_id: this.model.mal_id.toString() },
+            anime_mal_id: this.model.mal_id.toString(),
         });
     }
 }

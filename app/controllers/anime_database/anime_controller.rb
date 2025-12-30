@@ -34,17 +34,15 @@ module AnimeDatabase
                                  .compact
                                  .reject(&:trash?)
       
-      if topics.any?
-        response = response.dup
-        response["topics"] = topics.map do |t|
-          {
-            id: t.id,
-            title: t.title,
-            slug: t.slug,
-            post_count: t.posts_count,
-            last_posted_at: t.last_posted_at
-          }
-        end
+      response = response.dup
+      response["topics"] = topics.map do |t|
+        {
+          id: t.id,
+          title: t.title,
+          slug: t.slug,
+          post_count: t.posts_count,
+          last_posted_at: t.last_posted_at
+        }
       end
 
       render json: response
