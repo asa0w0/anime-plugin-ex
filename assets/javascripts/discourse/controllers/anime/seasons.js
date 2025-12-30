@@ -9,6 +9,7 @@ export default class SeasonsController extends Controller {
     @tracked selectedYear;
     @tracked selectedSeason;
     @tracked loading = false;
+    @tracked animeList = [];
 
     seasons = ["winter", "spring", "summer", "fall"];
 
@@ -23,6 +24,10 @@ export default class SeasonsController extends Controller {
 
     @action
     changeSeason(year, season) {
+        if (this.selectedYear === year && this.selectedSeason === season && this.animeList.length > 0) {
+            return;
+        }
+
         this.loading = true;
         this.selectedYear = year;
         this.selectedSeason = season;

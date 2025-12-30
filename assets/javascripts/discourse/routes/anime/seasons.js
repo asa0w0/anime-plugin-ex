@@ -10,14 +10,20 @@ export default class SeasonsRoute extends Route {
         if (params.year && params.season) {
             url = `/anime/seasons/${params.year}/${params.season}`;
         }
-        return ajax(url);
+        return ajax(url).then(response => {
+            return {
+                data: response.data,
+                year: params.year,
+                season: params.season
+            };
+        });
     }
 
     setupController(controller, model) {
         super.setupController(controller, model);
-        const params = this.paramsFor(this.routeName);
-        controller.selectedYear = params.year || new Date().getFullYear();
-        controller.selectedSeason = params.season || this.getCurrentSeason();
+        controller.animeList = model.data || [];
+        controller.selectedYear = model.year || controller.selectedYear || new Date().getFullYear();
+        controller.selectedSeason = model.season || controller.selectedSeason || this.getCurrentSeason();
         controller.loading = false;
     }
 

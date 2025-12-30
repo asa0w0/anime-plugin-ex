@@ -27,8 +27,8 @@
             <LoadingSpinner />
         </div>
         {{else}}
-        {{#if this.model.data}}
-        {{#each this.model.data as |anime|}}
+        {{#if this.animeList.length}}
+        {{#each this.animeList as |anime|}}
         <div class="anime-card">
             <LinkTo @route="anime.show" @model={{anime.mal_id}} class="anime-card-link">
                 <div class="anime-card-image">
