@@ -247,3 +247,125 @@
     }
   }
 }
+
+// Watchlist Header
+.anime-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+// Watchlist Detail Page Controls
+.anime-watchlist-actions {
+  margin-top: 15px;
+  padding: 15px;
+  background: var(--primary-very-low);
+  border-radius: 8px;
+  border: 1px solid var(--primary-low);
+
+  .watchlist-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+
+    .watchlist-status-select {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 4px;
+      background: var(--secondary);
+      border: 1px solid var(--primary-low);
+      color: var(--primary);
+      height: 34px;
+    }
+  }
+
+  .current-status-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+
+    .label {
+      color: var(--primary-medium);
+    }
+  }
+}
+
+// Watchlist Container Page
+.anime-watchlist-container {
+  padding: 20px;
+
+  h1 {
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--tertiary);
+    padding-bottom: 10px;
+  }
+
+  .watchlist-group {
+    margin-bottom: 40px;
+
+    h2 {
+      padding: 5px 15px;
+      border-radius: 4px;
+      text-transform: capitalize;
+      margin-bottom: 20px;
+      font-size: 1.4em;
+    }
+
+    &.watching h2 {
+      background: var(--success);
+      color: white;
+    }
+
+    &.planned h2 {
+      background: var(--tertiary);
+      color: white;
+    }
+
+    &.completed h2 {
+      background: var(--primary);
+      color: white;
+    }
+  }
+}
+
+// Badges & Common Components
+.current-status-badge {
+  font-size: 0.8em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+
+  &.watching {
+    background: var(--success-low);
+    color: var(--success);
+  }
+
+  &.planned {
+    background: var(--tertiary-low);
+    color: var(--tertiary);
+  }
+
+  &.completed {
+    background: var(--primary-low);
+    color: var(--primary);
+  }
+}
+
+.watchlist-item {
+  .item-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+
+  &:hover .item-actions {
+    opacity: 1;
+  }
+}

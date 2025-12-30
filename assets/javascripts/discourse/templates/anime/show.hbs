@@ -22,18 +22,34 @@
 
             {{#if this.currentUser}}
             <div class="anime-watchlist-actions">
-                <select class="watchlist-status-select" onchange={{action "updateWatchlist" value="target.value" }}>
-                    <option value="">Add to Watchlist...</option>
-                    <option value="planned" selected={{eq this.model.watchlist_status "planned" }}>Plan to Watch
-                    </option>
-                    <option value="watching" selected={{eq this.model.watchlist_status "watching" }}>Watching</option>
-                    <option value="completed" selected={{eq this.model.watchlist_status "completed" }}>Completed
-                    </option>
-                </select>
+                <div class="watchlist-controls">
+                    <select class="watchlist-status-select" {{on "change" this.changeStatus}}>
+                        <option value="">Choose Status...</option>
+                        <option value="planned" selected={{eq (or this.selectedStatus
+                            this.model.watchlist_status) "planned" }}>Plan to Watch</option>
+                        <option value="watching" selected={{eq (or this.selectedStatus
+                            this.model.watchlist_status) "watching" }}>Watching</option>
+                        <option value="completed" selected={{eq (or this.selectedStatus
+                            this.model.watchlist_status) "completed" }}>Completed</option>
+                    </select>
+
+                    <button type="button" class="btn btn-primary" {{on "click" this.saveToWatchlist}} disabled={{not (or
+                        this.selectedStatus this.model.watchlist_status)}}>
+                        {{#if this.model.watchlist_status}}
+                        Update
+                        {{else}}
+                        Add to Watchlist
+                        {{/if}}
+                    </button>
+                </div>
+
                 {{#if this.model.watchlist_status}}
-                <span class="current-status-badge {{this.model.watchlist_status}}">
-                    {{capitalize this.model.watchlist_status}}
-                </span>
+                <div class="current-status-info">
+                    <span class="label">Current Status:</span>
+                    <span class="current-status-badge {{this.model.watchlist_status}}">
+                        {{capitalize this.model.watchlist_status}}
+                    </span>
+                </div>
                 {{/if}}
             </div>
             {{/if}}

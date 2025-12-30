@@ -1,15 +1,24 @@
 import Controller from "@ember/controller";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
+import { tracked } from "@glimmer/tracking";
+import { ajax } from "discourse/lib/ajax";
 
 export default class ShowController extends Controller {
     @service composer;
     @service currentUser;
     @service("site-settings") siteSettings;
 
+    @tracked selectedStatus = null;
+
     @action
-    async updateWatchlist(status) {
-        if (!this.currentUser) {
+    changeStatus(event) {
+        this.selectedStatus = event.target.value;
+    }
+
+    @action
+    async saveToWatchlist() {
+        if (!this.currentUser || !this.selectedStatus) {
             return;
         }
 
@@ -18,12 +27,13 @@ export default class ShowController extends Controller {
                 type: "POST",
                 data: {
                     anime_id: this.model.mal_id,
-                    status: status,
+                    status: this.selectedStatus,
                     title: this.model.title,
                     image_url: this.model.images.jpg.image_url,
                 }
             });
-            this.set("model.watchlist_status", status);
+            this.set("model.watchlist_status", this.selectedStatus);
+            this.selectedStatus = null; // Reset selection after save
         } catch (error) {
             console.error("Error updating watchlist:", error);
         }
