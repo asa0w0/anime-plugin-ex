@@ -28,14 +28,11 @@ module AnimeDatabase
       end
       
       # Find all topics associated with this anime
-      topics = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s)
-                                 .includes(:topic)
-                                 .map(&:topic)
-                                 .compact
-                                 .reject(&:trash?)
+      topic_ids = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).pluck(:topic_id)
+      topics = ::Topic.where(id: topic_ids).reject(&:trash?)
       
       response = response.dup
-      response["topics"] = topics.map do |t|
+      topics_data = topics.map do |t|
         {
           id: t.id,
           title: t.title,
@@ -43,6 +40,12 @@ module AnimeDatabase
           post_count: t.posts_count,
           last_posted_at: t.last_posted_at
         }
+      end
+
+      if response["data"].is_a?(Hash)
+        response["data"]["topics"] = topics_data
+      else
+        response["topics"] = topics_data
       end
 
       render json: response
