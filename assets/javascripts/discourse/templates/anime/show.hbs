@@ -45,7 +45,7 @@
         {{else}}
         <div class="no-comments">
             <p>No discussion started yet for this anime.</p>
-            <button type="button" class="btn btn-default" {{action "createDiscussion" }}>
+            <button type="button" class="btn btn-default" {{on "click" this.createDiscussion}}>
                 {{d-icon "plus"}} Start a Discussion
             </button>
         </div>

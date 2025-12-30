@@ -1,8 +1,8 @@
 import Route from "@ember/routing/route";
 import { ajax } from "discourse/lib/ajax";
 
-export default Route.extend({
+export default class ShowRoute extends Route {
     model(params) {
-        return ajax(`/anime/${params.id}`).then(data => data.data);
+        return ajax(`/anime/${params.id}`).then((data) => data.data);
     }
-});
+}
