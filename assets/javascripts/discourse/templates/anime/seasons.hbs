@@ -27,6 +27,7 @@
             <LoadingSpinner />
         </div>
         {{else}}
+        {{#if this.model.data}}
         {{#each this.model.data as |anime|}}
         <div class="anime-card">
             <LinkTo @route="anime.show" @model={{anime.mal_id}} class="anime-card-link">
@@ -45,11 +46,12 @@
                 </div>
             </LinkTo>
         </div>
+        {{/each}}
         {{else}}
         <div class="no-results">
             <p>No anime found for this season.</p>
         </div>
-        {{/each}}
+        {{/if}}
         {{/if}}
     </div>
 </div>
