@@ -16,6 +16,14 @@ export default class ShowController extends Controller {
         return this._manualStatus || this.model?.watchlist_status;
     }
 
+    get displayWatchlistStatus() {
+        const status = this.watchlistStatus;
+        if (!status) {
+            return "";
+        }
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
     @action
     changeStatus(event) {
         this.selectedStatus = event.target.value;
