@@ -1,4 +1,4 @@
-# plugin_name: discourse-anime-database
+# name: discourse-anime-database
 # about: A Discourse plugin to create an anime database with list and detail views.
 # version: 0.1
 # authors: Antigravity
