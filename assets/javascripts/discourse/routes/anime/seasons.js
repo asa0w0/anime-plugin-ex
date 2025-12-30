@@ -3,6 +3,7 @@ import { ajax } from "discourse/lib/ajax";
 
 export default class SeasonsRoute extends Route {
     templateName = "anime/seasons";
+    controllerName = "anime/seasons";
 
     model(params) {
         let url = "/anime/seasons";
