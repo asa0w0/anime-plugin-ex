@@ -27,12 +27,24 @@ module AnimeDatabase
         fetch_from_api(url)
       end
       
-      # Find or suggest a topic for comments (not cached to stay accurate)
-      topic = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).first&.topic
-      if topic
+      # Find all topics associated with this anime
+      topics = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s)
+                                 .includes(:topic)
+                                 .map(&:topic)
+                                 .compact
+                                 .reject(&:trash?)
+      
+      if topics.any?
         response = response.dup
-        response["topic_id"] = topic.id
-        response["topic_slug"] = topic.slug
+        response["topics"] = topics.map do |t|
+          {
+            id: t.id,
+            title: t.title,
+            slug: t.slug,
+            post_count: t.posts_count,
+            last_posted_at: t.last_posted_at
+          }
+        end
       end
 
       render json: response

@@ -34,20 +34,44 @@
     </div>
     {{/if}}
 
-    <div class="anime-comments">
-        <h2>Discussion</h2>
-        {{#if this.model.topic_id}}
-        <div class="anime-topic-link">
-            <a href="/t/{{this.model.topic_slug}}/{{this.model.topic_id}}" class="btn btn-primary">
-                {{d-icon "comments"}} View discussion on the forum
-            </a>
+    <div class="anime-discussion-section">
+        <h2>Discussions</h2>
+        {{#if this.model.topics}}
+        <div class="existing-topics-list">
+            {{#each this.model.topics as |topic|}}
+            <div class="anime-topic-item">
+                <a href="/t/{{topic.slug}}/{{topic.id}}" class="topic-title">
+                    {{d-icon "comments"}} {{topic.title}}
+                </a>
+                <span class="topic-meta">
+                    {{topic.post_count}} posts • Last active {{format-date topic.last_posted_at}}
+                </span>
+            </div>
+            {{/each}}
+        </div>
+
+        <div class="more-discussions">
+            <h3>Start another discussion</h3>
+            <div class="discussion-buttons">
+                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "general" )}}>
+                    {{d-icon "plus"}} General Discussion
+                </button>
+                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "episodes" )}}>
+                    {{d-icon "plus"}} New Episodes
+                </button>
+            </div>
         </div>
         {{else}}
         <div class="no-comments">
             <p>No discussion started yet for this anime.</p>
-            <button type="button" class="btn btn-default" {{on "click" this.createDiscussion}}>
-                {{d-icon "plus"}} Start a Discussion
-            </button>
+            <div class="discussion-buttons">
+                <button type="button" class="btn btn-primary" {{on "click" (fn this.createDiscussion "general" )}}>
+                    {{d-icon "plus"}} Start Main Discussion
+                </button>
+                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "episodes" )}}>
+                    {{d-icon "plus"}} Discuss Episodes
+                </button>
+            </div>
         </div>
         {{/if}}
     </div>

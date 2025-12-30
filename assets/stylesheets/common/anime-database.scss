@@ -174,3 +174,68 @@
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
+
+.anime-discussion-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: var(--secondary);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin-bottom: 20px;
+    color: var(--primary);
+    border-bottom: 2px solid var(--tertiary);
+    padding-bottom: 10px;
+  }
+
+  .existing-topics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+
+    .anime-topic-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: var(--tertiary-low);
+      border-radius: 8px;
+      transition: transform 0.2s, background 0.2s;
+
+      &:hover {
+        transform: translateX(5px);
+        background: var(--tertiary-medium);
+      }
+
+      .topic-title {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: var(--tertiary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .topic-meta {
+        font-size: 0.9em;
+        color: var(--primary-medium);
+      }
+    }
+  }
+
+  .more-discussions,
+  .no-comments {
+    h3 {
+      font-size: 1.1em;
+      margin-bottom: 15px;
+    }
+
+    .discussion-buttons {
+      display: flex;
+      gap: 15px;
+    }
+  }
+}

@@ -12,6 +12,14 @@ register_svg_icon "plus"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
+  add_permitted_post_create_param(:anime_mal_id)
+
+  on(:topic_created) do |topic, opts, user|
+    if opts[:anime_mal_id].present?
+      topic.custom_fields["anime_mal_id"] = opts[:anime_mal_id]
+      topic.save_custom_fields
+    end
+  end
 
   require_relative "app/controllers/anime_database/anime_controller"
 
