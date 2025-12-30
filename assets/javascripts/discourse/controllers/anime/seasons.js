@@ -9,7 +9,6 @@ export default class SeasonsController extends Controller {
     @tracked selectedYear;
     @tracked selectedSeason;
     @tracked loading = false;
-    @tracked animeList = [];
 
     seasons = ["winter", "spring", "summer", "fall"];
 
@@ -20,6 +19,10 @@ export default class SeasonsController extends Controller {
     get years() {
         const current = this.currentYear;
         return [current + 1, current, current - 1, current - 2];
+    }
+
+    get animeList() {
+        return this.model?.data || [];
     }
 
     @action
