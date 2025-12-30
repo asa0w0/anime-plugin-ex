@@ -3,6 +3,6 @@ import { ajax } from "discourse/lib/ajax";
 
 export default Route.extend({
     model() {
-        return ajax("/anime-api/list").then(data => data.data);
+        return ajax("/anime").then(data => data.data);
     }
 });

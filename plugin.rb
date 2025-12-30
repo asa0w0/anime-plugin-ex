@@ -23,11 +23,11 @@ after_initialize do
   end
 
   AnimeDatabase::Engine.routes.draw do
-    get "/list" => "anime#index"
-    get "/details/:id" => "anime#show"
+    get "/" => "anime#index"
+    get "/:id" => "anime#show"
   end
 
   Discourse::Application.routes.append do
-    mount ::AnimeDatabase::Engine, at: "/anime-api"
+    mount ::AnimeDatabase::Engine, at: "/anime"
   end
 end
