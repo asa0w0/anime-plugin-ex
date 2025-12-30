@@ -8,7 +8,6 @@ export default class SeasonsController extends Controller {
 
     @tracked selectedYear;
     @tracked selectedSeason;
-    @tracked loading = false;
 
     seasons = ["winter", "spring", "summer", "fall"];
 
@@ -25,15 +24,12 @@ export default class SeasonsController extends Controller {
         return this.model?.data || [];
     }
 
+    get isLoading() {
+        return !this.model || this.model.length === 0;
+    }
+
     @action
     changeSeason(year, season) {
-        if (this.selectedYear === year && this.selectedSeason === season && this.animeList.length > 0) {
-            return;
-        }
-
-        this.loading = true;
-        this.selectedYear = year;
-        this.selectedSeason = season;
-        this.router.transitionTo("anime.seasons_detail", year, season);
+        this.router.transitionTo("anime.seasons", year, season);
     }
 }
