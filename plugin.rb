@@ -42,6 +42,8 @@ after_initialize do
     get "/watchlist/:username" => "anime#watchlist"
     post "/watchlist" => "anime#update_watchlist"
     delete "/watchlist/:anime_id" => "anime#remove_watchlist"
+    get "/seasons" => "anime#seasons"
+    get "/seasons/:year/:season" => "anime#seasons"
     get "/:id" => "anime#show"
   end
 

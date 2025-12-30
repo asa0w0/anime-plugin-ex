@@ -67,6 +67,28 @@ module AnimeDatabase
         render json: { error: "Internal Server Error", message: e.message }, status: 500
       end
     end
+    
+    def seasons
+      year = params[:year]
+      season = params[:season]
+      
+      cache_key = if year.present? && season.present?
+                    "anime_seasons_#{year}_#{season}"
+                  else
+                    "anime_seasons_now"
+                  end
+
+      response = Discourse.cache.fetch(cache_key, expires_in: 12.hours) do
+        url = if year.present? && season.present?
+                "https://api.jikan.moe/v4/seasons/#{year}/#{season}"
+              else
+                "https://api.jikan.moe/v4/seasons/now"
+              end
+        fetch_from_api(url)
+      end
+
+      render json: response
+    end
 
     def watchlist
       user = if params[:username].present?

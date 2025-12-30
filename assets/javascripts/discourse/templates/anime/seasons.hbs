@@ -1,0 +1,44 @@
+<div class="anime-container seasons-page">
+    <div class="seasons-header">
+        <h1>Seasonal Anime Charts</h1>
+        <p>Discover the best anime from current and past seasons.</p>
+
+        <div class="season-selector">
+            {{#each this.years as |year|}}
+            <div class="year-group">
+                <span class="year-label">{{year}}</span>
+                <div class="season-buttons">
+                    {{#each this.seasons as |season|}}
+                    <button type="button" class="btn btn-default season-btn {{season}}" {{on "click" (fn
+                        this.changeSeason year season)}}>
+                        {{season}}
+                    </button>
+                    {{/each}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="anime-grid">
+        {{#each this.model.data as |anime|}}
+        <div class="anime-card">
+            <LinkTo @route="anime.show" @model={{anime.mal_id}} class="anime-card-link">
+                <div class="anime-card-image">
+                    <img src={{anime.images.jpg.image_url}} alt={{anime.title}} loading="lazy" />
+                    <div class="anime-card-overlay">
+                        <span class="anime-card-score">★ {{or anime.score "N/A"}}</span>
+                    </div>
+                </div>
+                <div class="anime-card-content">
+                    <h3 class="anime-card-title">{{anime.title}}</h3>
+                    <div class="anime-card-meta">
+                        <span class="type">{{anime.type}}</span>
+                        <span class="episodes">{{anime.episodes}} eps</span>
+                    </div>
+                </div>
+            </LinkTo>
+        </div>
+        {{/each}}
+    </div>
+</div>
