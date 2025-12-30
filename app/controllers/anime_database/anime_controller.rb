@@ -42,8 +42,7 @@ module AnimeDatabase
             title: t.title,
             slug: t.slug,
             post_count: t.posts_count,
-            last_posted_at: t.last_posted_at,
-            episode_number: t.custom_fields["anime_episode_number"]
+            last_posted_at: t.last_posted_at
           }
         end
 

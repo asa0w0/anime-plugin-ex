@@ -5,7 +5,6 @@ export default {
     initialize() {
         withPluginApi("1.34.0", (api) => {
             api.serializeOnCreate("anime_mal_id");
-            api.serializeOnCreate("anime_episode_number");
 
             api.modifyClass("model:composer", {
                 pluginId: "anime-plugin-ex",

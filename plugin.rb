@@ -13,21 +13,17 @@ register_svg_icon "trash-alt"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
-  register_topic_custom_field_type("anime_episode_number", :string)
 
   add_to_serializer(:topic_view, :anime_mal_id) { object.topic.custom_fields["anime_mal_id"] }
-  add_to_serializer(:topic_view, :anime_episode_number) { object.topic.custom_fields["anime_episode_number"] }
 
   add_permitted_post_create_param(:anime_mal_id)
-  add_permitted_post_create_param(:anime_episode_number)
 
   DiscourseEvent.on(:post_created) do |post, opts, user|
-    if opts[:anime_mal_id].present?
+    if post.is_first_post? && opts[:anime_mal_id].present?
       topic = post.topic
       topic.custom_fields["anime_mal_id"] = opts[:anime_mal_id]
-      topic.custom_fields["anime_episode_number"] = opts[:anime_episode_number] if opts[:anime_episode_number].present?
       topic.save_custom_fields
-      Rails.logger.info("Anime Plugin: Saved anime_mal_id=#{opts[:anime_mal_id]} and episode=#{opts[:anime_episode_number]} to topic #{topic.id}")
+      Rails.logger.info("Anime Plugin: Saved anime_mal_id=#{opts[:anime_mal_id]} to topic #{topic.id}")
     end
   end
 
