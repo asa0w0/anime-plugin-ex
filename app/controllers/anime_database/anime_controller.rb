@@ -22,33 +22,41 @@ module AnimeDatabase
       id = params[:id]
       cache_key = "anime_details_#{id}"
 
-      response = Discourse.cache.fetch(cache_key, expires_in: 24.hours) do
-        url = "https://api.jikan.moe/v4/anime/#{id}/full"
-        fetch_from_api(url)
-      end
-      
-      # Find all topics associated with this anime
-      topic_ids = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).pluck(:topic_id)
-      topics = ::Topic.where(id: topic_ids).reject(&:trash?)
-      
-      response = response.dup
-      topics_data = topics.map do |t|
-        {
-          id: t.id,
-          title: t.title,
-          slug: t.slug,
-          post_count: t.posts_count,
-          last_posted_at: t.last_posted_at
-        }
-      end
+      begin
+        response = Discourse.cache.fetch(cache_key, expires_in: 24.hours) do
+          url = "https://api.jikan.moe/v4/anime/#{id}/full"
+          fetch_from_api(url)
+        end
+        
+        # Ensure response is a Hash
+        response = { "data" => {} } unless response.is_a?(Hash)
+        response = response.dup
 
-      if response["data"].is_a?(Hash)
-        response["data"]["topics"] = topics_data
-      else
-        response["topics"] = topics_data
-      end
+        # Find all topics associated with this anime
+        topic_ids = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).pluck(:topic_id)
+        topics = ::Topic.where(id: topic_ids, deleted_at: nil)
+        
+        topics_data = topics.map do |t|
+          {
+            id: t.id,
+            title: t.title,
+            slug: t.slug,
+            post_count: t.posts_count,
+            last_posted_at: t.last_posted_at
+          }
+        end
 
-      render json: response
+        if response["data"].is_a?(Hash)
+          response["data"]["topics"] = topics_data
+        else
+          response["topics"] = topics_data
+        end
+
+        render json: response
+      rescue => e
+        Rails.logger.error("Anime Plugin Show Error: #{e.message}\n#{e.backtrace.join("\n")}")
+        render json: { error: "Internal Server Error", message: e.message }, status: 500
+      end
     end
 
     private
