@@ -4,6 +4,7 @@ import { service } from "@ember/service";
 
 export default class ShowController extends Controller {
     @service composer;
+    @service currentUser;
     @service("site-settings") siteSettings;
 
     @action

@@ -52,6 +52,7 @@
 
         <div class="more-discussions">
             <h3>Start another discussion</h3>
+            {{#if this.currentUser}}
             <div class="discussion-buttons">
                 <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "general" )}}>
                     {{d-icon "plus"}} General Discussion
@@ -60,10 +61,14 @@
                     {{d-icon "plus"}} New Episodes
                 </button>
             </div>
+            {{else}}
+            <p class="login-prompt">Please <a href="/login">log in</a> to start a new discussion.</p>
+            {{/if}}
         </div>
         {{else}}
         <div class="no-comments">
             <p>No discussion started yet for this anime.</p>
+            {{#if this.currentUser}}
             <div class="discussion-buttons">
                 <button type="button" class="btn btn-primary" {{on "click" (fn this.createDiscussion "general" )}}>
                     {{d-icon "plus"}} Start Main Discussion
@@ -72,6 +77,9 @@
                     {{d-icon "plus"}} Discuss Episodes
                 </button>
             </div>
+            {{else}}
+            <p class="login-prompt">Please <a href="/login">log in</a> to start the first discussion!</p>
+            {{/if}}
         </div>
         {{/if}}
     </div>
