@@ -1,0 +1,96 @@
+<div class="user-anime-watchlist">
+    <div class="watchlist-groups">
+        <div class="watchlist-group watching">
+            <h2>Watching</h2>
+            <div class="anime-grid">
+                {{#each this.watching as |item|}}
+                <div class="anime-card watchlist-item">
+                    <div class="anime-card-image">
+                        <img src={{item.image_url}} alt={{item.title}} />
+                        {{#if this.isOwner}}
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                this.removeFromWatchlist item.anime_id)}}>
+                                {{d-icon "trash-alt"}}
+                            </button>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="anime-card-content">
+                        <h3 class="anime-card-title">
+                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                        </h3>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless this.watching.length}}
+                <p class="empty-group-msg">No anime in this list.</p>
+                {{/unless}}
+            </div>
+        </div>
+
+        <div class="watchlist-group planned">
+            <h2>Plan to Watch</h2>
+            <div class="anime-grid">
+                {{#each this.planned as |item|}}
+                <div class="anime-card watchlist-item">
+                    <div class="anime-card-image">
+                        <img src={{item.image_url}} alt={{item.title}} />
+                        {{#if this.isOwner}}
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                this.removeFromWatchlist item.anime_id)}}>
+                                {{d-icon "trash-alt"}}
+                            </button>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="anime-card-content">
+                        <h3 class="anime-card-title">
+                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                        </h3>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless this.planned.length}}
+                <p class="empty-group-msg">No anime in this list.</p>
+                {{/unless}}
+            </div>
+        </div>
+
+        <div class="watchlist-group completed">
+            <h2>Completed</h2>
+            <div class="anime-grid">
+                {{#each this.completed as |item|}}
+                <div class="anime-card watchlist-item">
+                    <div class="anime-card-image">
+                        <img src={{item.image_url}} alt={{item.title}} />
+                        {{#if this.isOwner}}
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                this.removeFromWatchlist item.anime_id)}}>
+                                {{d-icon "trash-alt"}}
+                            </button>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="anime-card-content">
+                        <h3 class="anime-card-title">
+                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                        </h3>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless this.completed.length}}
+                <p class="empty-group-msg">No anime in this list.</p>
+                {{/unless}}
+            </div>
+        </div>
+    </div>
+
+    {{#unless this.model.length}}
+    <div class="no-items">
+        <p>This watchlist is empty.</p>
+    </div>
+    {{/unless}}
+</div>

@@ -69,9 +69,15 @@ module AnimeDatabase
     end
 
     def watchlist
-      return render json: { error: "Not logged in" }, status: 403 unless current_user
+      user = if params[:username].present?
+               User.find_by_username(params[:username])
+             else
+               current_user
+             end
 
-      list = DB.query("SELECT * FROM anime_watchlists WHERE user_id = ? ORDER BY updated_at DESC", current_user.id)
+      return render json: { error: "User not found or not logged in" }, status: 404 unless user
+
+      list = DB.query("SELECT * FROM anime_watchlists WHERE user_id = ? ORDER BY updated_at DESC", user.id)
       
       render json: {
         data: list.map { |row|
