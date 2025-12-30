@@ -10,17 +10,15 @@ register_asset "stylesheets/common/anime-database.scss"
 register_svg_icon "comments"
 register_svg_icon "plus"
 
-after_initialize do
-  register_topic_custom_field_type("anime_mal_id", :string)
+register_topic_custom_field_type("anime_mal_id", :string)
 
+after_initialize do
   module ::AnimeDatabase
     class Engine < ::Rails::Engine
       engine_name "anime_database"
       isolate_namespace AnimeDatabase
     end
   end
-
-  load File.expand_path("../app/controllers/anime_database/anime_controller.rb", __FILE__)
 
   AnimeDatabase::Engine.routes.draw do
     get "/list" => "anime#index"

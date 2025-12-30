@@ -1,0 +1,7 @@
+plugins:
+  anime_database_enabled:
+    default: true
+    client: true
+  anime_database_category:
+    default: ""
+    type: category_id

@@ -2,7 +2,7 @@ require_dependency "application_controller"
 
 module AnimeDatabase
   class AnimeController < ::ApplicationController
-    requires_plugin "discourse-anime-database"
+    requires_plugin "anime-plugin-ex"
 
     def index
       url = "https://api.jikan.moe/v4/top/anime"
