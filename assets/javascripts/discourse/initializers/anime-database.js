@@ -6,7 +6,7 @@ export default {
         withPluginApi("1.34.0", (api) => {
             api.serializeOnCreate("anime_mal_id");
 
-            api.addRoute("user.watchlist", "/u/:username/watchlist");
+            // api.addRoute("user.watchlist", "/u/:username/watchlist");
 
             api.modifyClass("model:composer", {
                 pluginId: "anime-plugin-ex",
