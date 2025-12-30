@@ -21,7 +21,7 @@ module AnimeDatabase
       response = fetch_from_api(url)
       
       # Find or suggest a topic for comments
-      topic = TopicCustomField.where(name: "anime_mal_id", value: id.to_s).first&.topic
+      topic = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).first&.topic
       if topic
         response[:topic_id] = topic.id
         response[:topic_slug] = topic.slug

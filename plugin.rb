@@ -10,9 +10,11 @@ register_asset "stylesheets/common/anime-database.scss"
 register_svg_icon "comments"
 register_svg_icon "plus"
 
-register_topic_custom_field_type("anime_mal_id", :string)
-
 after_initialize do
+  register_topic_custom_field_type("anime_mal_id", :string)
+
+  require_relative "app/controllers/anime_database/anime_controller"
+
   module ::AnimeDatabase
     class Engine < ::Rails::Engine
       engine_name "anime_database"
