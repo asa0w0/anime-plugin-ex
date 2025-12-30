@@ -46,10 +46,19 @@ module AnimeDatabase
           }
         end
 
+        # Add watchlist status if user is logged in
+        watchlist_status = nil
+        if current_user
+          entry = DB.query_single("SELECT status FROM anime_watchlists WHERE user_id = ? AND anime_id = ?", current_user.id, id.to_s).first
+          watchlist_status = entry
+        end
+
         if response["data"].is_a?(Hash)
           response["data"]["topics"] = topics_data
+          response["data"]["watchlist_status"] = watchlist_status
         else
           response["topics"] = topics_data
+          response["watchlist_status"] = watchlist_status
         end
 
         render json: response
@@ -57,6 +66,49 @@ module AnimeDatabase
         Rails.logger.error("Anime Plugin Show Error: #{e.message}\n#{e.backtrace.join("\n")}")
         render json: { error: "Internal Server Error", message: e.message }, status: 500
       end
+    end
+
+    def watchlist
+      return render json: { error: "Not logged in" }, status: 403 unless current_user
+
+      list = DB.query("SELECT * FROM anime_watchlists WHERE user_id = ? ORDER BY updated_at DESC", current_user.id)
+      
+      render json: {
+        data: list.map { |row|
+          {
+            anime_id: row.anime_id,
+            status: row.status,
+            title: row.title,
+            image_url: row.image_url
+          }
+        }
+      }
+    end
+
+    def update_watchlist
+      return render json: { error: "Not logged in" }, status: 403 unless current_user
+      
+      anime_id = params[:anime_id].to_s
+      status = params[:status]
+      title = params[:title]
+      image_url = params[:image_url]
+
+      DB.exec(<<~SQL, current_user.id, anime_id, status, title, image_url, Time.now, Time.now)
+        INSERT INTO anime_watchlists (user_id, anime_id, status, title, image_url, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (user_id, anime_id)
+        DO UPDATE SET status = EXCLUDED.status, updated_at = EXCLUDED.updated_at
+      SQL
+
+      render json: { success: true, status: status }
+    end
+
+    def remove_watchlist
+      return render json: { error: "Not logged in" }, status: 403 unless current_user
+      
+      DB.exec("DELETE FROM anime_watchlists WHERE user_id = ? AND anime_id = ?", current_user.id, params[:anime_id].to_s)
+      
+      render json: { success: true }
     end
 
     private

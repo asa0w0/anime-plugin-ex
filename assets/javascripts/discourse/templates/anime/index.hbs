@@ -1,5 +1,10 @@
 <div class="anime-database-container">
-  <h1>Anime Database</h1>
+  <div class="anime-header-actions">
+    <h1>Anime Database</h1>
+    <LinkTo @route="anime.watchlist" class="btn btn-default">
+      {{d-icon "list"}} My Watchlist
+    </LinkTo>
+  </div>
   <div class="anime-grid">
     {{#each this.model as |anime|}}
     <AnimeCard @anime={{anime}} />

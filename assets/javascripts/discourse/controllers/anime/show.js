@@ -8,6 +8,28 @@ export default class ShowController extends Controller {
     @service("site-settings") siteSettings;
 
     @action
+    async updateWatchlist(status) {
+        if (!this.currentUser) {
+            return;
+        }
+
+        try {
+            await ajax("/anime/watchlist", {
+                type: "POST",
+                data: {
+                    anime_id: this.model.mal_id,
+                    status: status,
+                    title: this.model.title,
+                    image_url: this.model.images.jpg.image_url,
+                }
+            });
+            this.set("model.watchlist_status", status);
+        } catch (error) {
+            console.error("Error updating watchlist:", error);
+        }
+    }
+
+    @action
     createDiscussion(type = "general") {
         const categoryId = parseInt(this.siteSettings.anime_database_category, 10);
         const isEpisode = type === "episodes";

@@ -237,5 +237,13 @@
       display: flex;
       gap: 15px;
     }
+
+    .login-prompt {
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--tertiary-low);
+      border-radius: 6px;
+      font-style: italic;
+    }
   }
 }

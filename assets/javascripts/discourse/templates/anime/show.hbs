@@ -19,6 +19,24 @@
                 <span class="genre-tag">{{genre.name}}</span>
                 {{/each}}
             </div>
+
+            {{#if this.currentUser}}
+            <div class="anime-watchlist-actions">
+                <select class="watchlist-status-select" onchange={{action "updateWatchlist" value="target.value" }}>
+                    <option value="">Add to Watchlist...</option>
+                    <option value="planned" selected={{eq this.model.watchlist_status "planned" }}>Plan to Watch
+                    </option>
+                    <option value="watching" selected={{eq this.model.watchlist_status "watching" }}>Watching</option>
+                    <option value="completed" selected={{eq this.model.watchlist_status "completed" }}>Completed
+                    </option>
+                </select>
+                {{#if this.model.watchlist_status}}
+                <span class="current-status-badge {{this.model.watchlist_status}}">
+                    {{capitalize this.model.watchlist_status}}
+                </span>
+                {{/if}}
+            </div>
+            {{/if}}
         </div>
     </div>
 

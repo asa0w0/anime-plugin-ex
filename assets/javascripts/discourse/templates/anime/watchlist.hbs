@@ -1,0 +1,40 @@
+<div class="anime-watchlist-container">
+    <h1>My Anime Watchlist</h1>
+
+    {{#if this.model.length}}
+    <div class="watchlist-groups">
+        {{#each (array "watching" "planned" "completed") as |status|}}
+        <div class="watchlist-group {{status}}">
+            <h2>{{capitalize status}}</h2>
+            <div class="anime-grid">
+                {{#each this.model as |item|}}
+                {{#if (eq item.status status)}}
+                <div class="anime-card watchlist-item">
+                    <div class="anime-card-image">
+                        <img src={{item.image_url}} alt={{item.title}} />
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                this.removeFromWatchlist item.anime_id)}}>
+                                {{d-icon "trash-alt"}}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="anime-card-content">
+                        <h3 class="anime-card-title">
+                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                        </h3>
+                    </div>
+                </div>
+                {{/if}}
+                {{/each}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="no-items">
+        <p>Your watchlist is empty. Go to an anime page to add one!</p>
+        <a href="/anime" class="btn btn-primary">Browse Anime</a>
+    </div>
+    {{/if}}
+</div>

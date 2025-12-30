@@ -34,6 +34,9 @@ after_initialize do
 
   AnimeDatabase::Engine.routes.draw do
     get "/" => "anime#index"
+    get "/watchlist" => "anime#watchlist"
+    post "/watchlist" => "anime#update_watchlist"
+    delete "/watchlist/:anime_id" => "anime#remove_watchlist"
     get "/:id" => "anime#show"
   end
 
