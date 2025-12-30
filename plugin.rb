@@ -14,10 +14,22 @@ after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
   add_permitted_post_create_param(:anime_mal_id)
 
-  on(:topic_created) do |topic, opts, user|
-    if opts[:anime_mal_id].present?
-      topic.custom_fields["anime_mal_id"] = opts[:anime_mal_id]
-      topic.save_custom_fields
+  reloadable_patch do |plugin|
+    require_dependency "post_creator"
+
+    PostCreator.class_eval do
+      alias_method :anime_original_create, :create
+
+      def create
+        result = anime_original_create
+        
+        if result && @opts[:anime_mal_id].present?
+          result.topic.custom_fields["anime_mal_id"] = @opts[:anime_mal_id]
+          result.topic.save_custom_fields
+        end
+        
+        result
+      end
     end
   end
 
