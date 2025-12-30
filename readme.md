@@ -1,6 +1,6 @@
 # Discourse Anime Database Plugin
 
-A premium Discourse plugin that adds a MyAnimeList-style database to your forum.
+A Discourse plugin that adds a Anime database to your forum.
 
 ## Screenshots
 
