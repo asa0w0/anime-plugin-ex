@@ -43,5 +43,6 @@ after_initialize do
 
   Discourse::Application.routes.append do
     mount ::AnimeDatabase::Engine, at: "/anime"
+    get "/u/:username/watchlist" => "users#show", constraints: { username: RouteFormat.username }
   end
 end
