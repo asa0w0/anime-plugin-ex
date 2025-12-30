@@ -10,6 +10,11 @@ export default class ShowController extends Controller {
     @service("site-settings") siteSettings;
 
     @tracked selectedStatus = null;
+    @tracked _manualStatus = null;
+
+    get watchlistStatus() {
+        return this._manualStatus || this.model?.watchlist_status;
+    }
 
     @action
     changeStatus(event) {
@@ -32,7 +37,7 @@ export default class ShowController extends Controller {
                     image_url: this.model.images.jpg.image_url,
                 }
             });
-            this.set("model.watchlist_status", this.selectedStatus);
+            this._manualStatus = this.selectedStatus;
             this.selectedStatus = null; // Reset selection after save
         } catch (error) {
             console.error("Error updating watchlist:", error);

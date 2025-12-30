@@ -25,17 +25,17 @@
                 <div class="watchlist-controls">
                     <select class="watchlist-status-select" {{on "change" this.changeStatus}}>
                         <option value="">Choose Status...</option>
-                        <option value="planned" selected={{eq (or this.selectedStatus
-                            this.model.watchlist_status) "planned" }}>Plan to Watch</option>
-                        <option value="watching" selected={{eq (or this.selectedStatus
-                            this.model.watchlist_status) "watching" }}>Watching</option>
+                        <option value="planned" selected={{eq (or this.selectedStatus this.watchlistStatus) "planned"
+                            }}>Plan to Watch</option>
+                        <option value="watching" selected={{eq (or this.selectedStatus this.watchlistStatus) "watching"
+                            }}>Watching</option>
                         <option value="completed" selected={{eq (or this.selectedStatus
-                            this.model.watchlist_status) "completed" }}>Completed</option>
+                            this.watchlistStatus) "completed" }}>Completed</option>
                     </select>
 
                     <button type="button" class="btn btn-primary" {{on "click" this.saveToWatchlist}} disabled={{not (or
-                        this.selectedStatus this.model.watchlist_status)}}>
-                        {{#if this.model.watchlist_status}}
+                        this.selectedStatus this.watchlistStatus)}}>
+                        {{#if this.watchlistStatus}}
                         Update
                         {{else}}
                         Add to Watchlist
@@ -43,11 +43,11 @@
                     </button>
                 </div>
 
-                {{#if this.model.watchlist_status}}
+                {{#if this.watchlistStatus}}
                 <div class="current-status-info">
                     <span class="label">Current Status:</span>
-                    <span class="current-status-badge {{this.model.watchlist_status}}">
-                        {{capitalize this.model.watchlist_status}}
+                    <span class="current-status-badge {{this.watchlistStatus}}">
+                        {{capitalize this.watchlistStatus}}
                     </span>
                 </div>
                 {{/if}}
