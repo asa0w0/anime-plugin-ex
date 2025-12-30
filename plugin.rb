@@ -14,22 +14,12 @@ after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
   add_permitted_post_create_param(:anime_mal_id)
 
-  reloadable_patch do |plugin|
-    require_dependency "post_creator"
-
-    PostCreator.class_eval do
-      alias_method :anime_original_create, :create
-
-      def create
-        result = anime_original_create
-        
-        if result && @opts[:anime_mal_id].present?
-          result.topic.custom_fields["anime_mal_id"] = @opts[:anime_mal_id]
-          result.topic.save_custom_fields
-        end
-        
-        result
-      end
+  DiscourseEvent.on(:post_created) do |post, opts, user|
+    if post.is_first_post? && opts[:anime_mal_id].present?
+      topic = post.topic
+      topic.custom_fields["anime_mal_id"] = opts[:anime_mal_id]
+      topic.save_custom_fields
+      Rails.logger.info("Anime Plugin: Saved anime_mal_id=#{opts[:anime_mal_id]} to topic #{topic.id}")
     end
   end
 
