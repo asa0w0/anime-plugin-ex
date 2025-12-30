@@ -8,6 +8,7 @@ export default class SeasonsController extends Controller {
 
     @tracked selectedYear;
     @tracked selectedSeason;
+    @tracked loading = false;
 
     seasons = ["winter", "spring", "summer", "fall"];
 
@@ -22,6 +23,7 @@ export default class SeasonsController extends Controller {
 
     @action
     changeSeason(year, season) {
+        this.loading = true;
         this.selectedYear = year;
         this.selectedSeason = season;
         this.router.transitionTo("anime.seasons_detail", year, season);

@@ -623,4 +623,16 @@
       }
     }
   }
+
+  .loading-container,
+  .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 100px 0;
+
+    p {
+      font-size: 1.5rem;
+      color: var(--primary-medium);
+    }
+  }
 }
