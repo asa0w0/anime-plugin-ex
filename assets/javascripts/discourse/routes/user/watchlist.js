@@ -11,4 +11,9 @@ export default class UserWatchlistRoute extends Route {
             return data.data || [];
         });
     }
+
+    setupController(controller, model) {
+        super.setupController(controller, model);
+        controller.set("user", this.modelFor("user"));
+    }
 }

@@ -19,8 +19,7 @@ export default class UserWatchlistController extends Controller {
     }
 
     get isOwner() {
-        const user = this.modelFor ? this.modelFor("user") : null;
-        return this.currentUser && user && this.currentUser.username === user.username;
+        return this.currentUser && this.user && this.currentUser.username === this.user.username;
     }
 
     @action
