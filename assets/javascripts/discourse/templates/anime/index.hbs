@@ -7,7 +7,7 @@
   </div>
   <div class="anime-grid">
     {{#each this.model.anime key="mal_id" as |anime|}}
-    <AnimeCard @anime={{anime}} @watchlistIds={{this.model.watchlistIds}} />
+    <AnimeCard @anime={{anime}} @watchlistIds={{this.watchlistIds}} @onWatchlistUpdate={{this.refreshWatchlist}} />
     {{/each}}
   </div>
 </div>

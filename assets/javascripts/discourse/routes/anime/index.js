@@ -23,4 +23,9 @@ export default class IndexRoute extends Route {
             watchlistIds: watchlistIds
         };
     }
+
+    setupController(controller, model) {
+        super.setupController(controller, model);
+        controller.watchlistIds = model.watchlistIds;
+    }
 }
