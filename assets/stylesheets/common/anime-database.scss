@@ -271,33 +271,43 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: var(--tertiary);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    border: 2px solid white;
     color: white;
-    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     opacity: 0;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     z-index: 3;
 
     .d-icon {
       font-size: 1.1rem;
+      color: white;
     }
 
     &:hover {
-      transform: scale(1.1);
-      background: var(--tertiary-high);
+      transform: scale(1.15);
+      background: rgba(0, 0, 0, 0.7);
+      border-color: white;
     }
 
     &.on-watchlist {
       opacity: 1;
       background: var(--love);
+      border-color: var(--love);
 
       .d-icon {
         color: white;
+      }
+
+      &:hover {
+        transform: scale(1.15);
+        background: #d32f2f;
+        border-color: #d32f2f;
       }
     }
   }

@@ -1,15 +1,19 @@
 import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
 import { action } from "@ember/object";
+import { tracked } from "@glimmer/tracking";
+import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
 
 export default class AnimeCard extends Component {
   @service router;
   @service currentUser;
+  @tracked isAdding = false;
 
   get typeLabel() {
     const type = this.args.anime.type;
     if (!type) return null;
-    
+
     const labels = {
       'TV': 'TV',
       'Movie': 'Movie',
@@ -38,23 +42,43 @@ export default class AnimeCard extends Component {
   }
 
   get isOnWatchlist() {
-    // TODO: Check if anime is on user's watchlist
-    // This will need to be implemented with watchlist state management
-    return false;
+    if (!this.currentUser || !this.args.watchlistIds) return false;
+    const malId = this.args.anime.mal_id?.toString();
+    return this.args.watchlistIds.includes(malId);
   }
 
   @action
   async addToWatchlist(event) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (!this.currentUser) {
       this.router.transitionTo('login');
       return;
     }
 
-    // TODO: Implement quick-add to watchlist
-    // This will open a dropdown to select status (watching, completed, etc.)
-    console.log('Add to watchlist:', this.args.anime.title);
+    if (this.isAdding) return;
+    this.isAdding = true;
+
+    try {
+      await ajax("/anime/update_watchlist", {
+        type: "POST",
+        data: {
+          anime_id: this.args.anime.mal_id,
+          status: "watching",
+          title: this.args.anime.title,
+          image_url: this.args.anime.images?.jpg?.image_url
+        }
+      });
+
+      // Refresh watchlist IDs by calling the parent controller action
+      if (this.args.onWatchlistUpdate) {
+        this.args.onWatchlistUpdate();
+      }
+    } catch (error) {
+      popupAjaxError(error);
+    } finally {
+      this.isAdding = false;
+    }
   }
 }
