@@ -9,6 +9,7 @@ export default class AnimeCard extends Component {
   @service router;
   @service currentUser;
   @tracked isAdding = false;
+  @tracked showStatusMenu = false;
 
   get typeLabel() {
     const type = this.args.anime.type;
@@ -48,30 +49,46 @@ export default class AnimeCard extends Component {
   }
 
   @action
-  async addToWatchlist(event) {
+  toggleStatusMenu(event) {
     event.preventDefault();
     event.stopPropagation();
 
     if (!this.currentUser) {
-      this.router.transitionTo('login');
+      this.router.transitionTo("login");
       return;
     }
+    this.showStatusMenu = !this.showStatusMenu;
+  }
 
-    if (this.isAdding) return;
+  @action
+  async selectStatus(status, event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.showStatusMenu = false;
+
+    if (this.isAdding) {
+      return;
+    }
     this.isAdding = true;
 
     try {
-      await ajax("/anime/watchlist", {
-        type: "POST",
-        data: {
-          anime_id: this.args.anime.mal_id,
-          status: "watching",
-          title: this.args.anime.title,
-          image_url: this.args.anime.images?.jpg?.image_url
-        }
-      });
+      if (status === "remove") {
+        await ajax(`/anime/watchlist/${this.args.anime.mal_id}`, {
+          type: "DELETE",
+        });
+      } else {
+        await ajax("/anime/watchlist", {
+          type: "POST",
+          data: {
+            anime_id: this.args.anime.mal_id,
+            status: status,
+            title: this.args.anime.title,
+            image_url: this.args.anime.images?.jpg?.image_url,
+          },
+        });
+      }
 
-      // Refresh watchlist IDs by calling the parent controller action
       if (this.args.onWatchlistUpdate) {
         this.args.onWatchlistUpdate();
       }
@@ -80,5 +97,10 @@ export default class AnimeCard extends Component {
     } finally {
       this.isAdding = false;
     }
+  }
+
+  @action
+  addToWatchlist(event) {
+    this.toggleStatusMenu(event);
   }
 }
