@@ -15,6 +15,17 @@ export default class IndexController extends Controller {
     @tracked status = null;
     @tracked genre = null;
     @tracked sort = "score";
+    @tracked showFilters = false;
+
+    constructor() {
+        super(...arguments);
+        this.showFilters = !!(this.type || this.status || this.genre || (this.sort && this.sort !== "score"));
+    }
+
+    @action
+    toggleFilters() {
+        this.showFilters = !this.showFilters;
+    }
 
     @action
     updateSearch(query) {

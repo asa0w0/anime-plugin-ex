@@ -1192,51 +1192,115 @@
 .anime-controls {
   display: flex;
   flex-direction: column;
-  gap: 20px;
   margin-bottom: 30px;
-  background: var(--secondary);
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid var(--primary-low);
-  box-shadow: var(--shadow-low);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: all 0.3s ease;
+
+  &.collapsed {
+    align-items: center;
+
+    .search-section {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .anime-search-bar {
+      input {
+        padding: 12px 15px 12px 40px;
+        font-size: 1.1em;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+    }
+  }
+
+  &.expanded {
+    .search-section {
+      width: 100%;
+    }
+  }
+
+  .search-section {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+  }
+}
+
+.btn-filter-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  width: 42px;
+  padding: 0;
+  border-radius: 8px;
+  background: var(--tertiary-low);
+  color: var(--tertiary);
+  border: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--tertiary-hover);
+    color: var(--secondary);
+  }
+
+  &.active {
+    background: var(--tertiary);
+    color: var(--secondary);
+  }
+
+  .d-icon {
+    font-size: 1.2em;
+  }
 }
 
 .anime-search-bar {
+  flex: 1;
+  position: relative;
+
   .search-input-wrapper {
     position: relative;
-    display: flex;
-    align-items: center;
+    width: 100%;
 
     .d-icon-search {
       position: absolute;
-      left: 15px;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
       color: var(--primary-medium);
+      pointer-events: none;
     }
 
     input {
       width: 100%;
-      padding: 12px 45px;
-      border-radius: 8px;
+      padding: 10px 15px 10px 35px;
       border: 1px solid var(--primary-low);
-      background: var(--primary-very-low);
-      font-size: 1.1rem;
-      transition: all 0.2s ease;
+      border-radius: 8px;
+      background: var(--secondary);
+      transition: all 0.2s;
 
       &:focus {
+        outline: none;
         border-color: var(--tertiary);
-        background: var(--secondary);
         box-shadow: 0 0 0 3px var(--tertiary-low);
       }
     }
 
     .btn-clear {
       position: absolute;
-      right: 15px;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
       background: none;
       border: none;
       color: var(--primary-medium);
+      padding: 4px;
       cursor: pointer;
-      padding: 5px;
+      display: flex;
+      align-items: center;
 
       &:hover {
         color: var(--primary);
@@ -1249,47 +1313,54 @@
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
-  align-items: flex-end;
+  padding: 15px;
+  background: var(--primary-very-low);
+  border-radius: 8px;
+  animation: slideDown 0.3s ease-out;
 
   .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    flex: 1;
+    min-width: 140px;
 
     label {
-      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 5px;
       font-weight: 600;
-      color: var(--primary-medium);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 0.9em;
+      color: var(--primary-high);
     }
 
     select {
-      padding: 8px 12px;
-      border-radius: 6px;
+      width: 100%;
+      padding: 8px;
       border: 1px solid var(--primary-low);
+      border-radius: 6px;
       background: var(--secondary);
-      min-width: 140px;
-      cursor: pointer;
-
-      &:focus {
-        border-color: var(--tertiary);
-      }
     }
-  }
-
-  .btn-reset {
-    margin-top: auto;
-    height: 38px;
   }
 }
 
-.anime-empty {
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anime-empty,
+.anime-loading {
   grid-column: 1 / -1;
   text-align: center;
   padding: 60px 20px;
   background: var(--secondary);
   border-radius: 12px;
+  color: var(--primary-medium);
+  font-size: 1.1em;
   border: 1px dashed var(--primary-low);
 
   p {

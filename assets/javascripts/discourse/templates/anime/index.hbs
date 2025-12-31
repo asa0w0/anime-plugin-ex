@@ -6,10 +6,19 @@
     </LinkTo>
   </div>
 
-  <div class="anime-controls">
-    <AnimeSearchBar @value={{this.q}} @onChange={{this.updateSearch}} />
+  <div class="anime-controls {{if this.showFilters 'expanded' 'collapsed'}}">
+    <div class="search-section">
+      <AnimeSearchBar @value={{this.q}} @onChange={{this.updateSearch}} />
+      <button type="button" class="btn btn-default btn-filter-toggle {{if this.showFilters 'active'}}" {{on "click"
+        this.toggleFilters}}>
+        {{d-icon "sliders-h"}}
+      </button>
+    </div>
+
+    {{#if this.showFilters}}
     <AnimeFilterBar @selectedType={{this.type}} @selectedStatus={{this.status}} @selectedGenre={{this.genre}}
       @selectedSort={{this.sort}} @onChange={{this.updateFilter}} @onReset={{this.resetFilters}} />
+    {{/if}}
   </div>
 
   <div class="anime-grid">
