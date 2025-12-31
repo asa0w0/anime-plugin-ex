@@ -2,8 +2,9 @@ import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
 import { action } from "@ember/object";
 import { LinkTo } from "@ember/routing";
-import didInsert from "@ember/render-modifiers/modifiers/did-insert";
-import DButton from "discourse/components/d-button";
+import { or } from "truth-helpers";
+import { on } from "@ember/modifier";
+import { d-icon } from "discourse/lib/icon-library";
 
 export default class AnimeCard extends Component {
   @service router;
