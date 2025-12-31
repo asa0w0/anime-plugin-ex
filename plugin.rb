@@ -14,6 +14,7 @@ register_svg_icon "far-comment-dots"
 register_svg_icon "plus"
 register_svg_icon "film"
 register_svg_icon "trash-alt"
+register_svg_icon "calendar-alt"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
@@ -46,6 +47,7 @@ after_initialize do
     get "/watchlist/:username" => "anime#watchlist"
     post "/watchlist" => "anime#update_watchlist"
     delete "/watchlist/:anime_id" => "anime#remove_watchlist"
+    get "/calendar" => "anime#calendar"
     get "/seasons" => "anime#seasons"
     get "/seasons/:year/:season" => "anime#seasons"
     get "/:id" => "anime#show"

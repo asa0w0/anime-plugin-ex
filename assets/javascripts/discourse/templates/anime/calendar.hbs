@@ -1,0 +1,29 @@
+<div class="anime-container calendar-page">
+    <div class="calendar-header">
+        <h1>{{d-icon "calendar-alt"}} Airing Schedule</h1>
+        <p>See what's airing this week (Japan Time)</p>
+    </div>
+
+    <div class="calendar-grid">
+        {{#each this.days as |day|}}
+        <div class="calendar-day">
+            <h3>{{get this.dayLabels day}}</h3>
+            <div class="day-anime-list">
+                {{#each (get this.scheduleByDay day) as |anime|}}
+                <LinkTo @route="anime.show" @model={{anime.mal_id}} class="calendar-anime-item">
+                    <img src={{anime.images.jpg.small_image_url}} alt={{anime.title}} loading="lazy" />
+                    <div class="anime-info">
+                        <span class="anime-title">{{anime.title}}</span>
+                        {{#if anime.broadcast.time}}
+                        <span class="anime-time">{{anime.broadcast.time}} JST</span>
+                        {{/if}}
+                    </div>
+                </LinkTo>
+                {{else}}
+                <p class="no-anime">No anime airing</p>
+                {{/each}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>

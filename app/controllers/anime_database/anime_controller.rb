@@ -139,6 +139,17 @@ module AnimeDatabase
       render json: { success: true }
     end
 
+    def calendar
+      cache_key = "anime_schedule"
+      
+      response = Discourse.cache.fetch(cache_key, expires_in: 6.hours) do
+        url = "https://api.jikan.moe/v4/schedules"
+        fetch_from_api(url)
+      end
+
+      render json: response
+    end
+
     private
 
     def fetch_from_api(url)

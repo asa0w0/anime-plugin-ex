@@ -1,6 +1,7 @@
 export default function () {
     this.route("anime", { path: "/anime" }, function () {
         this.route("watchlist", { path: "/watchlist" });
+        this.route("calendar", { path: "/calendar" });
         this.route("seasons", { path: "/seasons" }, function () {
             this.route("show", { path: "/:year/:season" });
         });
