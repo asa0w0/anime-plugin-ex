@@ -1,6 +1,6 @@
 import Route from "@ember/routing/route";
 import { ajax } from "discourse/lib/ajax";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 
 export default class IndexRoute extends Route {
     @service currentUser;

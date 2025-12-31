@@ -2,7 +2,7 @@ import Controller from "@ember/controller";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import { ajax } from "discourse/lib/ajax";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 
 export default class IndexController extends Controller {
     @service router;
@@ -20,7 +20,7 @@ export default class IndexController extends Controller {
     updateSearch(query) {
         const value = query || null;
         this.set("q", value);
-        this.transitionToRoute("anime.index", {
+        this.router.transitionTo("anime.index", {
             queryParams: { q: value }
         });
     }
@@ -31,7 +31,7 @@ export default class IndexController extends Controller {
         this.set(type, val);
         let qp = {};
         qp[type] = val;
-        this.transitionToRoute("anime.index", {
+        this.router.transitionTo("anime.index", {
             queryParams: qp
         });
     }
@@ -45,7 +45,7 @@ export default class IndexController extends Controller {
             genre: null,
             sort: "score"
         });
-        this.transitionToRoute("anime.index", {
+        this.router.transitionTo("anime.index", {
             queryParams: {
                 q: null,
                 type: null,
