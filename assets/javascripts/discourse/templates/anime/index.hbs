@@ -13,6 +13,7 @@
   </div>
 
   <div class="anime-grid">
+    {{#if this.model.anime}}
     {{#if this.model.anime.length}}
     {{#each this.model.anime key="mal_id" as |anime|}}
     <AnimeCard @anime={{anime}} @watchlistIds={{this.watchlistIds}} @onWatchlistUpdate={{this.refreshWatchlist}} />
@@ -23,6 +24,11 @@
       <button type="button" class="btn btn-default" {{on "click" this.resetFilters}}>
         {{d-icon "sync"}} Clear all filters
       </button>
+    </div>
+    {{/if}}
+    {{else}}
+    <div class="anime-loading">
+      <p>Loading anime database...</p>
     </div>
     {{/if}}
   </div>
