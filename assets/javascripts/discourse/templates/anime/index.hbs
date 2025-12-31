@@ -5,9 +5,25 @@
       {{d-icon "list"}} My Watchlist
     </LinkTo>
   </div>
+
+  <div class="anime-controls">
+    <AnimeSearchBar @value={{this.q}} @onChange={{this.updateSearch}} />
+    <AnimeFilterBar @selectedType={{this.type}} @selectedStatus={{this.status}} @selectedGenre={{this.genre}}
+      @selectedSort={{this.sort}} @onChange={{this.updateFilter}} @onReset={{this.resetFilters}} />
+  </div>
+
   <div class="anime-grid">
+    {{#if this.model.anime.length}}
     {{#each this.model.anime key="mal_id" as |anime|}}
     <AnimeCard @anime={{anime}} @watchlistIds={{this.watchlistIds}} @onWatchlistUpdate={{this.refreshWatchlist}} />
     {{/each}}
+    {{else}}
+    <div class="anime-empty">
+      <p>No anime found matching your criteria.</p>
+      <button type="button" class="btn btn-default" {{on "click" this.resetFilters}}>
+        {{d-icon "sync"}} Clear all filters
+      </button>
+    </div>
+    {{/if}}
   </div>
 </div>

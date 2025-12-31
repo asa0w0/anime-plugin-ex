@@ -5,8 +5,16 @@ import { service } from "@ember/service";
 export default class IndexRoute extends Route {
     @service currentUser;
 
-    async model() {
-        const animeData = await ajax("/anime").then((data) => data.data);
+    queryParams = {
+        q: { refreshModel: true },
+        type: { refreshModel: true },
+        status: { refreshModel: true },
+        genre: { refreshModel: true },
+        sort: { refreshModel: true }
+    };
+
+    async model(params) {
+        const animeData = await ajax("/anime", { data: params }).then((data) => data.data);
 
         let watchlistIds = [];
         if (this.currentUser) {

@@ -1,0 +1,11 @@
+<div class="anime-search-bar">
+    <div class="search-input-wrapper">
+        {{d-icon "search"}}
+        <input type="text" value={{@value}} placeholder="Search for anime..." {{on "input" this.onInput}} />
+        {{#if @value}}
+        <button type="button" class="btn-clear" {{on "click" this.clearSearch}}>
+            {{d-icon "times"}}
+        </button>
+        {{/if}}
+    </div>
+</div>

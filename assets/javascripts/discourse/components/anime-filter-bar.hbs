@@ -1,0 +1,44 @@
+<div class="anime-filter-bar">
+    <div class="filter-group">
+        <label>Type</label>
+        <select {{on "change" (fn this.onSelectChange "type" )}}>
+            <option value="">All</option>
+            {{#each this.types as |t|}}
+            <option value={{t.id}} selected={{eq @selectedType t.id}}>{{t.name}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label>Status</label>
+        <select {{on "change" (fn this.onSelectChange "status" )}}>
+            <option value="">All</option>
+            {{#each this.statuses as |s|}}
+            <option value={{s.id}} selected={{eq @selectedStatus s.id}}>{{s.name}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label>Genre</label>
+        <select {{on "change" (fn this.onSelectChange "genre" )}}>
+            <option value="">All</option>
+            {{#each this.genres as |g|}}
+            <option value={{g.id}} selected={{eq @selectedGenre g.id}}>{{g.name}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label>Sort By</label>
+        <select {{on "change" (fn this.onSelectChange "sort" )}}>
+            {{#each this.sorts as |s|}}
+            <option value={{s.id}} selected={{eq @selectedSort s.id}}>{{s.name}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <button type="button" class="btn btn-default btn-reset" {{on "click" this.resetFilters}}>
+        {{d-icon "sync"}} Reset
+    </button>
+</div>

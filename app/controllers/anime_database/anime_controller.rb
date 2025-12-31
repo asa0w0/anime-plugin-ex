@@ -5,14 +5,28 @@ module AnimeDatabase
     requires_plugin "anime-plugin-ex"
 
     def index
-      cache_key = "anime_list_#{params[:q] || 'top'}"
+      query = params[:q].presence
+      type = params[:type].presence
+      status = params[:status].presence
+      genres = params[:genre].presence
+      order_by = params[:sort].presence || "score"
+      sort_order = params[:order].presence || "desc"
+
+      cache_key = "anime_list_search_#{query}_#{type}_#{status}_#{genres}_#{order_by}_#{sort_order}"
       
       response = Discourse.cache.fetch(cache_key, expires_in: 1.hour) do
-        url = "https://api.jikan.moe/v4/top/anime"
-        if params[:q].present?
-          url = "https://api.jikan.moe/v4/anime?q=#{CGI.escape(params[:q])}"
+        if query.present? || type.present? || status.present? || genres.present?
+          url = "https://api.jikan.moe/v4/anime?limit=24"
+          url += "&q=#{CGI.escape(query)}" if query
+          url += "&type=#{CGI.escape(type)}" if type
+          url += "&status=#{CGI.escape(status)}" if status
+          url += "&genres=#{CGI.escape(genres)}" if genres
+          url += "&order_by=#{CGI.escape(order_by)}&sort=#{CGI.escape(sort_order)}"
+          fetch_from_api(url)
+        else
+          # Fallback to top anime if no filters
+          fetch_from_api("https://api.jikan.moe/v4/top/anime?limit=24")
         end
-        fetch_from_api(url)
       end
 
       render json: response
