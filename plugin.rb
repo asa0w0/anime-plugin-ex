@@ -8,7 +8,11 @@ enabled_site_setting :anime_database_enabled
 
 register_asset "stylesheets/common/anime-database.scss"
 register_svg_icon "comments"
+register_svg_icon "comment"
+register_svg_icon "far-comment"
+register_svg_icon "far-comment-dots"
 register_svg_icon "plus"
+register_svg_icon "film"
 register_svg_icon "trash-alt"
 
 after_initialize do
