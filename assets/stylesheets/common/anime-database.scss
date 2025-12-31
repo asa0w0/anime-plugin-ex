@@ -800,6 +800,16 @@
       background: var(--primary-high);
       color: var(--secondary);
     }
+
+    &.on-hold h2 {
+      background: var(--primary-medium);
+      color: var(--secondary);
+    }
+
+    &.dropped h2 {
+      background: var(--danger);
+      color: var(--secondary);
+    }
   }
 }
 

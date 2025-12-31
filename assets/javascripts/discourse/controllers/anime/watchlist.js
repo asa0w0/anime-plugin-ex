@@ -9,11 +9,19 @@ export default class WatchlistController extends Controller {
     }
 
     get planned() {
-        return (this.model || []).filter(item => item.status === "planned");
+        return (this.model || []).filter(item => item.status === "plan_to_watch");
     }
 
     get completed() {
         return (this.model || []).filter(item => item.status === "completed");
+    }
+
+    get onHold() {
+        return (this.model || []).filter(item => item.status === "on_hold");
+    }
+
+    get dropped() {
+        return (this.model || []).filter(item => item.status === "dropped");
     }
 
     @action

@@ -22,6 +22,7 @@ register_svg_icon "pause-circle"
 register_svg_icon "times-circle"
 register_svg_icon "sync"
 register_svg_icon "search"
+register_svg_icon "trash-alt"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
