@@ -6,7 +6,7 @@
     </LinkTo>
   </div>
   <div class="anime-grid">
-    {{#each this.model key="mal_id" as |anime|}}
+    {{#each this.model.anime key="mal_id" as |anime|}}
     <AnimeCard @anime={{anime}} @watchlistIds={{this.model.watchlistIds}} />
     {{/each}}
   </div>
