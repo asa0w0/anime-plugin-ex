@@ -6,7 +6,7 @@ import { service } from "@ember/service";
 
 export default class IndexController extends Controller {
     @service router;
-    @tracked watchlistIds = [];
+    @tracked watchlistData = {};
 
     queryParams = ["q", "type", "status", "genre", "sort"];
 
@@ -70,8 +70,14 @@ export default class IndexController extends Controller {
     @action
     async refreshWatchlist() {
         try {
-            const watchlist = await ajax("/anime/watchlist");
-            this.watchlistIds = watchlist.data.map(item => item.anime_id);
+            const result = await ajax("/anime/watchlist");
+            const data = {};
+            if (result && result.data) {
+                result.data.forEach(item => {
+                    data[item.anime_id] = item.status;
+                });
+            }
+            this.watchlistData = data;
         } catch (e) {
             console.error("Failed to refresh watchlist:", e);
         }

@@ -43,9 +43,16 @@ export default class AnimeCard extends Component {
   }
 
   get isOnWatchlist() {
-    if (!this.currentUser || !this.args.watchlistIds) return false;
+    if (!this.currentUser || !this.args.watchlistData) return false;
     const malId = this.args.anime.mal_id?.toString();
-    return this.args.watchlistIds.includes(malId);
+    // Check if key exists (status can be anything, as long as it exists)
+    return Object.prototype.hasOwnProperty.call(this.args.watchlistData, malId);
+  }
+
+  get currentStatus() {
+    if (!this.currentUser || !this.args.watchlistData) return null;
+    const malId = this.args.anime.mal_id?.toString();
+    return this.args.watchlistData[malId];
   }
 
   @action

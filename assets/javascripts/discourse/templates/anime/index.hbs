@@ -29,7 +29,7 @@
     {{#if this.model.anime}}
     {{#if this.model.anime.length}}
     {{#each this.model.anime key="mal_id" as |anime|}}
-    <AnimeCard @anime={{anime}} @watchlistIds={{this.watchlistIds}} @onWatchlistUpdate={{this.refreshWatchlist}} />
+    <AnimeCard @anime={{anime}} @watchlistData={{this.watchlistData}} @onWatchlistUpdate={{this.refreshWatchlist}} />
     {{/each}}
     {{else}}
     <div class="anime-empty">
