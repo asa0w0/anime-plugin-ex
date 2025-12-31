@@ -5,7 +5,7 @@ export default class SeasonsIndexRoute extends Route {
     redirect() {
         const year = new Date().getFullYear();
         const season = this.getCurrentSeason();
-        this.transitionTo("anime.seasons.show", year, season);
+        this.replaceWith("anime.seasons.show", year, season);
     }
 
     getCurrentSeason() {
