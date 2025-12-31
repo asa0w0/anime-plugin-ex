@@ -18,21 +18,27 @@ export default class IndexController extends Controller {
 
     @action
     updateSearch(query) {
-        this.q = query || null;
+        this.router.transitionTo({ queryParams: { q: query || null } });
     }
 
     @action
     updateFilter(type, value) {
-        this[type] = value || null;
+        let qp = {};
+        qp[type] = value || null;
+        this.router.transitionTo({ queryParams: qp });
     }
 
     @action
     resetFilters() {
-        this.q = null;
-        this.type = null;
-        this.status = null;
-        this.genre = null;
-        this.sort = "score";
+        this.router.transitionTo({
+            queryParams: {
+                q: null,
+                type: null,
+                status: null,
+                genre: null,
+                sort: "score"
+            }
+        });
     }
 
     @action

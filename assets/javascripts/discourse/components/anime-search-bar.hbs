@@ -1,7 +1,8 @@
 <div class="anime-search-bar">
     <div class="search-input-wrapper">
         {{d-icon "search"}}
-        <input type="text" value={{@value}} placeholder="Search for anime..." {{on "input" this.onInput}} />
+        <input type="text" value={{@value}} placeholder="Search for anime..." {{on "input" this.onInput}}
+            {{on "keypress" this.onKeyPress}} />
         {{#if @value}}
         <button type="button" class="btn-clear" {{on "click" this.clearSearch}}>
             {{d-icon "times"}}

@@ -8,6 +8,22 @@ export default class AnimeSearchBar extends Component {
     @action
     onInput(event) {
         const value = event.target.value;
+        this.debounceSearch(value);
+    }
+
+    @action
+    onKeyPress(event) {
+        if (event.key === "Enter") {
+            if (this.timer) {
+                clearTimeout(this.timer);
+            }
+            if (this.args.onChange) {
+                this.args.onChange(event.target.value);
+            }
+        }
+    }
+
+    debounceSearch(value) {
         if (this.timer) {
             clearTimeout(this.timer);
         }
