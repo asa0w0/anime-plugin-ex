@@ -5,7 +5,45 @@ import { action } from "@ember/object";
 export default class CalendarController extends Controller {
     @tracked showOnlyWatchlist = false;
 
-    days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+    allDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
+    // Get days starting from today
+    get days() {
+        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const dayMap = [6, 0, 1, 2, 3, 4, 5]; // Map JS day to our array index
+        const todayIndex = dayMap[today];
+
+        // Reorder array to start with today
+        return [
+            ...this.allDays.slice(todayIndex),
+            ...this.allDays.slice(0, todayIndex)
+        ];
+    }
+
+    // Convert JST time to user's local time
+    convertJSTToLocal(jstTimeString) {
+        if (!jstTimeString) return null;
+
+        // Parse time like "23:30" from JST
+        const [hours, minutes] = jstTimeString.split(':').map(Number);
+
+        // Create date in JST (UTC+9)
+        const jstDate = new Date();
+        jstDate.setUTCHours(hours - 9, minutes, 0, 0); // Convert JST to UTC
+
+        // Format in user's local time
+        return jstDate.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    }
+
+    get todayDay() {
+        const today = new Date().getDay();
+        const dayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+        return dayMap[today];
+    }
 
     get dayLabels() {
         return {
