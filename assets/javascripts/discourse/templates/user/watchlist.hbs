@@ -11,7 +11,7 @@
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-alt"}}
+                                {{d-icon "trash-can"}}
                             </button>
                         </div>
                         {{/if}}
@@ -40,7 +40,7 @@
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-alt"}}
+                                {{d-icon "trash-can"}}
                             </button>
                         </div>
                         {{/if}}
@@ -69,7 +69,7 @@
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-alt"}}
+                                {{d-icon "trash-can"}}
                             </button>
                         </div>
                         {{/if}}
@@ -82,6 +82,64 @@
                 </div>
                 {{/each}}
                 {{#unless this.completed.length}}
+                <p class="empty-group-msg">No anime in this list.</p>
+                {{/unless}}
+            </div>
+        </div>
+
+        <div class="watchlist-group on-hold">
+            <h2>On Hold</h2>
+            <div class="anime-grid">
+                {{#each this.onHold as |item|}}
+                <div class="anime-card watchlist-item">
+                    <div class="anime-card-image">
+                        <img src={{item.image_url}} alt={{item.title}} />
+                        {{#if this.isOwner}}
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                this.removeFromWatchlist item.anime_id)}}>
+                                {{d-icon "trash-can"}}
+                            </button>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="anime-card-content">
+                        <h3 class="anime-card-title">
+                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                        </h3>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless this.onHold.length}}
+                <p class="empty-group-msg">No anime in this list.</p>
+                {{/unless}}
+            </div>
+        </div>
+
+        <div class="watchlist-group dropped">
+            <h2>Dropped</h2>
+            <div class="anime-grid">
+                {{#each this.dropped as |item|}}
+                <div class="anime-card watchlist-item">
+                    <div class="anime-card-image">
+                        <img src={{item.image_url}} alt={{item.title}} />
+                        {{#if this.isOwner}}
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                this.removeFromWatchlist item.anime_id)}}>
+                                {{d-icon "trash-can"}}
+                            </button>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <div class="anime-card-content">
+                        <h3 class="anime-card-title">
+                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                        </h3>
+                    </div>
+                </div>
+                {{/each}}
+                {{#unless this.dropped.length}}
                 <p class="empty-group-msg">No anime in this list.</p>
                 {{/unless}}
             </div>
