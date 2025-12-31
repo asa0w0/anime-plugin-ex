@@ -18,19 +18,32 @@ export default class IndexController extends Controller {
 
     @action
     updateSearch(query) {
-        this.router.transitionTo({ queryParams: { q: query || null } });
+        const value = query || null;
+        this.set("q", value);
+        this.transitionToRoute("anime.index", {
+            queryParams: { q: value }
+        });
     }
 
     @action
     updateFilter(type, value) {
+        const val = value || null;
+        this.set(type, val);
         let qp = {};
-        qp[type] = value || null;
-        this.router.transitionTo({ queryParams: qp });
+        qp[type] = val;
+        this.transitionToRoute("anime.index", { queryParams: qp });
     }
 
     @action
     resetFilters() {
-        this.router.transitionTo({
+        this.setProperties({
+            q: null,
+            type: null,
+            status: null,
+            genre: null,
+            sort: "score"
+        });
+        this.transitionToRoute("anime.index", {
             queryParams: {
                 q: null,
                 type: null,
