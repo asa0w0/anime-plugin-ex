@@ -1,23 +1,30 @@
 import Component from "@glimmer/component";
 import { action } from "@ember/object";
-import { restartableTask } from "ember-concurrency";
-import { timeout } from "ember-concurrency";
+import { tracked } from "@glimmer/tracking";
 
 export default class AnimeSearchBar extends Component {
-    @restartableTask
-    *debounceSearch(query) {
-        yield timeout(500);
-        this.args.onChange(query);
-    }
+    @tracked timer = null;
 
     @action
     onInput(event) {
-        this.debounceSearch.perform(event.target.value);
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
+
+        this.timer = setTimeout(() => {
+            if (this.args.onChange) {
+                this.args.onChange(event.target.value);
+            }
+        }, 500);
     }
 
     @action
     clearSearch() {
-        this.debounceSearch.cancelAll();
-        this.args.onChange("");
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
+        if (this.args.onChange) {
+            this.args.onChange("");
+        }
     }
 }
