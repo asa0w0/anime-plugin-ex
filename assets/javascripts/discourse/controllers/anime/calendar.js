@@ -45,13 +45,19 @@ export default class CalendarController extends Controller {
         };
 
         data.forEach(anime => {
-            // Jikan API uses "broadcast" object with "day" field
+            // Jikan API uses "broadcast" object with "day" field in PLURAL form
             const broadcastDay = anime.broadcast?.day;
             if (broadcastDay) {
-                const day = broadcastDay.toLowerCase().trim();
-                console.log(`Anime: ${anime.title} - Day: ${day}`);
+                // Convert plural to singular: "thursdays" -> "thursday"
+                let day = broadcastDay.toLowerCase().trim();
+                if (day.endsWith('s')) {
+                    day = day.slice(0, -1); // Remove trailing 's'
+                }
+                console.log(`Anime: ${anime.title} - Broadcast Day: ${broadcastDay} -> ${day}`);
                 if (grouped[day]) {
                     grouped[day].push(anime);
+                } else {
+                    console.warn(`Unrecognized day: ${day}`);
                 }
             } else {
                 console.log(`Anime ${anime.title} has no broadcast day`);
