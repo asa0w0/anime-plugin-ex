@@ -71,50 +71,46 @@
     {{/if}}
 
     <div class="anime-discussion-section">
-        <h2>Discussions</h2>
+        <h2>{{d-icon "comments"}} Discussions</h2>
+
         {{#if this.model.topics}}
         <div class="existing-topics-list">
             {{#each this.model.topics as |topic|}}
-            <div class="anime-topic-item">
-                <a href="/t/{{topic.slug}}/{{topic.id}}" class="topic-title">
-                    {{d-icon "comments"}} {{topic.title}}
-                </a>
-                <span class="topic-meta">
-                    {{topic.post_count}} posts • Last active {{format-date topic.last_posted_at}}
+            <a href="/t/{{topic.slug}}/{{topic.id}}" class="anime-topic-item">
+                <span class="topic-title">
+                    {{d-icon "comment"}} {{topic.title}}
                 </span>
-            </div>
+                <span class="topic-meta">
+                    {{topic.post_count}} {{d-icon "far-comment"}} • {{format-date topic.last_posted_at leaveAgo="true"}}
+                </span>
+            </a>
             {{/each}}
         </div>
 
-        <div class="more-discussions">
-            <h3>Start another discussion</h3>
-            {{#if this.currentUser}}
-            <div class="discussion-buttons">
-                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "general" )}}>
-                    {{d-icon "plus"}} General Discussion
-                </button>
-                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "episodes" )}}>
-                    {{d-icon "plus"}} New Episodes
-                </button>
-            </div>
-            {{else}}
-            <p class="login-prompt">Please <a href="/login">log in</a> to start a new discussion.</p>
-            {{/if}}
+        {{#if this.currentUser}}
+        <div class="discussion-buttons compact">
+            <button type="button" class="btn btn-small" {{on "click" (fn this.createDiscussion "general" )}}>
+                {{d-icon "plus"}} New Discussion
+            </button>
+            <button type="button" class="btn btn-small" {{on "click" (fn this.createDiscussion "episodes" )}}>
+                {{d-icon "film"}} Episode Discussion
+            </button>
         </div>
+        {{/if}}
         {{else}}
         <div class="no-comments">
-            <p>No discussion started yet for this anime.</p>
+            <p>{{d-icon "far-comment-dots"}} No discussions yet. Be the first to share your thoughts!</p>
             {{#if this.currentUser}}
             <div class="discussion-buttons">
                 <button type="button" class="btn btn-primary" {{on "click" (fn this.createDiscussion "general" )}}>
-                    {{d-icon "plus"}} Start Main Discussion
+                    {{d-icon "plus"}} Start Discussion
                 </button>
                 <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "episodes" )}}>
-                    {{d-icon "plus"}} Discuss Episodes
+                    {{d-icon "film"}} Episode Discussion
                 </button>
             </div>
             {{else}}
-            <p class="login-prompt">Please <a href="/login">log in</a> to start the first discussion!</p>
+            <p class="login-prompt"><a href="/login">Log in</a> to start a discussion</p>
             {{/if}}
         </div>
         {{/if}}

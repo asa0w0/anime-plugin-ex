@@ -314,64 +314,146 @@
 }
 
 .anime-discussion-section {
-  padding: 35px;
+  padding: 25px;
   background: var(--secondary);
-  border-radius: 24px;
+  border-radius: 16px;
   box-shadow: var(--shadow-low);
   border: 1px solid var(--primary-low);
 
   h2 {
-    font-size: 2rem;
-    margin-bottom: 30px;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
     font-weight: 700;
     color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .d-icon {
+      color: var(--tertiary);
+      font-size: 1.3rem;
+    }
+  }
+
+  .no-comments {
+    text-align: center;
+    padding: 30px 20px;
+    background: var(--primary-very-low);
+    border-radius: 12px;
+
+    p {
+      color: var(--primary-medium);
+      margin-bottom: 15px;
+      font-size: 1rem;
+
+      .d-icon {
+        color: var(--primary-low-mid);
+        margin-right: 5px;
+      }
+    }
+
+    .login-prompt {
+      font-size: 0.9rem;
+      margin: 0;
+
+      a {
+        color: var(--tertiary);
+        font-weight: 600;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .existing-topics-list {
+    margin-bottom: 20px;
   }
 
   .anime-topic-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 15px;
     background: var(--primary-very-low);
-    border-radius: 16px;
-    margin-bottom: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
     transition: var(--anime-transition);
     border: 1px solid transparent;
+    text-decoration: none;
 
     &:hover {
-      background: var(--secondary);
+      background: var(--tertiary-very-low);
       border-color: var(--tertiary-low);
-      transform: translateX(8px);
+      transform: translateX(4px);
       box-shadow: var(--shadow-low);
     }
 
     .topic-title {
-      font-size: 1.15rem;
-      font-weight: 700;
+      font-size: 1rem;
+      font-weight: 600;
       color: var(--primary);
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
 
       .d-icon {
         color: var(--tertiary);
+        font-size: 0.9rem;
       }
     }
 
     .topic-meta {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--primary-medium);
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      .d-icon {
+        font-size: 0.75rem;
+      }
     }
 
     @media (max-width: 600px) {
       flex-direction: column;
       align-items: flex-start;
-      gap: 10px;
+      gap: 8px;
 
       .topic-meta {
-        padding-left: 28px;
+        padding-left: 22px;
       }
+    }
+  }
+
+  .discussion-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    &.compact {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--primary-low);
+      justify-content: flex-start;
+    }
+
+    .btn {
+      flex: 0 1 auto;
+      font-size: 0.9rem;
+      padding: 8px 16px;
+
+      .d-icon {
+        margin-right: 5px;
+      }
+    }
+
+    .btn-small {
+      font-size: 0.85rem;
+      padding: 6px 12px;
     }
   }
 }
