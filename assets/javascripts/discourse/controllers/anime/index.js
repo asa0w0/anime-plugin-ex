@@ -31,7 +31,9 @@ export default class IndexController extends Controller {
         this.set(type, val);
         let qp = {};
         qp[type] = val;
-        this.transitionToRoute("anime.index", { queryParams: qp });
+        this.transitionToRoute("anime.index", {
+            queryParams: qp
+        });
     }
 
     @action
