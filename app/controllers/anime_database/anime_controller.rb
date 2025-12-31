@@ -143,8 +143,30 @@ module AnimeDatabase
       cache_key = "anime_schedule"
       
       response = Discourse.cache.fetch(cache_key, expires_in: 6.hours) do
-        url = "https://api.jikan.moe/v4/schedules"
-        fetch_from_api(url)
+        # Fetch all pages from Jikan schedules endpoint
+        all_anime = []
+        page = 1
+        
+        loop do
+          url = "https://api.jikan.moe/v4/schedules?page=#{page}"
+          page_response = fetch_from_api(url)
+          
+          break unless page_response && page_response["data"]
+          
+          all_anime.concat(page_response["data"])
+          
+          # Check if there are more pages
+          has_next_page = page_response.dig("pagination", "has_next_page")
+          break unless has_next_page
+          
+          page += 1
+          sleep(0.3) # Rate limiting for Jikan API
+        end
+        
+        # Deduplicate by mal_id
+        unique_anime = all_anime.uniq { |anime| anime["mal_id"] }
+        
+        { "data" => unique_anime }
       end
 
       # Ensure response is a Hash
