@@ -5,6 +5,7 @@
             {{#if this.currentUser}}
             <button type="button" class="btn watchlist-toggle {{if this.showOnlyWatchlist " active"}}" {{on "click"
                 this.toggleWatchlistFilter}}>
+                {{d-icon "heart"}}
                 {{d-icon (if this.showOnlyWatchlist "check-square" "square")}}
                 My Watchlist
             </button>
