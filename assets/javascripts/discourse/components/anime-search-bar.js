@@ -7,13 +7,14 @@ export default class AnimeSearchBar extends Component {
 
     @action
     onInput(event) {
+        const value = event.target.value;
         if (this.timer) {
             clearTimeout(this.timer);
         }
 
         this.timer = setTimeout(() => {
             if (this.args.onChange) {
-                this.args.onChange(event.target.value);
+                this.args.onChange(value);
             }
         }, 500);
     }
