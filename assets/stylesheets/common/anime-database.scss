@@ -718,3 +718,165 @@
     }
   }
 }
+
+// Calendar Page Styles
+.calendar-page {
+  .calendar-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, var(--tertiary), var(--tertiary-low));
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      font-weight: 800;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+
+      .d-icon {
+        font-size: 2rem;
+      }
+    }
+
+    p {
+      font-size: 1rem;
+      color: var(--secondary);
+      margin: 0;
+      opacity: 0.9;
+    }
+  }
+
+  .calendar-grid {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 15px;
+    margin-bottom: 30px;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(4, 1fr) !important;
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  .calendar-day {
+    background: var(--secondary);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--primary-low);
+    transition: all 0.3s ease;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      border-color: var(--tertiary);
+    }
+
+    h3 {
+      text-transform: uppercase;
+      font-size: 1.1rem;
+      margin: 0 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 3px solid var(--tertiary);
+      color: var(--tertiary);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+  }
+
+  .day-anime-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .calendar-anime-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--primary-very-low), var(--primary-low));
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: linear-gradient(135deg, var(--tertiary-very-low), var(--tertiary-low));
+      border-color: var(--tertiary);
+      transform: scale(1.02);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+      width: 45px;
+      height: 65px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .anime-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      min-width: 0;
+
+      .anime-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary);
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .anime-time {
+        font-size: 0.7rem;
+        color: var(--tertiary);
+        font-weight: 600;
+        background: var(--tertiary-very-low);
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        width: fit-content;
+      }
+    }
+  }
+
+  .no-anime {
+    text-align: center;
+    padding: 40px 10px;
+    color: var(--primary-medium);
+    font-size: 0.9rem;
+    font-style: italic;
+    opacity: 0.6;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
