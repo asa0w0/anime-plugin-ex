@@ -21,7 +21,16 @@ export default class CalendarController extends Controller {
 
     get scheduleByDay() {
         if (!this.model?.data) {
+            console.log("Calendar: No model data");
             return {};
+        }
+
+        // Jikan /schedules endpoint returns data array directly
+        const data = Array.isArray(this.model.data) ? this.model.data : [];
+
+        console.log("Calendar: Total anime in schedule:", data.length);
+        if (data.length > 0) {
+            console.log("Calendar: First anime structure:", data[0]);
         }
 
         // Group anime by day
@@ -35,13 +44,21 @@ export default class CalendarController extends Controller {
             sunday: []
         };
 
-        this.model.data.forEach(anime => {
-            const day = anime.broadcast?.day?.toLowerCase();
-            if (day && grouped[day]) {
-                grouped[day].push(anime);
+        data.forEach(anime => {
+            // Jikan API uses "broadcast" object with "day" field
+            const broadcastDay = anime.broadcast?.day;
+            if (broadcastDay) {
+                const day = broadcastDay.toLowerCase().trim();
+                console.log(`Anime: ${anime.title} - Day: ${day}`);
+                if (grouped[day]) {
+                    grouped[day].push(anime);
+                }
+            } else {
+                console.log(`Anime ${anime.title} has no broadcast day`);
             }
         });
 
+        console.log("Calendar: Grouped by day:", Object.keys(grouped).map(day => `${day}: ${grouped[day].length}`));
         return grouped;
     }
 
