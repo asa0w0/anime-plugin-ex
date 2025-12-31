@@ -1231,8 +1231,8 @@
 }
 
 .btn-advanced-search {
-  align-self: flex-start;
-  margin-left: 5px;
+  align-self: flex-end;
+  margin-right: 5px;
   background: none;
   border: none;
   color: var(--tertiary);
@@ -1252,7 +1252,8 @@
   }
 
   .d-icon {
-    font-size: 0.8em;
+    font-size: 0.85em;
+    margin-bottom: 1px;
   }
 }
 
