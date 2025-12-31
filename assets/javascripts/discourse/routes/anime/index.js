@@ -17,11 +17,15 @@ export default class IndexRoute extends Route {
         const response = await ajax("/anime", { data: params });
         const animeData = response && response.data ? response.data : [];
 
-        let watchlistIds = [];
+        let watchlistData = {};
         if (this.currentUser) {
             try {
                 const watchlist = await ajax("/anime/watchlist");
-                watchlistIds = watchlist.data.map(item => item.anime_id);
+                if (watchlist && watchlist.data) {
+                    watchlist.data.forEach(item => {
+                        watchlistData[item.anime_id] = item.status;
+                    });
+                }
             } catch (e) {
                 console.error("Failed to load watchlist:", e);
             }
@@ -29,12 +33,12 @@ export default class IndexRoute extends Route {
 
         return {
             anime: animeData,
-            watchlistIds: watchlistIds
+            watchlistData: watchlistData
         };
     }
 
     setupController(controller, model) {
         super.setupController(controller, model);
-        controller.watchlistIds = model.watchlistIds;
+        controller.watchlistData = model.watchlistData;
     }
 }
