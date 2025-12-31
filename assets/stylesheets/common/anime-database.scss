@@ -753,6 +753,52 @@
     }
   }
 
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .watchlist-toggle {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: var(--primary-very-low);
+    color: var(--primary);
+    border: 1px solid var(--primary-low);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+
+    .d-icon {
+      font-size: 0.85rem;
+    }
+
+    &:hover {
+      background: var(--primary-low);
+      border-color: var(--primary-medium);
+      transform: translateY(-1px);
+    }
+
+    &.active {
+      background: var(--tertiary);
+      color: white;
+      border-color: var(--tertiary);
+      font-weight: 600;
+
+      &:hover {
+        background: var(--tertiary-high);
+        border-color: var(--tertiary-high);
+      }
+    }
+  }
+
   .calendar-grid {
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
