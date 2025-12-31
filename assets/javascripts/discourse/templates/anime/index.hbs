@@ -9,11 +9,15 @@
   <div class="anime-controls {{if this.showFilters 'expanded' 'collapsed'}}">
     <div class="search-section">
       <AnimeSearchBar @value={{this.q}} @onChange={{this.updateSearch}} />
-      <button type="button" class="btn btn-default btn-filter-toggle {{if this.showFilters 'active'}}" {{on "click"
-        this.toggleFilters}}>
-        {{d-icon "sliders-h"}}
-      </button>
     </div>
+
+    <button type="button" class="btn-advanced-search" {{on "click" this.toggleFilters}}>
+      {{#if this.showFilters}}
+      {{d-icon "minus"}} Advanced Search
+      {{else}}
+      {{d-icon "plus"}} Advanced Search
+      {{/if}}
+    </button>
 
     {{#if this.showFilters}}
     <AnimeFilterBar @selectedType={{this.type}} @selectedStatus={{this.status}} @selectedGenre={{this.genre}}
