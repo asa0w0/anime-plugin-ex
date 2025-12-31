@@ -1,13 +1,12 @@
 import Controller from "@ember/controller";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
-import { tracked } from "@glimmer/tracking";
 
-export default class SeasonsController extends Controller {
+export default class SeasonsShowController extends Controller {
     @service router;
 
-    @tracked selectedYear;
-    @tracked selectedSeason;
+    selectedYear = null;
+    selectedSeason = null;
 
     seasons = ["winter", "spring", "summer", "fall"];
 
@@ -20,16 +19,8 @@ export default class SeasonsController extends Controller {
         return [current + 1, current, current - 1, current - 2];
     }
 
-    get animeList() {
-        return this.model?.data || [];
-    }
-
-    get isLoading() {
-        return !this.model || this.model.length === 0;
-    }
-
     @action
     changeSeason(year, season) {
-        this.router.transitionTo("anime.seasons", year, season);
+        this.router.transitionTo("anime.seasons.show", year, season);
     }
 }
