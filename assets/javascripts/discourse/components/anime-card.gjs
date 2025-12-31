@@ -2,9 +2,9 @@ import Component from "@glimmer/component";
 import { inject as service } from "@ember/service";
 import { action } from "@ember/object";
 import { LinkTo } from "@ember/routing";
-import { or } from "truth-helpers";
+import { or, if as conditionalIf } from "truth-helpers";
 import { on } from "@ember/modifier";
-import { d-icon } from "discourse/lib/icon-library";
+import icon from "discourse-common/helpers/d-icon";
 
 export default class AnimeCard extends Component {
   @service router;
@@ -96,7 +96,7 @@ export default class AnimeCard extends Component {
         class="anime-card-quick-add {{if this.isOnWatchlist 'on-watchlist'}}"
         {{on "click" this.addToWatchlist}}
         title="Add to Watchlist">
-        {{d-icon (if this.isOnWatchlist "heart" "heart")}}
+        {{icon (conditionalIf this.isOnWatchlist "heart" "heart")}}
       </button>
       {{/if}}
     </div>
