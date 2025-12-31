@@ -61,7 +61,7 @@ export default class AnimeCard extends Component {
     this.isAdding = true;
 
     try {
-      await ajax("/anime/update_watchlist", {
+      await ajax("/anime/watchlist", {
         type: "POST",
         data: {
           anime_id: this.args.anime.mal_id,
