@@ -72,7 +72,7 @@ export default class AnimeCard extends Component {
     event.preventDefault();
     event.stopPropagation();
 
-    this.showStatusMenu = false;
+    // this.showStatusMenu = false; // Kept open by user request
 
     if (this.isAdding) {
       return;
