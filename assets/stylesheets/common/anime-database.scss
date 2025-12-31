@@ -427,7 +427,7 @@
     z-index: 0;
   }
 
-  @media (max-width: 900px) {
+  @media (media-width: 900px) {
     grid-template-columns: 1fr;
     padding: 30px;
     gap: 30px;
@@ -1187,114 +1187,114 @@
     align-items: center;
     justify-content: center;
   }
+}
 
-  .anime-controls {
+.anime-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+  background: var(--secondary);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--primary-low);
+  box-shadow: var(--shadow-low);
+}
+
+.anime-search-bar {
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .d-icon-search {
+      position: absolute;
+      left: 15px;
+      color: var(--primary-medium);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 45px;
+      border-radius: 8px;
+      border: 1px solid var(--primary-low);
+      background: var(--primary-very-low);
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+
+      &:focus {
+        border-color: var(--tertiary);
+        background: var(--secondary);
+        box-shadow: 0 0 0 3px var(--tertiary-low);
+      }
+    }
+
+    .btn-clear {
+      position: absolute;
+      right: 15px;
+      background: none;
+      border: none;
+      color: var(--primary-medium);
+      cursor: pointer;
+      padding: 5px;
+
+      &:hover {
+        color: var(--primary);
+      }
+    }
+  }
+}
+
+.anime-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+
+  .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin-bottom: 30px;
-    background: var(--secondary);
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid var(--primary-low);
-    box-shadow: var(--shadow-low);
-  }
+    gap: 5px;
 
-  .anime-search-bar {
-    .search-input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-
-      .d-icon-search {
-        position: absolute;
-        left: 15px;
-        color: var(--primary-medium);
-      }
-
-      input {
-        width: 100%;
-        padding: 12px 45px;
-        border-radius: 8px;
-        border: 1px solid var(--primary-low);
-        background: var(--primary-very-low);
-        font-size: 1.1rem;
-        transition: all 0.2s ease;
-
-        &:focus {
-          border-color: var(--tertiary);
-          background: var(--secondary);
-          box-shadow: 0 0 0 3px var(--tertiary-low);
-        }
-      }
-
-      .btn-clear {
-        position: absolute;
-        right: 15px;
-        background: none;
-        border: none;
-        color: var(--primary-medium);
-        cursor: pointer;
-        padding: 5px;
-
-        &:hover {
-          color: var(--primary);
-        }
-      }
-    }
-  }
-
-  .anime-filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: flex-end;
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-
-      label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--primary-medium);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      select {
-        padding: 8px 12px;
-        border-radius: 6px;
-        border: 1px solid var(--primary-low);
-        background: var(--secondary);
-        min-width: 140px;
-        cursor: pointer;
-
-        &:focus {
-          border-color: var(--tertiary);
-        }
-      }
-    }
-
-    .btn-reset {
-      margin-top: auto;
-      height: 38px;
-    }
-  }
-
-  .anime-empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    background: var(--secondary);
-    border-radius: 12px;
-    border: 1px dashed var(--primary-low);
-
-    p {
-      font-size: 1.2rem;
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
       color: var(--primary-medium);
-      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
+
+    select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--primary-low);
+      background: var(--secondary);
+      min-width: 140px;
+      cursor: pointer;
+
+      &:focus {
+        border-color: var(--tertiary);
+      }
+    }
+  }
+
+  .btn-reset {
+    margin-top: auto;
+    height: 38px;
+  }
+}
+
+.anime-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--secondary);
+  border-radius: 12px;
+  border: 1px dashed var(--primary-low);
+
+  p {
+    font-size: 1.2rem;
+    color: var(--primary-medium);
+    margin-bottom: 20px;
   }
 }

@@ -15,6 +15,12 @@ register_svg_icon "plus"
 register_svg_icon "film"
 register_svg_icon "trash-alt"
 register_svg_icon "calendar-alt"
+register_svg_icon "play-circle"
+register_svg_icon "check-circle"
+register_svg_icon "clock"
+register_svg_icon "pause-circle"
+register_svg_icon "times-circle"
+register_svg_icon "sync"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)

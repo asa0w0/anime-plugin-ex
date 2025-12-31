@@ -14,7 +14,8 @@ export default class IndexRoute extends Route {
     };
 
     async model(params) {
-        const animeData = await ajax("/anime", { data: params }).then((data) => data.data);
+        const response = await ajax("/anime", { data: params });
+        const animeData = response && response.data ? response.data : [];
 
         let watchlistIds = [];
         if (this.currentUser) {

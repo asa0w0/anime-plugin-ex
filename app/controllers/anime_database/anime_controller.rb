@@ -29,6 +29,11 @@ module AnimeDatabase
         end
       end
 
+      # Safety check: Jikan errors often return 'data' as nil or include an 'error' field
+      if response.nil? || response["error"] || !response.is_a?(Hash) || !response["data"]
+        response = { "data" => [] }
+      end
+
       render json: response
     end
 
