@@ -2,6 +2,16 @@
     <div class="calendar-header">
         <h1>{{d-icon "calendar-alt"}} Airing Schedule</h1>
         <p>See what's airing this week (times shown in your local timezone)</p>
+
+        {{#if this.currentUser}}
+        <div class="calendar-filters">
+            <button type="button" class="btn {{if this.showOnlyWatchlist " btn-primary" "btn-default" }}
+                watchlist-toggle" {{on "click" this.toggleWatchlistFilter}}>
+                {{d-icon (if this.showOnlyWatchlist "check-square" "square")}}
+                Only My Watchlist
+            </button>
+        </div>
+        {{/if}}
     </div>
 
     <div class="calendar-grid">

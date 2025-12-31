@@ -147,6 +147,21 @@ module AnimeDatabase
         fetch_from_api(url)
       end
 
+      # Ensure response is a Hash
+      response = { "data" => [] } unless response.is_a?(Hash)
+      response = response.dup
+
+      # Add user's watchlist if logged in
+      if current_user
+        watchlist_anime_ids = DB.query_single(
+          "SELECT anime_id FROM anime_watchlists WHERE user_id = ? AND status = 'watching'",
+          current_user.id
+        )
+        response["watchlist_anime_ids"] = watchlist_anime_ids
+      else
+        response["watchlist_anime_ids"] = []
+      end
+
       render json: response
     end
 
