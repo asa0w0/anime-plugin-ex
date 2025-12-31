@@ -1,11 +1,13 @@
 import Route from "@ember/routing/route";
-import { ajax } from "discourse/lib/ajax";
+import { service } from "@ember/service";
 
 export default class SeasonsIndexRoute extends Route {
-    redirect() {
+    @service router;
+
+    beforeModel() {
         const year = new Date().getFullYear();
         const season = this.getCurrentSeason();
-        this.replaceWith("anime.seasons.show", year, season);
+        this.router.replaceWith("anime.seasons.show", year, season);
     }
 
     getCurrentSeason() {
