@@ -1,17 +1,16 @@
 <div class="anime-container calendar-page">
     <div class="calendar-header">
-        <h1>{{d-icon "calendar-alt"}} Airing Schedule</h1>
-        <p>See what's airing this week (times shown in your local timezone)</p>
-
-        {{#if this.currentUser}}
-        <div class="calendar-filters">
-            <button type="button" class="btn {{if this.showOnlyWatchlist " btn-primary" "btn-default" }}
-                watchlist-toggle" {{on "click" this.toggleWatchlistFilter}}>
+        <div class="header-content">
+            <h1>{{d-icon "calendar-alt"}} Airing Schedule</h1>
+            {{#if this.currentUser}}
+            <button type="button" class="btn watchlist-toggle {{if this.showOnlyWatchlist " active"}}" {{on "click"
+                this.toggleWatchlistFilter}}>
                 {{d-icon (if this.showOnlyWatchlist "check-square" "square")}}
-                Only My Watchlist
+                My Watchlist
             </button>
+            {{/if}}
         </div>
-        {{/if}}
+        <p>See what's airing this week (times shown in your local timezone)</p>
     </div>
 
     <div class="calendar-grid">
@@ -35,7 +34,7 @@
                     </div>
                 </LinkTo>
                 {{else}}
-                <p class="no-anime">No anime airing</p>
+                <p class="no-anime">{{if this.showOnlyWatchlist "No watchlist anime airing" "No anime airing"}}</p>
                 {{/each}}
             </div>
         </div>

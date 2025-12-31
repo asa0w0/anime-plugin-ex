@@ -64,11 +64,22 @@ export default class CalendarController extends Controller {
         }
 
         // Jikan /schedules endpoint returns data array directly
-        const data = Array.isArray(this.model.data) ? this.model.data : [];
+        let data = Array.isArray(this.model.data) ? this.model.data : [];
+        const watchlistIds = this.model.watchlist_anime_ids || [];
 
-        console.log("Calendar: Total anime in schedule:", data.length);
+        console.log("Calendar: Total anime:", data.length, "| Watchlist:", watchlistIds.length);
+
+        // Filter by watchlist if enabled
+        if (this.showOnlyWatchlist && watchlistIds.length > 0) {
+            data = data.filter(anime => {
+                const animeId = anime.mal_id.toString();
+                return watchlistIds.includes(animeId);
+            });
+            console.log("Calendar: Filtered to", data.length, "watchlist anime");
+        }
+
         if (data.length > 0) {
-            console.log("Calendar: First anime structure:", data[0]);
+            console.log("Calendar: First anime:", data[0].title);
         }
 
         // Group anime by day
@@ -91,14 +102,9 @@ export default class CalendarController extends Controller {
                 if (day.endsWith('s')) {
                     day = day.slice(0, -1); // Remove trailing 's'
                 }
-                console.log(`Anime: ${anime.title} - Broadcast Day: ${broadcastDay} -> ${day}`);
                 if (grouped[day]) {
                     grouped[day].push(anime);
-                } else {
-                    console.warn(`Unrecognized day: ${day}`);
                 }
-            } else {
-                console.log(`Anime ${anime.title} has no broadcast day`);
             }
         });
 
@@ -109,5 +115,6 @@ export default class CalendarController extends Controller {
     @action
     toggleWatchlistFilter() {
         this.showOnlyWatchlist = !this.showOnlyWatchlist;
+        console.log("Calendar: Watchlist filter toggled to:", this.showOnlyWatchlist);
     }
 }
