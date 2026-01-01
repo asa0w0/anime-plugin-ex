@@ -54,7 +54,16 @@ export default class ShowController extends Controller {
 
     @action
     createDiscussion(type = "general", episode = null) {
-        const categoryId = parseInt(this.siteSettings.anime_database_category, 10);
+        // Use the appropriate category based on discussion type
+        let categoryId;
+        if (episode) {
+            // Episode discussions use anime_episode_category
+            categoryId = parseInt(this.siteSettings.anime_episode_category, 10);
+        } else {
+            // General discussions use anime_database_category
+            categoryId = parseInt(this.siteSettings.anime_database_category, 10);
+        }
+
         const isEpisode = type === "episodes";
 
         let title, body;
