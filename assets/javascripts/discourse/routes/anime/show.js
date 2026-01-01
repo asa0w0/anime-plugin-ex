@@ -19,4 +19,10 @@ export default class ShowRoute extends Route {
             episodeDiscussions: results.episodes?.episodes || []
         };
     }
+
+    setupController(controller, model) {
+        super.setupController(controller, model);
+        // Reset episode pagination when switching anime
+        controller.set("episodePage", 1);
+    }
 }
