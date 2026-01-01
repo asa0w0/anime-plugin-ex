@@ -9,6 +9,10 @@ enabled_site_setting :anime_database_enabled
 # API & Performance
 register_asset "stylesheets/common/anime-database.scss"
 
+# Load service classes
+require_relative 'lib/anilist_service'
+require_relative 'lib/tmdb_service'
+
 # Icon registrations
 register_svg_icon "comments"
 register_svg_icon "comment"
