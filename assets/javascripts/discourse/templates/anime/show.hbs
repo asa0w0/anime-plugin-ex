@@ -1,18 +1,20 @@
 <div class="anime-detail-container">
     <div class="anime-detail-header">
         <div class="anime-detail-image">
-            <img src={{this.model.images.jpg.large_image_url}} alt={{this.model.title}} />
+            <img src={{or this.model.images.jpg.large_image_url
+                this.model.images.jpg.image_url "/plugins/anime-plugin-ex/images/no-image.png" }} alt={{or
+                this.model.title "Anime Poster" }} />
         </div>
         <div class="anime-detail-info">
-            <h1>{{this.model.title}}</h1>
+            <h1>{{or this.model.title "Loading..."}}</h1>
             <div class="anime-rating">
                 <span class="label">Score:</span>
-                <span class="value">{{this.model.score}}</span>
+                <span class="value">{{or this.model.score "N/A"}}</span>
             </div>
             <div class="anime-meta">
-                <p><strong>Status:</strong> {{this.model.status}}</p>
-                <p><strong>Episodes:</strong> {{this.model.episodes}}</p>
-                <p><strong>Aired:</strong> {{this.model.aired.string}}</p>
+                <p><strong>Status:</strong> {{or this.model.status "N/A"}}</p>
+                <p><strong>Episodes:</strong> {{or this.model.episodes "N/A"}}</p>
+                <p><strong>Aired:</strong> {{or this.model.aired.string "N/A"}}</p>
             </div>
             <div class="anime-genres">
                 {{#each this.model.genres as |genre|}}

@@ -44,11 +44,22 @@ module AnimeDatabase
       begin
         response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
           url = "https://api.jikan.moe/v4/anime/#{id}/full"
-          fetch_from_api(url)
+          res = fetch_from_api(url)
+          
+          # Don't cache error responses or 404s from Jikan
+          if res.is_a?(Hash) && (res["error"] || (res["status"] && res["status"] >= 400))
+            # Return a special marker to avoid caching
+            { _api_error: true, status: res["status"] || 500, message: res["message"] || "API Error" }
+          else
+            res
+          end
         end
         
-        # Ensure response is a Hash
-        response = { "data" => {} } unless response.is_a?(Hash)
+        # If we got an API error or the response is empty/invalid
+        if response.nil? || response[:_api_error] || response["_api_error"] || !response.is_a?(Hash) || (response["status"] && response["status"].to_i >= 400)
+          Discourse.cache.delete(cache_key) # Ensure we don't keep a bad record
+          return render json: { error: "Anime not found", status: 404 }, status: 404
+        end
         response = response.dup
 
         # Find all topics associated with this anime
@@ -72,15 +83,21 @@ module AnimeDatabase
           watchlist_status = entry
         end
 
+        # Normalize response structure
         if response["data"].is_a?(Hash)
-          response["data"]["topics"] = topics_data
-          response["data"]["watchlist_status"] = watchlist_status
+          anime_data = response["data"]
         else
-          response["topics"] = topics_data
-          response["watchlist_status"] = watchlist_status
+          # Handle cases where API might have failed or returned error
+          anime_data = response.is_a?(Hash) ? response : {}
+          # Remove error field from the data if we're wrapping it
+          anime_data.delete("error") if anime_data.is_a?(Hash)
         end
 
-        render json: response
+        # Merge local data into anime_data
+        anime_data["topics"] = topics_data
+        anime_data["watchlist_status"] = watchlist_status
+
+        render json: { "data" => anime_data }
       rescue => e
         Rails.logger.error("Anime Plugin Show Error: #{e.message}\n#{e.backtrace.join("\n")}")
         render json: { error: "Internal Server Error", message: e.message }, status: 500
