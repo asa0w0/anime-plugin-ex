@@ -24,17 +24,35 @@ register_svg_icon "clock"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
+  register_topic_custom_field_type("anime_episode_number", :integer)
 
   add_to_serializer(:topic_view, :anime_mal_id) { object.topic.custom_fields["anime_mal_id"] }
+  add_to_serializer(:topic_view, :anime_episode_number) { object.topic.custom_fields["anime_episode_number"] }
 
   add_permitted_post_create_param(:anime_mal_id)
+  add_permitted_post_create_param(:anime_episode_number)
 
   DiscourseEvent.on(:post_created) do |post, opts, user|
     if post.is_first_post? && opts[:anime_mal_id].present?
       topic = post.topic
       topic.custom_fields["anime_mal_id"] = opts[:anime_mal_id]
+      topic.custom_fields["anime_episode_number"] = opts[:anime_episode_number] if opts[:anime_episode_number].present?
       topic.save_custom_fields
-      Rails.logger.info("Anime Plugin: Saved anime_mal_id=#{opts[:anime_mal_id]} to topic #{topic.id}")
+      
+      # If it's an episode discussion, also record it in our special table
+      if opts[:anime_episode_number].present?
+        AnimeDatabase::AnimeEpisodeTopic.find_or_initialize_by(
+          anime_id: opts[:anime_mal_id].to_s,
+          episode_number: opts[:anime_episode_number].to_i
+        ).tap do |et|
+          et.topic_id = topic.id
+          et.aired_at ||= Time.current
+          et.save!
+        end
+        Rails.logger.info("Anime Plugin: Linked manual episode discussion for anime_id=#{opts[:anime_mal_id]} ep=#{opts[:anime_episode_number]} to topic #{topic.id}")
+      else
+        Rails.logger.info("Anime Plugin: Saved anime_mal_id=#{opts[:anime_mal_id]} to topic #{topic.id}")
+      end
     end
   end
 

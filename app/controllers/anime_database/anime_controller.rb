@@ -65,9 +65,12 @@ module AnimeDatabase
         anime_data = raw_response["data"].dup
         Rails.logger.debug("[Anime Plugin] Valid anime data found for #{id}: #{anime_data['title']}")
 
-        # Find all topics associated with this anime
+        # Find general topics (exclude those with episode numbers)
         topic_ids = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).pluck(:topic_id)
-        topics = ::Topic.where(id: topic_ids, deleted_at: nil)
+        episode_topic_ids = ::TopicCustomField.where(name: "anime_episode_number", topic_id: topic_ids).pluck(:topic_id)
+        general_topic_ids = topic_ids - episode_topic_ids
+        
+        topics = ::Topic.where(id: general_topic_ids, deleted_at: nil).order(created_at: :desc).limit(20)
         
         topics_data = topics.map do |t|
           {
