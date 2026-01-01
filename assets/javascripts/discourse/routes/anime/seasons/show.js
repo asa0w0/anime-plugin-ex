@@ -1,7 +1,7 @@
 import Route from "@ember/routing/route";
 import { ajax } from "discourse/lib/ajax";
 import RSVP from "rsvp";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 
 export default class SeasonsShowRoute extends Route {
     @service currentUser;
