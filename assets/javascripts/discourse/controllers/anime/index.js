@@ -7,6 +7,7 @@ import { service } from "@ember/service";
 export default class IndexController extends Controller {
     @service router;
     @tracked watchlistData = {};
+    @tracked activeAnimeId = null;
 
     queryParams = ["q", "type", "status", "genre", "sort"];
 
@@ -16,6 +17,15 @@ export default class IndexController extends Controller {
     @tracked genre = null;
     @tracked sort = "score";
     @tracked showFilters = false;
+
+    @action
+    toggleMenu(animeId) {
+        if (this.activeAnimeId === animeId) {
+            this.activeAnimeId = null;
+        } else {
+            this.activeAnimeId = animeId;
+        }
+    }
 
     constructor() {
         super(...arguments);

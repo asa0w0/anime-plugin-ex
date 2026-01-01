@@ -28,8 +28,9 @@
   <div class="anime-grid">
     {{#if this.model.anime}}
     {{#if this.model.anime.length}}
-    {{#each this.model.anime key="mal_id" as |anime|}}
-    <AnimeCard @anime={{anime}} @watchlistData={{this.watchlistData}} @onWatchlistUpdate={{this.refreshWatchlist}} />
+    {{#each this.model.anime as |anime|}}
+    <AnimeCard @anime={{anime}} @watchlistData={{this.watchlistData}} @onWatchlistUpdate={{this.refreshWatchlist}}
+      @activeAnimeId={{this.activeAnimeId}} @onToggleMenu={{this.toggleMenu}} />
     {{/each}}
     {{else}}
     <div class="anime-empty">
