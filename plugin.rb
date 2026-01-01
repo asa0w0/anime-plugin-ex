@@ -32,40 +32,42 @@ after_initialize do
   add_permitted_post_create_param(:anime_mal_id)
   add_permitted_post_create_param(:anime_episode_number)
 
-  DiscourseEvent.on(:post_created) do |post, opts, user|
-    if post.is_first_post?
-      # Capture parameters from either symbol or string keys
-      mal_id = (opts[:anime_mal_id] || opts["anime_mal_id"]).to_s.strip
-      ep_number = (opts[:anime_episode_number] || opts["anime_episode_number"])
+  # Handle topic creation to link anime discussions
+  DiscourseEvent.on(:topic_created) do |topic, opts, user|
+    mal_id = topic.custom_fields["anime_mal_id"]
+    ep_number = topic.custom_fields["anime_episode_number"]
 
-      if mal_id.present? && mal_id != "0"
-        topic = post.topic
-        topic.custom_fields["anime_mal_id"] = mal_id
-        
-        if ep_number.present? && ep_number.to_i > 0
-          topic.custom_fields["anime_episode_number"] = ep_number.to_i
+    # Also check opts in case custom_fields haven't been saved yet
+    mal_id ||= opts[:custom_fields]&.dig("anime_mal_id") if opts[:custom_fields]
+    ep_number ||= opts[:custom_fields]&.dig("anime_episode_number") if opts[:custom_fields]
+
+    if mal_id.present? && mal_id.to_s.strip != "0"
+      mal_id = mal_id.to_s.strip
+      
+      # Ensure custom fields are set
+      topic.custom_fields["anime_mal_id"] = mal_id
+      if ep_number.present? && ep_number.to_i > 0
+        topic.custom_fields["anime_episode_number"] = ep_number.to_i
+      end
+      topic.save_custom_fields
+      
+      # If it's an episode discussion, also record it in our special table
+      if ep_number.present? && ep_number.to_i > 0
+        AnimeDatabase::AnimeEpisodeTopic.find_or_initialize_by(
+          anime_id: mal_id,
+          episode_number: ep_number.to_i
+        ).tap do |et|
+          et.topic_id = topic.id
+          et.aired_at ||= Time.current
+          et.save!
         end
         
-        topic.save_custom_fields
+        # Invalidate episodes list cache so the new discussion shows up immediately
+        Discourse.cache.delete("anime_episodes_list_#{mal_id}")
         
-        # If it's an episode discussion, also record it in our special table
-        if ep_number.present? && ep_number.to_i > 0
-          AnimeDatabase::AnimeEpisodeTopic.find_or_initialize_by(
-            anime_id: mal_id,
-            episode_number: ep_number.to_i
-          ).tap do |et|
-            et.topic_id = topic.id
-            et.aired_at ||= Time.current
-            et.save!
-          end
-          
-          # Invalidate episodes list cache so the new discussion shows up immediately
-          Discourse.cache.delete("anime_episodes_list_#{mal_id}")
-          
-          Rails.logger.info("[Anime Plugin] Linked manual episode discussion: anime_id=#{mal_id} ep=#{ep_number} to topic #{topic.id}")
-        else
-          Rails.logger.info("[Anime Plugin] Saved general anime topic: anime_id=#{mal_id} to topic #{topic.id}")
-        end
+        Rails.logger.info("[Anime Plugin] Linked manual episode discussion: anime_id=#{mal_id} ep=#{ep_number} to topic #{topic.id}")
+      else
+        Rails.logger.info("[Anime Plugin] Saved general anime topic: anime_id=#{mal_id} to topic #{topic.id}")
       end
     end
   end

@@ -108,14 +108,26 @@ export default class ShowController extends Controller {
                 : 'What do you think about this anime?';
         }
 
-        this.composer.open({
+        const topicOpts = {
             action: "createTopic",
             draftKey: draftKey,
             topicTitle: title,
             topicCategoryId: categoryId > 0 ? categoryId : null,
             topicBody: topicBody,
-            anime_mal_id: this.model.mal_id.toString(),
-            anime_episode_number: episode ? episode.episode_number.toString() : null
-        });
+        };
+
+        // Add custom fields for anime linking
+        if (episode) {
+            topicOpts.custom_fields = {
+                anime_mal_id: this.model.mal_id.toString(),
+                anime_episode_number: episode.episode_number.toString()
+            };
+        } else {
+            topicOpts.custom_fields = {
+                anime_mal_id: this.model.mal_id.toString()
+            };
+        }
+
+        this.composer.open(topicOpts);
     }
 }
