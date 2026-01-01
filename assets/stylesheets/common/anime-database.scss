@@ -750,6 +750,29 @@
     }
   }
 
+  .anime-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding: 1rem;
+    border-top: 1px solid var(--primary-low);
+
+    .page-info {
+      font-weight: bold;
+      color: var(--primary-high);
+      font-size: var(--font-m);
+    }
+
+    .btn {
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
   .no-episodes-yet {
     padding: 30px;
     text-align: center;

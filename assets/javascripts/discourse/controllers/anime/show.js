@@ -11,6 +11,22 @@ export default class ShowController extends Controller {
 
     @tracked selectedStatus = null;
     @tracked _manualStatus = null;
+    @tracked episodePage = 1;
+
+    get episodesPerPage() {
+        return 13;
+    }
+
+    get totalEpisodePages() {
+        const episodes = this.model?.episodeDiscussions || [];
+        return Math.ceil(episodes.length / this.episodesPerPage);
+    }
+
+    get paginatedEpisodes() {
+        const episodes = this.model?.episodeDiscussions || [];
+        const start = (this.episodePage - 1) * this.episodesPerPage;
+        return episodes.slice(start, start + this.episodesPerPage);
+    }
 
     get watchlistStatus() {
         return this._manualStatus || this.model?.watchlist_status;
@@ -161,5 +177,23 @@ export default class ShowController extends Controller {
             : 'What do you think about this anime?';
 
         return body;
+    }
+
+    @action
+    nextEpisodePage() {
+        if (this.episodePage < this.totalEpisodePages) {
+            this.episodePage++;
+            // Scroll to top of episodes section
+            document.querySelector('.anime-episodes-section')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    @action
+    prevEpisodePage() {
+        if (this.episodePage > 1) {
+            this.episodePage--;
+            // Scroll to top of episodes section
+            document.querySelector('.anime-episodes-section')?.scrollIntoView({ behavior: 'smooth' });
+        }
     }
 }

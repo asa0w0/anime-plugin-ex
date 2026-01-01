@@ -76,7 +76,7 @@
         <h2>{{d-icon "film"}} Episodes & Discussions</h2>
         {{#if this.model.episodeDiscussions.length}}
         <div class="episode-discussions-list">
-            {{#each this.model.episodeDiscussions as |episode|}}
+            {{#each this.paginatedEpisodes as |episode|}}
             <div class="episode-discussion-item {{if episode.forum_topic 'has-discussion'}}">
                 <div class="episode-number">
                     <span class="number">Ep {{episode.episode_number}}</span>
@@ -120,6 +120,21 @@
             </div>
             {{/each}}
         </div>
+
+        {{#if (gt this.totalEpisodePages 1)}}
+        <div class="anime-pagination">
+            <button type="button" class="btn btn-default {{if (eq this.episodePage 1) 'disabled'}}" {{on "click"
+                this.prevEpisodePage}} disabled={{eq this.episodePage 1}}>
+                {{d-icon "chevron-left"}} Previous
+            </button>
+            <span class="page-info">Page {{this.episodePage}} of {{this.totalEpisodePages}}</span>
+            <button type="button" class="btn btn-default {{if (eq this.episodePage this.totalEpisodePages) 'disabled'}}"
+                {{on "click" this.nextEpisodePage}} disabled={{eq this.episodePage this.totalEpisodePages}}>
+                Next {{d-icon "chevron-right"}}
+            </button>
+        </div>
+        {{/if}}
+
         {{else}}
         <p class="no-episodes-message">
             {{d-icon "info-circle"}} No episode information available for this anime yet.
@@ -149,11 +164,9 @@
 
         {{#if this.currentUser}}
         <div class="discussion-buttons compact">
-            <button type="button" class="btn btn-small" {{on "click" (fn this.createDiscussion "general" )}}>
+            <button type="button" class="btn btn-small btn-primary" {{on "click" (fn this.createDiscussion "general"
+                )}}>
                 {{d-icon "plus"}} New Discussion
-            </button>
-            <button type="button" class="btn btn-small" {{on "click" (fn this.createDiscussion "episodes" )}}>
-                {{d-icon "film"}} Episode Discussion
             </button>
         </div>
         {{/if}}
@@ -164,9 +177,6 @@
             <div class="discussion-buttons">
                 <button type="button" class="btn btn-primary" {{on "click" (fn this.createDiscussion "general" )}}>
                     {{d-icon "plus"}} Start Discussion
-                </button>
-                <button type="button" class="btn btn-default" {{on "click" (fn this.createDiscussion "episodes" )}}>
-                    {{d-icon "plus"}} Episode Discussion
                 </button>
             </div>
             {{else}}
