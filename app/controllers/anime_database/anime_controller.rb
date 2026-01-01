@@ -101,7 +101,7 @@ module AnimeDatabase
     end
 
     def create_episode_discussion
-      requires_login
+      raise Discourse::NotLoggedIn unless current_user
 
       anime_id = params[:anime_id]
       episode_number = params[:episode_number]&.to_i
@@ -114,10 +114,10 @@ module AnimeDatabase
 
       # Check if discussion already exists
       existing = AnimeDatabase::AnimeEpisodeTopic.find_by(anime_id: anime_id, episode_number: episode_number)
-      if existing && existing.topic_id
+      if existing && existing.topic_id && existing.topic
         return render json: { 
           topic_id: existing.topic_id,
-          topic_url: "/t/#{existing.topic&.slug}/#{existing.topic_id}",
+          topic_url: "/t/#{existing.topic.slug}/#{existing.topic_id}",
           already_exists: true
         }
       end
@@ -126,46 +126,50 @@ module AnimeDatabase
       title = "[Anime] #{anime_title} - Episode #{episode_number} Discussion"
       body = params[:body] || "Episode #{episode_number} discussion"
 
-      topic = Topic.create!(
-        title: title,
-        user: current_user,
-        category_id: category_id,
-        archetype: Archetype.default
-      )
+      begin
+        topic = Topic.create!(
+          title: title,
+          user: current_user,
+          category_id: category_id,
+          archetype: Archetype.default
+        )
 
-      # Set custom fields
-      topic.custom_fields["anime_mal_id"] = anime_id.to_s
-      topic.custom_fields["anime_episode_number"] = episode_number
-      topic.save_custom_fields
+        # Set custom fields
+        topic.custom_fields["anime_mal_id"] = anime_id.to_s
+        topic.custom_fields["anime_episode_number"] = episode_number
+        topic.save_custom_fields
 
-      # Create first post
-      PostCreator.create!(
-        current_user,
-        topic_id: topic.id,
-        raw: body,
-        skip_validations: false
-      )
+        # Create first post
+        post = PostCreator.create!(
+          current_user,
+          topic_id: topic.id,
+          raw: body,
+          skip_validations: false
+        )
 
-      # Link to anime_episode_topics
-      AnimeDatabase::AnimeEpisodeTopic.find_or_create_by!(
-        anime_id: anime_id.to_s,
-        episode_number: episode_number
-      ) do |et|
-        et.topic_id = topic.id
-        et.aired_at = Time.current
+        # Link to anime_episode_topics
+        ep_topic = AnimeDatabase::AnimeEpisodeTopic.find_or_initialize_by(
+          anime_id: anime_id.to_s,
+          episode_number: episode_number
+        )
+        ep_topic.topic_id = topic.id
+        ep_topic.aired_at ||= Time.current
+        ep_topic.save!
+
+        # Clear cache
+        Discourse.cache.delete("anime_episodes_list_#{anime_id}")
+
+        Rails.logger.info("[Anime Plugin] Created episode discussion: anime_id=#{anime_id} ep=#{episode_number} topic=#{topic.id}")
+
+        render json: { 
+          topic_id: topic.id,
+          topic_url: "/t/#{topic.slug}/#{topic.id}",
+          success: true
+        }
+      rescue => e
+        Rails.logger.error("[Anime Plugin] Error creating episode discussion: #{e.class} - #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+        render json: { error: "Failed to create topic: #{e.message}" }, status: 500
       end
-
-      # Clear cache
-      Discourse.cache.delete("anime_episodes_list_#{anime_id}")
-
-      render json: { 
-        topic_id: topic.id,
-        topic_url: "/t/#{topic.slug}/#{topic.id}",
-        success: true
-      }
-    rescue => e
-      Rails.logger.error("[Anime Plugin] Error creating episode discussion: #{e.message}\n#{e.backtrace.join("\n")}")
-      render json: { error: e.message }, status: 500
     end
     
     def episodes
