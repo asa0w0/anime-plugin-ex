@@ -3,7 +3,6 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { tracked } from "@glimmer/tracking";
 import { ajax } from "discourse/lib/ajax";
-import { slugify } from "discourse/lib/utilities";
 
 export default class ShowController extends Controller {
     @service composer;

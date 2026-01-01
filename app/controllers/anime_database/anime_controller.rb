@@ -157,7 +157,7 @@ module AnimeDatabase
         ep_topic.save!
 
         # Clear cache
-        Discourse.cache.delete("anime_episodes_list_#{anime_id}")
+        Discourse.cache.delete("anime_episodes_list_v2_#{anime_id}")
 
         Rails.logger.info("[Anime Plugin] Created episode discussion: anime_id=#{anime_id} ep=#{episode_number} topic=#{topic.id}")
 

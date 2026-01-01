@@ -56,6 +56,11 @@ plugins:
     default: ""
     type: category
     description: "Category for episode discussion topics (required for auto-discussions)"
+
+  anime_database_category:
+    default: ""
+    type: category
+    description: "Category for general anime discussion topics"
   
   anime_notify_watchlist_users:
     default: true
