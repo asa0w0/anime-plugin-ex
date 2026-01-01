@@ -2209,22 +2209,29 @@
 
   .episode-streaming-sidebar {
     flex-shrink: 0 !important;
-    width: 140px !important; // Slightly wider for multiple providers
+    width: 140px !important;
     border-left: 1px dashed var(--primary-low) !important;
     background: var(--secondary-very-low);
     display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-content: center !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    gap: 8px !important;
     transition: var(--anime-transition);
 
     &.multi-provider {
       .streaming-sidebar-link {
+        flex: 1 1 55px; // 2 columns in 140px
         height: auto !important;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--primary-low);
+        padding: 10px 4px;
+        border-bottom: none;
+        background: var(--primary-low);
+        border-radius: 8px;
 
-        &:last-child {
-          border-bottom: none;
+        &:hover {
+          background: var(--primary-medium);
         }
       }
     }
@@ -2239,6 +2246,7 @@
       text-decoration: none;
       color: var(--primary);
       transition: var(--anime-transition);
+      border-radius: 8px;
 
       &:hover {
         background: var(--primary-low);
@@ -2249,7 +2257,7 @@
         }
 
         .streaming-provider-box {
-          opacity: 0.2;
+          opacity: 0.1;
         }
       }
     }
@@ -2258,19 +2266,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       transition: var(--anime-transition);
 
       .provider-large-favicon {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         object-fit: contain;
       }
 
       .provider-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 600;
         color: var(--primary-high);
+        max-width: 55px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
 
@@ -2281,10 +2293,10 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(5px);
       transition: var(--anime-transition);
       color: var(--tertiary);
-      font-size: 1.5rem;
+      font-size: 1.2rem;
     }
   }
 
