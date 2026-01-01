@@ -2,7 +2,7 @@
 
 module ::Jobs
   class AnimeEpisodeDiscussion < ::Jobs::Scheduled
-    every SiteSetting.anime_episode_check_interval.hours
+    every 6.hours
 
     def execute(args)
       return unless SiteSetting.anime_database_enabled
@@ -98,9 +98,8 @@ module ::Jobs
       # Broadcast time is in JST, approximate with current day
       # This is a simplification - full implementation would parse day/time properly
       Time.current
-    rescue
-
- => nil
+    rescue StandardError
+      nil
     end
 
     def recently_aired?(broadcast_time)
