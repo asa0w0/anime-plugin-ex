@@ -12,10 +12,11 @@ export default class ShowRoute extends Route {
         };
 
         const results = await RSVP.hash(promises);
+        const animeData = results.anime || {};
 
         return {
-            ...results.anime,
-            episodeDiscussions: results.episodes.episodes || []
+            ...animeData,
+            episodeDiscussions: results.episodes?.episodes || []
         };
     }
 }

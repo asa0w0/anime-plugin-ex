@@ -42,12 +42,12 @@ module AnimeDatabase
       cache_key = "anime_details_#{id}"
 
       begin
-        response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
+        raw_response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
           url = "https://api.jikan.moe/v4/anime/#{id}/full"
           res = fetch_from_api(url)
           
           # Don't cache error responses or 404s from Jikan
-          if res.is_a?(Hash) && (res["error"] || (res["status"] && res["status"] >= 400))
+          if res.is_a?(Hash) && (res["error"] || (res["status"] && res["status"].to_i >= 400) || !res["data"])
             # Return a special marker to avoid caching
             { _api_error: true, status: res["status"] || 500, message: res["message"] || "API Error" }
           else
@@ -55,12 +55,15 @@ module AnimeDatabase
           end
         end
         
-        # If we got an API error or the response is empty/invalid
-        if response.nil? || response[:_api_error] || response["_api_error"] || !response.is_a?(Hash) || (response["status"] && response["status"].to_i >= 400)
+        if raw_response.nil? || raw_response[:_api_error] || raw_response["_api_error"] || !raw_response.is_a?(Hash) || !raw_response["data"]
+          Rails.logger.warn("[Anime Plugin] API data missing or error for ID #{id}. Response: #{raw_response.inspect}")
           Discourse.cache.delete(cache_key) # Ensure we don't keep a bad record
-          return render json: { error: "Anime not found", status: 404 }, status: 404
+          return render json: { error: "Anime data not available", status: 404 }, status: 404
         end
-        response = response.dup
+
+        # We have valid data
+        anime_data = raw_response["data"].dup
+        Rails.logger.debug("[Anime Plugin] Valid anime data found for #{id}: #{anime_data['title']}")
 
         # Find all topics associated with this anime
         topic_ids = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).pluck(:topic_id)
@@ -81,16 +84,6 @@ module AnimeDatabase
         if current_user
           entry = DB.query_single("SELECT status FROM anime_watchlists WHERE user_id = ? AND anime_id = ?", current_user.id, id.to_s).first
           watchlist_status = entry
-        end
-
-        # Normalize response structure
-        if response["data"].is_a?(Hash)
-          anime_data = response["data"]
-        else
-          # Handle cases where API might have failed or returned error
-          anime_data = response.is_a?(Hash) ? response : {}
-          # Remove error field from the data if we're wrapping it
-          anime_data.delete("error") if anime_data.is_a?(Hash)
         end
 
         # Merge local data into anime_data
