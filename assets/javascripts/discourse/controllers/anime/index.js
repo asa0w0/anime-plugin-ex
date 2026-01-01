@@ -6,6 +6,7 @@ import { service } from "@ember/service";
 
 export default class IndexController extends Controller {
     @service router;
+    @service siteSettings;
     @tracked watchlistData = {};
     @tracked activeAnimeId = null;
 
@@ -15,7 +16,7 @@ export default class IndexController extends Controller {
     @tracked type = null;
     @tracked status = null;
     @tracked genre = null;
-    @tracked sort = "score";
+    @tracked sort = this.siteSettings.anime_default_sort || "score";
     @tracked showFilters = false;
 
     @action
@@ -29,7 +30,7 @@ export default class IndexController extends Controller {
 
     constructor() {
         super(...arguments);
-        this.showFilters = !!(this.type || this.status || this.genre || (this.sort && this.sort !== "score"));
+        this.showFilters = !!(this.type || this.status || this.genre || (this.sort && this.sort !== this.siteSettings.anime_default_sort));
     }
 
     @action
@@ -59,12 +60,13 @@ export default class IndexController extends Controller {
 
     @action
     resetFilters() {
+        const defaultSort = this.siteSettings.anime_default_sort || "score";
         this.setProperties({
             q: null,
             type: null,
             status: null,
             genre: null,
-            sort: "score"
+            sort: defaultSort
         });
         this.router.transitionTo("anime.index", {
             queryParams: {
@@ -72,7 +74,7 @@ export default class IndexController extends Controller {
                 type: null,
                 status: null,
                 genre: null,
-                sort: "score"
+                sort: defaultSort
             }
         });
     }

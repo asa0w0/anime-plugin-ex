@@ -2,6 +2,94 @@ plugins:
   anime_database_enabled:
     default: true
     client: true
-  anime_database_category:
+  
+  # API & Performance
+  anime_api_cache_duration:
+    default: 12
+    type: integer
+    min: 1
+    max: 168
+    description: "Cache duration for API requests in hours"
+  
+  anime_results_per_page:
+    default: 24
+    type: integer
+    min: 12
+    max: 100
+    description: "Number of anime to display per page"
+  
+  anime_api_timeout:
+    default: 10
+    type: integer
+    min: 5
+    max: 30
+    description: "API request timeout in seconds"
+  
+  # Features
+  anime_enable_watchlist:
+    default: true
+    client: true
+    description: "Enable watchlist feature"
+  
+  anime_enable_seasons:
+    default: true
+    client: true
+    description: "Enable seasonal anime charts"
+  
+  anime_enable_calendar:
+    default: true
+    client: true
+    description: "Enable airing calendar"
+  
+  anime_public_watchlists:
+    default: true
+    client: true
+    description: "Allow users to view other users' watchlists"
+  
+  # Display & UI
+  anime_default_sort:
+    default: "score"
+    type: enum
+    choices:
+      - score
+      - popularity
+      - title
+      - airing
+    client: true
+    description: "Default sorting method for anime lists"
+  
+  anime_show_scores:
+    default: true
+    client: true
+    description: "Display anime scores/ratings"
+  
+  anime_card_style:
+    default: "detailed"
+    type: enum
+    choices:
+      - compact
+      - detailed
+    client: true
+    description: "Anime card display style"
+  
+  anime_items_per_row:
+    default: 4
+    type: integer
+    min: 2
+    max: 8
+    client: true
+    description: "Number of anime cards per row on desktop"
+  
+  # Access & Permissions
+  anime_allowed_groups:
     default: ""
-    type: category_id
+    type: group_list
+    list_type: compact
+    description: "Groups allowed to access anime features (empty = all users)"
+  
+  anime_min_trust_level:
+    default: 0
+    type: integer
+    min: 0
+    max: 4
+    description: "Minimum trust level required to use watchlist features"

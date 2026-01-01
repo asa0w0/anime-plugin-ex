@@ -6,7 +6,10 @@
 
 enabled_site_setting :anime_database_enabled
 
+# API & Performance
 register_asset "stylesheets/common/anime-database.scss"
+
+# Icon registrations
 register_svg_icon "comments"
 register_svg_icon "comment"
 register_svg_icon "far-comment"

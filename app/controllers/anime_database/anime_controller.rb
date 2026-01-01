@@ -14,7 +14,7 @@ module AnimeDatabase
 
       cache_key = "anime_list_search_#{query}_#{type}_#{status}_#{genres}_#{order_by}_#{sort_order}"
       
-      response = Discourse.cache.fetch(cache_key, expires_in: 1.hour) do
+      response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         if query.present? || type.present? || status.present? || genres.present?
           url = "https://api.jikan.moe/v4/anime?limit=24"
           url += "&q=#{CGI.escape(query)}" if query
@@ -42,7 +42,7 @@ module AnimeDatabase
       cache_key = "anime_details_#{id}"
 
       begin
-        response = Discourse.cache.fetch(cache_key, expires_in: 24.hours) do
+        response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
           url = "https://api.jikan.moe/v4/anime/#{id}/full"
           fetch_from_api(url)
         end
@@ -97,7 +97,7 @@ module AnimeDatabase
                     "anime_seasons_now"
                   end
 
-      response = Discourse.cache.fetch(cache_key, expires_in: 12.hours) do
+      response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         url = if year.present? && season.present?
                 "https://api.jikan.moe/v4/seasons/#{year}/#{season}"
               else
@@ -134,6 +134,7 @@ module AnimeDatabase
 
     def update_watchlist
       return render json: { error: "Not logged in" }, status: 403 unless current_user
+      return render json: { error: "Insufficient permissions" }, status: 403 unless current_user.trust_level >= SiteSetting.anime_min_trust_level
       
       anime_id = params[:anime_id].to_s
       status = params[:status]
@@ -161,7 +162,7 @@ module AnimeDatabase
     def calendar
       cache_key = "anime_schedule"
       
-      response = Discourse.cache.fetch(cache_key, expires_in: 6.hours) do
+      response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         # Fetch all pages from Jikan schedules endpoint
         all_anime = []
         page = 1
