@@ -34,12 +34,24 @@ after_initialize do
 
   # Handle topic creation to link anime discussions
   DiscourseEvent.on(:topic_created) do |topic, opts, user|
+    # Try to get mal_id and episode_number from various sources
     mal_id = topic.custom_fields["anime_mal_id"]
     ep_number = topic.custom_fields["anime_episode_number"]
 
-    # Also check opts in case custom_fields haven't been saved yet
-    mal_id ||= opts[:custom_fields]&.dig("anime_mal_id") if opts[:custom_fields]
-    ep_number ||= opts[:custom_fields]&.dig("anime_episode_number") if opts[:custom_fields]
+    # Check opts
+    mal_id ||= opts[:anime_mal_id] if opts[:anime_mal_id]
+    ep_number ||= opts[:anime_episode_number] if opts[:anime_episode_number]
+
+    # Check tags for anime ID and episode number
+    if topic.tags.present?
+      topic.tags.each do |tag|
+        if tag.name.start_with?("anime-") && mal_id.blank?
+          mal_id = tag.name.sub("anime-", "")
+        elsif tag.name.start_with?("episode-") && ep_number.blank?
+          ep_number = tag.name.sub("episode-", "").to_i
+        end
+      end
+    end
 
     if mal_id.present? && mal_id.to_s.strip != "0"
       mal_id = mal_id.to_s.strip

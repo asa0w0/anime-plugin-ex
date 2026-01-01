@@ -53,52 +53,48 @@ export default class ShowController extends Controller {
     }
 
     @action
-    async createDiscussion(type = "general", episode = null) {
+    createDiscussion(type = "general", episode = null) {
         const categoryId = parseInt(this.siteSettings.anime_database_category, 10);
+        const isEpisode = type === "episodes";
 
-        // For episode-specific discussions, use our custom API
+        let title, body;
+
         if (episode) {
-            try {
-                const result = await ajax(`/anime/${this.model.mal_id}/episodes/${episode.episode_number}/discussion`, {
-                    type: "POST",
-                    data: {
-                        anime_title: this.model.title,
-                        category_id: categoryId,
-                        body: this.buildEpisodeBody(episode)
-                    }
-                });
-
-                if (result.already_exists) {
-                    window.location.href = result.topic_url;
-                } else {
-                    window.location.href = result.topic_url;
-                }
-            } catch (error) {
-                console.error("Error creating episode discussion:", error);
-                alert("Failed to create episode discussion. Please try again.");
-            }
-            return;
+            // Episode-specific discussion
+            title = `[Anime] ${this.model.title} - Episode ${episode.episode_number} Discussion`;
+            body = this.buildEpisodeBody(episode);
+        } else {
+            // General discussion
+            title = isEpisode
+                ? `Episodes Discussion: ${this.model.title}`
+                : `Discussion: ${this.model.title}`;
+            body = this.buildGeneralBody(isEpisode);
         }
 
-        // For general discussions, use the normal composer
-        const isEpisode = type === "episodes";
-        const title = isEpisode
-            ? `Episodes Discussion: ${this.model.title}`
-            : `Discussion: ${this.model.title}`;
+        const draftKey = episode
+            ? `anime-episode-${this.model.mal_id}-${episode.episode_number}`
+            : `anime-${type}-${this.model.mal_id}`;
 
-        const draftKey = `anime-${type}-${this.model.mal_id}`;
-        const topicBody = this.buildGeneralBody(isEpisode);
-
-        this.composer.open({
+        const composerOpts = {
             action: "createTopic",
             draftKey: draftKey,
             topicTitle: title,
             topicCategoryId: categoryId > 0 ? categoryId : null,
-            topicBody: topicBody,
-            custom_fields: {
-                anime_mal_id: this.model.mal_id.toString()
-            }
-        });
+            topicBody: body,
+        };
+
+        // Add custom fields for linking
+        if (episode) {
+            composerOpts.tags = [`anime-${this.model.mal_id}`, `episode-${episode.episode_number}`];
+            // Store metadata for the topic_created hook
+            composerOpts.anime_mal_id = this.model.mal_id.toString();
+            composerOpts.anime_episode_number = episode.episode_number.toString();
+        } else {
+            composerOpts.tags = [`anime-${this.model.mal_id}`];
+            composerOpts.anime_mal_id = this.model.mal_id.toString();
+        }
+
+        this.composer.open(composerOpts);
     }
 
     buildEpisodeBody(episode) {
