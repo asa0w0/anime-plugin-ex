@@ -2,12 +2,10 @@ import Route from "@ember/routing/route";
 import { service } from "@ember/service";
 
 export default class SeasonsIndexRoute extends Route {
-    @service router;
-
     beforeModel() {
         const year = new Date().getFullYear();
         const season = this.getCurrentSeason();
-        this.router.replaceWith("anime.seasons.show", year, season);
+        this.replaceWith("anime.seasons.show", year, season);
     }
 
     getCurrentSeason() {
