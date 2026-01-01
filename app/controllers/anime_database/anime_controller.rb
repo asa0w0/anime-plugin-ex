@@ -177,12 +177,29 @@ module AnimeDatabase
       cache_key = "anime_episodes_list_#{anime_id}"
 
       # Fetch from API with cache
-      api_response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
-        url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes"
-        fetch_from_api(url)
+      api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
+        all_episodes = []
+        page = 1
+        has_next = true
+
+        # Fetch all pages of episodes
+        while has_next && page <= 5 # Limit to 5 pages (500 episodes) for safety
+          url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}"
+          response = fetch_from_api(url)
+          
+          break unless response.is_a?(Hash) && response["data"].is_a?(Array)
+          
+          all_episodes.concat(response["data"])
+          has_next = response.dig("pagination", "has_next_page") || false
+          
+          page += 1
+          sleep(0.35) if has_next # Rate limiting between requests
+        end
+
+        all_episodes
       end
 
-      api_episodes = api_response&.dig("data") || []
+      api_episodes ||= []
       
       # Fetch local episode discussions
       local_discussions = AnimeDatabase::AnimeEpisodeTopic
