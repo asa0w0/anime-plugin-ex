@@ -61,9 +61,50 @@ module AnimeDatabase
           return render json: { error: "Anime data not available", status: 404 }, status: 404
         end
 
-        # We have valid data
+        # We have valid data from Jikan
         anime_data = raw_response["data"].dup
         Rails.logger.debug("[Anime Plugin] Valid anime data found for #{id}: #{anime_data['title']}")
+
+        # Fetch additional data from AniList and TMDB
+        anilist_data = AnilistService.fetch_by_mal_id(id)
+        tmdb_data = nil
+        
+        if SiteSetting.anime_enable_tmdb && anime_data["title"]
+          tmdb_search = TmdbService.search_anime(anime_data["title"])
+          if tmdb_search && tmdb_search["id"]
+            tmdb_data = TmdbService.fetch_details(tmdb_search["id"])
+          end
+        end
+
+        # Merge AniList data
+        if anilist_data
+          anime_data["anilist"] = {
+            id: anilist_data["id"],
+            url: anilist_data["siteUrl"],
+            score: anilist_data["averageScore"],
+            popularity: anilist_data["popularity"],
+            favourites: anilist_data["favourites"],
+            tags: anilist_data["tags"],
+            characters: anilist_data["characters"]&.dig("nodes"),
+            relations: anilist_data["relations"]&.dig("edges"),
+            streaming: anilist_data["streamingEpisodes"],
+            external_links: anilist_data["externalLinks"]
+          }
+        end
+
+        # Merge TMDB data
+        if tmdb_data
+          anime_data["tmdb"] = {
+            id: tmdb_data["id"],
+            backdrop_path: tmdb_data["backdrop_path"],
+            poster_path: tmdb_data["poster_path"],
+            cast: tmdb_data.dig("credits", "cast")&.take(10),
+            crew: tmdb_data.dig("credits", "crew")&.take(5),
+            videos: tmdb_data.dig("videos", "results"),
+            posters: tmdb_data.dig("images", "posters")&.take(6),
+            backdrops: tmdb_data.dig("images", "backdrops")&.take(6)
+          }
+        end
 
         # Find general topics (exclude those with episode numbers)
         topic_ids = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).pluck(:topic_id)

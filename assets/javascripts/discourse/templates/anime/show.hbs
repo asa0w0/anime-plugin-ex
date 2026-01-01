@@ -188,4 +188,152 @@
         </div>
         {{/if}}
     </div>
+
+    {{!-- AniList Data --}}
+    {{#if this.model.anilist}}
+
+    {{!-- Characters Section --}}
+    {{#if this.model.anilist.characters}}
+    <div class="anime-characters-section">
+        <h2>{{d-icon "users"}} Characters</h2>
+        <div class="characters-grid">
+            {{#each this.model.anilist.characters as |character|}}
+            <div class="character-card">
+                <img src={{character.image.large}} alt={{character.name.full}} loading="lazy" />
+                <div class="character-info">
+                    <h4>{{character.name.full}}</h4>
+                    {{#if character.name.native}}
+                    <p class="native-name">{{character.name.native}}</p>
+                    {{/if}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{!-- Related Anime --}}
+    {{#if this.model.anilist.relations}}
+    <div class="anime-relations-section">
+        <h2>{{d-icon "link"}} Related Anime</h2>
+        <div class="relations-grid">
+            {{#each this.model.anilist.relations as |relation|}}
+            <div class="relation-card">
+                <div class="relation-type">{{relation.relationType}}</div>
+                {{#if relation.node.coverImage.medium}}
+                <img src={{relation.node.coverImage.medium}} alt={{relation.node.title.romaji}} loading="lazy" />
+                {{/if}}
+                <div class="relation-info">
+                    <h4>{{or relation.node.title.english relation.node.title.romaji}}</h4>
+                    <p class="relation-format">{{relation.node.format}}</p>
+                    {{#if relation.node.idMal}}
+                    <LinkTo @route="anime.show" @model={{relation.node.idMal}} class="relation-link">View Details
+                    </LinkTo>
+                    {{/if}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{!-- Streaming Links --}}
+    {{#if this.model.anilist.streaming}}
+    <div class="anime-streaming-section">
+        <h2>{{d-icon "play-circle"}} Streaming</h2>
+        <div class="streaming-list">
+            {{#each this.model.anilist.streaming as |stream|}}
+            <a href={{stream.url}} target="_blank" rel="noopener" class="streaming-link">
+                <div class="stream-thumbnail">
+                    {{#if stream.thumbnail}}
+                    <img src={{stream.thumbnail}} alt={{stream.title}} loading="lazy" />
+                    {{/if}}
+                </div>
+                <div class="stream-info">
+                    <div class="stream-site">{{stream.site}}</div>
+                    <div class="stream-title">{{stream.title}}</div>
+                </div>
+                {{d-icon "external-link-alt"}}
+            </a>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{!-- External Links --}}
+    {{#if this.model.anilist.external_links}}
+    <div class="anime-external-section">
+        <h2>{{d-icon "globe"}} External Links</h2>
+        <div class="external-links">
+            <a href={{this.model.anilist.url}} target="_blank" rel="noopener" class="external-link anilist">
+                {{d-icon "external-link-alt"}} AniList
+            </a>
+            {{#each this.model.anilist.external_links as |link|}}
+            <a href={{link.url}} target="_blank" rel="noopener" class="external-link">
+                {{d-icon "external-link-alt"}} {{link.site}}
+            </a>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{/if}}
+
+    {{!-- TMDB Data --}}
+    {{#if this.model.tmdb}}
+
+    {{!-- Cast & Crew --}}
+    {{#if this.model.tmdb.cast}}
+    <div class="anime-cast-section">
+        <h2>{{d-icon "user-tie"}} Cast & Crew</h2>
+        <div class="cast-grid">
+            {{#each this.model.tmdb.cast as |person|}}
+            <div class="cast-card">
+                {{#if person.profile_path}}
+                <img src="https://image.tmdb.org/t/p/w185{{person.profile_path}}" alt={{person.name}} loading="lazy" />
+                {{else}}
+                <div class="no-photo">{{d-icon "user"}}</div>
+                {{/if}}
+                <div class="cast-info">
+                    <h4>{{person.name}}</h4>
+                    <p class="character-name">{{person.character}}</p>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{!-- Additional Media --}}
+    {{#if this.model.tmdb.videos}}
+    <div class="anime-videos-section">
+        <h2>{{d-icon "video"}} Videos & Trailers</h2>
+        <div class="videos-grid">
+            {{#each this.model.tmdb.videos as |video|}}
+            {{#if (eq video.site "YouTube")}}
+            <div class="video-card">
+                <iframe src="https://www.youtube-nocookie.com/embed/{{video.key}}" frameborder="0" allowfullscreen
+                    loading="lazy"></iframe>
+                <p class="video-title">{{video.name}}</p>
+            </div>
+            {{/if}}
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{!-- Alternative Posters --}}
+    {{#if this.model.tmdb.posters}}
+    <div class="anime-posters-section">
+        <h2>{{d-icon "images"}} Alternative Posters</h2>
+        <div class="posters-grid">
+            {{#each this.model.tmdb.posters as |poster|}}
+            <img src="https://image.tmdb.org/t/p/w342{{poster.file_path}}" alt="Poster" loading="lazy" />
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{/if}}
+
 </div>
