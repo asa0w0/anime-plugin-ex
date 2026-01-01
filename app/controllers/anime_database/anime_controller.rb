@@ -174,7 +174,7 @@ module AnimeDatabase
     
     def episodes
       anime_id = params[:id]
-      cache_key = "anime_episodes_list_#{anime_id}"
+      cache_key = "anime_episodes_list_v2_#{anime_id}"
 
       # Fetch from API with cache
       api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
@@ -182,24 +182,32 @@ module AnimeDatabase
         page = 1
         has_next = true
 
+        Rails.logger.info("[Anime Plugin] Fetching episodes for anime_id=#{anime_id} from API...")
+
         # Fetch all pages of episodes
-        while has_next && page <= 5 # Limit to 5 pages (500 episodes) for safety
+        while has_next && page <= 5
           url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}"
           response = fetch_from_api(url)
           
-          break unless response.is_a?(Hash) && response["data"].is_a?(Array)
+          unless response.is_a?(Hash) && response["data"].is_a?(Array)
+            Rails.logger.error("[Anime Plugin] Failed to fetch episodes page #{page} for anime_id=#{anime_id}. Response: #{response.inspect}")
+            break
+          end
           
           all_episodes.concat(response["data"])
           has_next = response.dig("pagination", "has_next_page") || false
           
+          Rails.logger.debug("[Anime Plugin] Fetched page #{page} for anime_id=#{anime_id}. Found #{response["data"].length} episodes. has_next=#{has_next}")
+          
           page += 1
-          sleep(0.35) if has_next # Rate limiting between requests
+          sleep(0.5) if has_next # Slightly longer sleep to be safe with Jikan rate limits
         end
 
         all_episodes
       end
 
       api_episodes ||= []
+      Rails.logger.info("[Anime Plugin] Returning #{api_episodes.length} episodes for anime_id=#{anime_id}")
       
       # Fetch local episode discussions
       local_discussions = AnimeDatabase::AnimeEpisodeTopic
