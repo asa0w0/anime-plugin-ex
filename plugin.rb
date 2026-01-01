@@ -33,13 +33,15 @@ after_initialize do
   add_permitted_post_create_param(:anime_episode_number)
 
   DiscourseEvent.on(:topic_created) do |topic, opts, user|
-    # Prefer custom fields from opts (passed from composer)
-    custom_fields = opts[:topic_custom_fields] || opts[:custom_fields] || {}
-    
-    mal_id = custom_fields["anime_mal_id"] || opts[:anime_mal_id]
-    ep_number = custom_fields["anime_episode_number"] || opts[:anime_episode_number]
+    # Normalize opts keys to symbols for easier access
+    params = opts.is_a?(Hash) ? opts.symbolize_keys : {}
+    custom_fields_param = params[:topic_custom_fields] || params[:custom_fields] || {}
+    custom_fields_param = custom_fields_param.symbolize_keys if custom_fields_param.is_a?(Hash)
 
-    # Fallback to existing custom fields
+    mal_id = params[:anime_mal_id] || custom_fields_param[:anime_mal_id]
+    ep_number = params[:anime_episode_number] || custom_fields_param[:anime_episode_number]
+
+    # Fallback to existing topic custom fields
     mal_id ||= topic.custom_fields["anime_mal_id"]
     ep_number ||= topic.custom_fields["anime_episode_number"]
 
@@ -56,6 +58,7 @@ after_initialize do
 
     if mal_id.present? && mal_id.to_s.strip != "0"
       mal_id = mal_id.to_s.strip
+      Rails.logger.info("[Anime Plugin] Linking topic #{topic.id} to MAL ID #{mal_id} (Episode: #{ep_number || 'General'})")
       
       # Ensure custom fields are persistently saved on the topic
       topic.custom_fields["anime_mal_id"] = mal_id
