@@ -658,6 +658,38 @@
       flex-direction: column;
       gap: 4px;
 
+      .episode-main-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .episode-title-only {
+          color: var(--primary-high);
+          font-weight: 500;
+          font-size: 0.95rem;
+
+          .badge-filler,
+          .badge-recap {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            text-transform: uppercase;
+            font-weight: bold;
+          }
+
+          .badge-filler {
+            background: var(--danger-low);
+            color: var(--danger);
+          }
+
+          .badge-recap {
+            background: var(--info-low);
+            color: var(--info);
+          }
+        }
+      }
+
       .discussion-link {
         color: var(--primary);
         font-weight: 600;
@@ -681,7 +713,27 @@
         font-size: 0.85rem;
         color: var(--primary-medium);
       }
+
+      .btn-create-ep-discussion {
+        align-self: flex-start;
+        margin-top: 4px;
+        background: transparent;
+        color: var(--primary-high);
+        border: 1px solid var(--primary-low);
+        padding: 4px 10px;
+        font-size: 0.8rem;
+
+        &:hover {
+          background: var(--primary-very-low);
+          color: var(--tertiary);
+          border-color: var(--tertiary-low);
+        }
+      }
     }
+  }
+
+  .episode-discussion-item.has-discussion {
+    border-left: 4px solid var(--tertiary);
   }
 
   .no-episodes-yet {

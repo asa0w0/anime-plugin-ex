@@ -70,12 +70,12 @@
     </div>
     {{/if}}
 
-    {{#if (and (eq this.model.status "Currently Airing") this.model.episodeDiscussions.length)}}
+    {{#if this.model.episodeDiscussions.length}}
     <div class="anime-episodes-section">
         <h2>{{d-icon "film"}} Episodes & Discussions</h2>
         <div class="episode-discussions-list">
             {{#each this.model.episodeDiscussions as |episode|}}
-            <div class="episode-discussion-item">
+            <div class="episode-discussion-item {{if episode.forum_topic 'has-discussion'}}">
                 <div class="episode-number">
                     <span class="number">Ep {{episode.episode_number}}</span>
                     {{#if episode.aired_at}}
@@ -83,12 +83,37 @@
                     {{/if}}
                 </div>
                 <div class="episode-discussion-info">
-                    <a href={{episode.topic_url}} class="discussion-link">
-                        {{d-icon "comments"}} {{episode.topic_title}}
-                    </a>
+                    <div class="episode-main-info">
+                        {{#if episode.forum_topic}}
+                        <a href={{episode.forum_topic.topic_url}} class="discussion-link">
+                            {{d-icon "comments"}} {{or episode.title (concat "Episode " episode.episode_number)}}
+                        </a>
+                        {{else}}
+                        <span class="episode-title-only">
+                            {{or episode.title (concat "Episode " episode.episode_number)}}
+                            {{#if (and episode.filler (not episode.recap))}}
+                            <span class="badge-filler">Filler</span>
+                            {{/if}}
+                            {{#if episode.recap}}
+                            <span class="badge-recap">Recap</span>
+                            {{/if}}
+                        </span>
+                        {{/if}}
+                    </div>
+
+                    {{#if episode.forum_topic}}
                     <span class="discussion-stats">
-                        {{episode.post_count}} {{#if (eq episode.post_count 1)}}reply{{else}}replies{{/if}}
+                        {{episode.forum_topic.post_count}} {{#if (eq episode.forum_topic.post_count
+                        1)}}reply{{else}}replies{{/if}}
                     </span>
+                    {{else}}
+                    {{#if (and this.currentUser (not (eq this.model.status "Not yet aired")))}}
+                    <button type="button" class="btn btn-small btn-create-ep-discussion" {{on "click" (fn
+                        this.createDiscussion "episodes" episode)}}>
+                        {{d-icon "plus"}} Start Discussion
+                    </button>
+                    {{/if}}
+                    {{/if}}
                 </div>
             </div>
             {{/each}}

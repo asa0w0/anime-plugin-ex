@@ -89,26 +89,64 @@ module AnimeDatabase
     
     def episodes
       anime_id = params[:id]
+      cache_key = "anime_episodes_list_#{anime_id}"
+
+      # Fetch from API with cache
+      api_response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
+        url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes"
+        fetch_from_api(url)
+      end
+
+      api_episodes = api_response&.dig("data") || []
       
-      # Fetch episode discussions from database
-      episode_topics = AnimeDatabase::AnimeEpisodeTopic
+      # Fetch local episode discussions
+      local_discussions = AnimeDatabase::AnimeEpisodeTopic
         .for_anime(anime_id)
-        .recent
         .includes(:topic)
-        .limit(50)
-      
-      episodes_data = episode_topics.map do |et|
+        .to_a
+        .index_by(&:episode_number)
+
+      # Merge API data with local discussions
+      merged_episodes = api_episodes.map do |ep|
+        ep_num = ep["mal_id"]
+        local_et = local_discussions[ep_num]
+
         {
-          episode_number: et.episode_number,
-          aired_at: et.aired_at,
-          topic_id: et.topic_id,
-          topic_title: et.topic&.title,
-          topic_url: "/t/#{et.topic&.slug}/#{et.topic_id}",
-          post_count: et.topic&.posts_count || 0
+          episode_number: ep_num,
+          title: ep["title"],
+          aired_at: ep["aired"] || local_et&.aired_at,
+          filler: ep["filler"],
+          recap: ep["recap"],
+          forum_topic: local_et ? {
+            topic_id: local_et.topic_id,
+            topic_title: local_et.topic&.title,
+            topic_url: "/t/#{local_et.topic&.slug}/#{local_et.topic_id}",
+            post_count: local_et.topic&.posts_count || 0
+          } : nil
         }
       end
-      
-      render json: { episodes: episodes_data }
+
+      # Add local discussions that aren't in the API list (just in case)
+      local_discussions.each do |ep_num, local_et|
+        unless merged_episodes.any? { |me| me[:episode_number] == ep_num }
+          merged_episodes << {
+            episode_number: ep_num,
+            title: "Episode #{ep_num}",
+            aired_at: local_et.aired_at,
+            forum_topic: {
+              topic_id: local_et.topic_id,
+              topic_title: local_et.topic&.title,
+              topic_url: "/t/#{local_et.topic&.slug}/#{local_et.topic_id}",
+              post_count: local_et.topic&.posts_count || 0
+            }
+          }
+        end
+      end
+
+      # Sort by episode number
+      merged_episodes.sort_by! { |e| e[:episode_number] }
+
+      render json: { episodes: merged_episodes }
     rescue => e
       Rails.logger.error("Anime Plugin Episodes Error: #{e.message}")
       render json: { episodes: [] }
