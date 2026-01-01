@@ -4,34 +4,10 @@ import RSVP from "rsvp";
 import { inject as service } from "@ember/service";
 
 export default class SeasonsShowRoute extends Route {
+    @service currentUser;
+
     async model(params) {
         const url = `/anime/seasons/${params.year}/${params.season}`;
-
-        const model = {
-            anime: [],
-            watchlistData: {}
-        };
-
-        try {
-            const animeResponse = await ajax(url);
-            model.anime = animeResponse; // The API returns the data directly or inside a property? Check usage.
-            // Based on previous view_file of template, it uses this.model.data
-            // If ajax returns the JSON directly, it might be inside .data already? 
-            // In index route we saw: response.data ? response.data : []
-            // Let's stick to returning the raw response if that's what it was doing, 
-            // but wrapped in our object.
-            // Wait, previous code was: return ajax(url);
-            // And template used: {{#each this.model.data as |anime|}}
-            // So ajax returns { data: [...] }
-        } catch (e) {
-            console.error("Failed to load seasons data", e);
-        }
-
-        if (this.service("currentUser")) { // Check if service exists/is logged in? 
-            // 'service' is the decorator. usage: this.currentUser
-        }
-
-        // Let's rewrite strictly.
 
         const promises = {
             anime: ajax(url).catch(() => ({ data: [] })),
