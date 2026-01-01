@@ -93,6 +93,7 @@ after_initialize do
     get "/seasons" => "anime#seasons"
     get "/seasons/:year/:season" => "anime#seasons"
     get "/:id/episodes" => "anime#episodes"
+    post "/:anime_id/episodes/:episode_number/discussion" => "anime#create_episode_discussion"
     get "/:id" => "anime#show"
   end
 
