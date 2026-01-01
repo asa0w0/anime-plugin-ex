@@ -70,6 +70,42 @@
     </div>
     {{/if}}
 
+    {{#if (or this.model.episodeDiscussions.length (eq this.model.status "Currently Airing"))}}
+    <div class="anime-episodes-section">
+        <h2>{{d-icon "film"}} Episodes & Discussions</h2>
+
+        {{#if this.model.episodeDiscussions.length}}
+        <div class="episode-discussions-list">
+            {{#each this.model.episodeDiscussions as |episode|}}
+            <div class="episode-discussion-item">
+                <div class="episode-number">
+                    <span class="number">Ep {{episode.episode_number}}</span>
+                    {{#if episode.aired_at}}
+                    <span class="air-date">{{format-date episode.aired_at format="medium"}}</span>
+                    {{/if}}
+                </div>
+                <div class="episode-discussion-info">
+                    <a href={{episode.topic_url}} class="discussion-link">
+                        {{d-icon "comments"}} {{episode.topic_title}}
+                    </a>
+                    <span class="discussion-stats">
+                        {{episode.post_count}} {{#if (eq episode.post_count 1)}}reply{{else}}replies{{/if}}
+                    </span>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div class="no-episodes-yet">
+            <p>{{d-icon "clock"}} No episode discussions yet.</p>
+            {{#if (eq this.model.status "Currently Airing")}}
+            <p class="info-text">Episode discussions will be created automatically when new episodes air.</p>
+            {{/if}}
+        </div>
+        {{/if}}
+    </div>
+    {{/if}}
+
     <div class="anime-discussion-section">
         <h2>{{d-icon "comments"}} Discussions</h2>
 

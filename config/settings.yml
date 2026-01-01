@@ -46,6 +46,28 @@ plugins:
     client: true
     description: "Allow users to view other users' watchlists"
   
+  # Episode Discussions
+  anime_auto_episode_discussions:
+    default: true
+    client: true
+    description: "Automatically create discussion topics for new anime episodes"
+  
+  anime_episode_category:
+    default: ""
+    type: category
+    description: "Category for episode discussion topics (required for auto-discussions)"
+  
+  anime_notify_watchlist_users:
+    default: true
+    description: "Notify users when new episode of watchlisted anime airs"
+  
+  anime_episode_check_interval:
+    default: 6
+    type: integer
+    min: 1
+    max: 24
+    description: "Hours between episode availability checks"
+  
   # Display & UI
   anime_default_sort:
     default: "score"

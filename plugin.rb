@@ -39,6 +39,8 @@ after_initialize do
   end
 
   require_relative "app/controllers/anime_database/anime_controller"
+  require_relative "app/models/anime_episode_topic"
+  require_relative "app/jobs/anime_database/anime_episode_discussion_job"
 
   module ::AnimeDatabase
     class Engine < ::Rails::Engine
@@ -56,6 +58,7 @@ after_initialize do
     get "/calendar" => "anime#calendar"
     get "/seasons" => "anime#seasons"
     get "/seasons/:year/:season" => "anime#seasons"
+    get "/:id/episodes" => "anime#episodes"
     get "/:id" => "anime#show"
   end
 

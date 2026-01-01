@@ -87,6 +87,33 @@ module AnimeDatabase
       end
     end
     
+    def episodes
+      anime_id = params[:id]
+      
+      # Fetch episode discussions from database
+      episode_topics = AnimeDatabase::AnimeEpisodeTopic
+        .for_anime(anime_id)
+        .recent
+        .includes(:topic)
+        .limit(50)
+      
+      episodes_data = episode_topics.map do |et|
+        {
+          episode_number: et.episode_number,
+          aired_at: et.aired_at,
+          topic_id: et.topic_id,
+          topic_title: et.topic&.title,
+          topic_url: "/t/#{et.topic&.slug}/#{et.topic_id}",
+          post_count: et.topic&.posts_count || 0
+        }
+      end
+      
+      render json: { episodes: episodes_data }
+    rescue => e
+      Rails.logger.error("Anime Plugin Episodes Error: #{e.message}")
+      render json: { episodes: [] }
+    end
+    
     def seasons
       year = params[:year]
       season = params[:season]
