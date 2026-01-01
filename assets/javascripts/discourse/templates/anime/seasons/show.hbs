@@ -22,25 +22,10 @@
     </div>
 
     <div class="anime-grid">
-        {{#if this.model.data}}
-        {{#each this.model.data as |anime|}}
-        <div class="anime-card">
-            <LinkTo @route="anime.show" @model={{anime.mal_id}} class="anime-card-link">
-                <div class="anime-card-image">
-                    <img src={{anime.images.jpg.image_url}} alt={{anime.title}} loading="lazy" />
-                    <div class="anime-card-overlay">
-                        <span class="anime-card-score">★ {{or anime.score "N/A"}}</span>
-                    </div>
-                </div>
-                <div class="anime-card-content">
-                    <h3 class="anime-card-title">{{anime.title}}</h3>
-                    <div class="anime-card-meta">
-                        <span class="type">{{anime.type}}</span>
-                        <span class="episodes">{{anime.episodes}} eps</span>
-                    </div>
-                </div>
-            </LinkTo>
-        </div>
+        {{#if this.model.anime.data}}
+        {{#each this.model.anime.data as |anime|}}
+        <AnimeCard @anime={{anime}} @watchlistData={{this.watchlistData}}
+            @onWatchlistUpdate={{this.refreshWatchlist}} />
         {{/each}}
         {{else}}
         <div class="no-results">
