@@ -24,8 +24,8 @@
     <div class="anime-grid">
         {{#if this.model.anime.data}}
         {{#each this.model.anime.data as |anime|}}
-        <AnimeCard @anime={{anime}} @watchlistData={{this.watchlistData}}
-            @onWatchlistUpdate={{this.refreshWatchlist}} />
+        <AnimeCard @anime={{anime}} @watchlistData={{this.watchlistData}} @onWatchlistUpdate={{this.refreshWatchlist}}
+            @activeAnimeId={{this.activeAnimeId}} @onToggleMenu={{this.toggleMenu}} />
         {{/each}}
         {{else}}
         <div class="no-results">

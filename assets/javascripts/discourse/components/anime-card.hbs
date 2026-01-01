@@ -30,13 +30,17 @@
     </LinkTo>
 
     {{#if this.currentUser}}
-    <div class="anime-card-quick-add-container {{if this.showStatusMenu " menu-open"}}">
-        <button type="button" class="anime-card-quick-add {{if this.isOnWatchlist " on-watchlist"}}" {{on "click"
-            this.toggleStatusMenu}} title="Update Watchlist Status">
-            {{d-icon (if this.isOnWatchlist "heart" "heart")}}
+    <div class="anime-card-quick-add-container {{if this.isMenuOpen 'menu-open'}}">
+        <button type="button" class="anime-card-quick-add {{if this.isOnWatchlist 'on-watchlist'}}" {{on "click"
+            this.addToWatchlist}}>
+            {{#if this.isOnWatchlist}}
+            {{d-icon "heart"}}
+            {{else}}
+            {{d-icon "plus"}}
+            {{/if}}
         </button>
 
-        {{#if this.showStatusMenu}}
+        {{#if this.isMenuOpen}}
         <div class="anime-status-menu">
             <button type="button" class="status-item watching {{if (eq this.currentStatus 'watching') 'active'}}"
                 {{on "click" (fn this.selectStatus "watching" )}}>

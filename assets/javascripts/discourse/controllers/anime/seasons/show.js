@@ -7,11 +7,21 @@ import { ajax } from "discourse/lib/ajax";
 export default class SeasonsShowController extends Controller {
     @service router;
     @tracked watchlistData = {};
+    @tracked activeAnimeId = null;
 
     selectedYear = null;
     selectedSeason = null;
 
     seasons = ["winter", "spring", "summer", "fall"];
+
+    @action
+    toggleMenu(animeId) {
+        if (this.activeAnimeId === animeId) {
+            this.activeAnimeId = null;
+        } else {
+            this.activeAnimeId = animeId;
+        }
+    }
 
     @action
     async refreshWatchlist() {

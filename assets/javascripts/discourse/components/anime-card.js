@@ -39,7 +39,9 @@ export default class AnimeCard extends Component {
   }
 
   get animeScore() {
-    return this.args.anime.score || "N/A";
+    const score = this.args.anime.score;
+    // explicit check for null/undefined to allow 0
+    return (score !== null && score !== undefined) ? score : "N/A";
   }
 
   get isOnWatchlist() {
@@ -55,6 +57,13 @@ export default class AnimeCard extends Component {
     return this.args.watchlistData[malId];
   }
 
+  get isMenuOpen() {
+    if (this.args.activeAnimeId !== undefined) {
+      return this.args.activeAnimeId === this.args.anime.mal_id;
+    }
+    return this.showStatusMenu;
+  }
+
   @action
   toggleStatusMenu(event) {
     event.preventDefault();
@@ -64,7 +73,12 @@ export default class AnimeCard extends Component {
       this.router.transitionTo("login");
       return;
     }
-    this.showStatusMenu = !this.showStatusMenu;
+
+    if (this.args.onToggleMenu) {
+      this.args.onToggleMenu(this.args.anime.mal_id);
+    } else {
+      this.showStatusMenu = !this.showStatusMenu;
+    }
   }
 
   @action
