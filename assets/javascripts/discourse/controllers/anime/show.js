@@ -3,6 +3,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { tracked } from "@glimmer/tracking";
 import { ajax } from "discourse/lib/ajax";
+import { slugify } from "discourse/lib/utilities";
 
 export default class ShowController extends Controller {
     @service composer;
@@ -12,6 +13,16 @@ export default class ShowController extends Controller {
     @tracked selectedStatus = null;
     @tracked _manualStatus = null;
     @tracked episodePage = 1;
+
+    slugify(text) {
+        return text
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, "-")
+            .replace(/[^\w-]+/g, "")
+            .replace(/--+/g, "-");
+    }
 
     get episodesPerPage() {
         return 13;
@@ -100,24 +111,20 @@ export default class ShowController extends Controller {
             ? `anime-episode-${this.model.mal_id}-${episode.episode_number}`
             : `anime-${type}-${this.model.mal_id}`;
 
+        const animeTag = this.slugify(this.model.title);
+
         const composerOpts = {
             action: "createTopic",
             draftKey: draftKey,
             topicTitle: title,
             topicCategoryId: categoryId > 0 ? categoryId : null,
             topicBody: body,
+            tags: [animeTag],
+            topicCustomFields: {
+                anime_mal_id: this.model.mal_id.toString(),
+                anime_episode_number: episode ? episode.episode_number.toString() : null
+            }
         };
-
-        // Add custom fields for linking
-        if (episode) {
-            composerOpts.tags = [`anime-${this.model.mal_id}`, `episode-${episode.episode_number}`];
-            // Store metadata for the topic_created hook
-            composerOpts.anime_mal_id = this.model.mal_id.toString();
-            composerOpts.anime_episode_number = episode.episode_number.toString();
-        } else {
-            composerOpts.tags = [`anime-${this.model.mal_id}`];
-            composerOpts.anime_mal_id = this.model.mal_id.toString();
-        }
 
         this.composer.open(composerOpts);
     }

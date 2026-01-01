@@ -32,20 +32,21 @@ after_initialize do
   add_permitted_post_create_param(:anime_mal_id)
   add_permitted_post_create_param(:anime_episode_number)
 
-  # Handle topic creation to link anime discussions
   DiscourseEvent.on(:topic_created) do |topic, opts, user|
-    # Try to get mal_id and episode_number from various sources
-    mal_id = topic.custom_fields["anime_mal_id"]
-    ep_number = topic.custom_fields["anime_episode_number"]
+    # Prefer custom fields from opts (passed from composer)
+    custom_fields = opts[:topic_custom_fields] || opts[:custom_fields] || {}
+    
+    mal_id = custom_fields["anime_mal_id"] || opts[:anime_mal_id]
+    ep_number = custom_fields["anime_episode_number"] || opts[:anime_episode_number]
 
-    # Check opts
-    mal_id ||= opts[:anime_mal_id] if opts[:anime_mal_id]
-    ep_number ||= opts[:anime_episode_number] if opts[:anime_episode_number]
+    # Fallback to existing custom fields
+    mal_id ||= topic.custom_fields["anime_mal_id"]
+    ep_number ||= topic.custom_fields["anime_episode_number"]
 
-    # Check tags for anime ID and episode number
-    if topic.tags.present?
+    # Final fallback: Check tags ONLY if mal_id is still blank
+    if mal_id.blank? && topic.tags.present?
       topic.tags.each do |tag|
-        if tag.name.start_with?("anime-") && mal_id.blank?
+        if tag.name.start_with?("anime-")
           mal_id = tag.name.sub("anime-", "")
         elsif tag.name.start_with?("episode-") && ep_number.blank?
           ep_number = tag.name.sub("episode-", "").to_i
@@ -56,7 +57,7 @@ after_initialize do
     if mal_id.present? && mal_id.to_s.strip != "0"
       mal_id = mal_id.to_s.strip
       
-      # Ensure custom fields are set
+      # Ensure custom fields are persistently saved on the topic
       topic.custom_fields["anime_mal_id"] = mal_id
       if ep_number.present? && ep_number.to_i > 0
         topic.custom_fields["anime_episode_number"] = ep_number.to_i
