@@ -266,6 +266,21 @@ module AnimeDatabase
       year = params[:year]
       season = params[:season]
       
+      # Validate year and season if provided
+      if year.present? || season.present?
+        valid_seasons = %w[winter spring summer fall]
+        
+        # Year must be numeric and reasonable (1900-2100)
+        if year.present? && (year.to_s !~ /^\d{4}$/ || year.to_i < 1900 || year.to_i > 2100)
+          return render json: { error: "Invalid year parameter" }, status: 400
+        end
+        
+        # Season must be one of the allowed values
+        if season.present? && !valid_seasons.include?(season.to_s.downcase)
+          return render json: { error: "Invalid season parameter. Must be: #{valid_seasons.join(', ')}" }, status: 400
+        end
+      end
+      
       cache_key = if year.present? && season.present?
                     "anime_seasons_#{year}_#{season}"
                   else
@@ -293,6 +308,11 @@ module AnimeDatabase
 
       return render json: { error: "User not found or not logged in" }, status: 404 unless user
 
+      # Privacy check: Only allow viewing other users' watchlists if setting is enabled
+      if user != current_user && !SiteSetting.anime_public_watchlists
+        return render json: { error: "This watchlist is private" }, status: 403
+      end
+
       list = DB.query("SELECT * FROM anime_watchlists WHERE user_id = ? ORDER BY updated_at DESC", user.id)
       
       render json: {
@@ -315,6 +335,12 @@ module AnimeDatabase
       status = params[:status]
       title = params[:title]
       image_url = params[:image_url]
+
+      # Validate status enum
+      valid_statuses = %w[watching completed planned plan_to_watch on_hold dropped]
+      unless valid_statuses.include?(status)
+        return render json: { error: "Invalid status. Must be: #{valid_statuses.join(', ')}" }, status: 400
+      end
 
       DB.exec(<<~SQL, current_user.id, anime_id, status, title, image_url, Time.now, Time.now)
         INSERT INTO anime_watchlists (user_id, anime_id, status, title, image_url, created_at, updated_at)

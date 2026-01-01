@@ -64,12 +64,15 @@
     </div>
 
     {{#if this.model.trailer.embed_url}}
+    {{#if (or (includes this.model.trailer.embed_url "youtube.com") (includes this.model.trailer.embed_url
+    "youtube-nocookie.com"))}}
     <div class="anime-trailer">
         <h2>Trailer</h2>
         <div class="anime-video-container">
             <iframe src={{this.model.trailer.embed_url}} frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
+    {{/if}}
     {{/if}}
 
     <div class="anime-episodes-section">
