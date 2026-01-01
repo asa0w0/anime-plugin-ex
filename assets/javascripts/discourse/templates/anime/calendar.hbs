@@ -9,9 +9,9 @@
             <div class="control-group">
                 <label>Sort by:</label>
                 <select class="sort-select" {{on "change" this.changeSortBy}}>
-                    {{#each this.sortOptions as |option|}}
-                    <option value={{option.value}} selected={{eq this.sortBy option.value}}>
-                        {{option.label}}
+                    {{#each this.sortOptions as |sortOption|}}
+                    <option value={{sortOption.value}} selected={{eq this.sortBy sortOption.value}}>
+                        {{sortOption.label}}
                     </option>
                     {{/each}}
                 </select>
