@@ -89,47 +89,57 @@
                 </div>
                 <div class="episode-discussion-info">
                     <div class="episode-main-info">
-                        {{#if episode.forum_topic}}
-                        <a href={{episode.forum_topic.topic_url}} class="discussion-link">
-                            {{d-icon "comments"}} {{or episode.title (concat "Episode " episode.episode_number)}}
-                        </a>
-                        {{else}}
-                        <span class="episode-title-only">
-                            {{or episode.title (concat "Episode " episode.episode_number)}}
-                            {{#if (and episode.filler (not episode.recap))}}
-                            <span class="badge-filler">Filler</span>
+                        <div class="episode-title-container">
+                            {{#if episode.forum_topic}}
+                            <a href={{episode.forum_topic.topic_url}} class="discussion-link">
+                                {{or episode.title (concat "Episode " episode.episode_number)}}
+                            </a>
+                            {{else}}
+                            <span class="episode-title-only">
+                                {{or episode.title (concat "Episode " episode.episode_number)}}
+                                {{#if (and episode.filler (not episode.recap))}}
+                                <span class="badge-filler">Filler</span>
+                                {{/if}}
+                                {{#if episode.recap}}
+                                <span class="badge-recap">Recap</span>
+                                {{/if}}
+                            </span>
                             {{/if}}
-                            {{#if episode.recap}}
-                            <span class="badge-recap">Recap</span>
+                        </div>
+
+                        <div class="episode-actions">
+                            {{#if episode.forum_topic}}
+                            <span class="discussion-stats">
+                                {{d-icon "comments"}} {{episode.forum_topic.post_count}} {{#if (eq
+                                episode.forum_topic.post_count
+                                1)}}reply{{else}}replies{{/if}}
+                            </span>
+                            {{else}}
+                            {{#if (and this.currentUser (not (eq this.model.status "Not yet aired")))}}
+                            <button type="button" class="btn btn-small btn-create-ep-discussion" {{on "click" (fn
+                                this.createDiscussion "episodes" episode)}}>
+                                {{d-icon "plus"}} Start Discussion
+                            </button>
                             {{/if}}
-                        </span>
-                        {{/if}}
+                            {{/if}}
+                        </div>
                     </div>
 
-                    <div class="episode-actions">
-                        {{#if episode.streaming}}
-                        <a href={{episode.streaming.url}} target="_blank" rel="noopener"
-                            class="btn btn-small btn-streaming" title="Watch on {{episode.streaming.site}}">
-                            <img src={{episode.streaming.faviconUrl}} alt={{episode.streaming.site}}
-                                class="provider-favicon" />
-                            <span class="provider-name">{{episode.streaming.site}}</span>
+                    {{#if episode.streaming}}
+                    <div class="episode-streaming-sidebar">
+                        <a href={{episode.streaming.url}} target="_blank" rel="noopener" class="streaming-sidebar-link"
+                            title="Watch on {{episode.streaming.site}}">
+                            <div class="streaming-provider-box">
+                                <img src={{episode.streaming.faviconUrl}} alt={{episode.streaming.site}}
+                                    class="provider-large-favicon" />
+                                <span class="provider-label">{{episode.streaming.site}}</span>
+                            </div>
+                            <div class="streaming-action-hover">
+                                {{d-icon "play"}}
+                            </div>
                         </a>
-                        {{/if}}
-
-                        {{#if episode.forum_topic}}
-                        <span class="discussion-stats">
-                            {{episode.forum_topic.post_count}} {{#if (eq episode.forum_topic.post_count
-                            1)}}reply{{else}}replies{{/if}}
-                        </span>
-                        {{else}}
-                        {{#if (and this.currentUser (not (eq this.model.status "Not yet aired")))}}
-                        <button type="button" class="btn btn-small btn-create-ep-discussion" {{on "click" (fn
-                            this.createDiscussion "episodes" episode)}}>
-                            {{d-icon "plus"}} Start Discussion
-                        </button>
-                        {{/if}}
-                        {{/if}}
                     </div>
+                    {{/if}}
                 </div>
             </div>
             {{/each}}

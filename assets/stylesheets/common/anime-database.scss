@@ -2123,71 +2123,175 @@
   }
 }
 
-// Integrated Streaming Links in Episode List
-.episode-discussion-info {
+// Refined Streaming Sidebar Styles
+.episode-discussion-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex: 1;
-  gap: 20px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-}
-
-.episode-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-.btn-streaming {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--primary-low);
-  color: var(--primary);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-weight: 600;
-  font-size: 0.85rem;
+  align-items: stretch; // Allow sidebar to fill height
+  padding: 0; // Remove padding to allow sidebar to touch edges
+  background: var(--primary-very-low);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid var(--primary-low);
   transition: var(--anime-transition);
-  border: 1px solid transparent;
-  text-decoration: none;
 
   &:hover {
-    background: var(--primary-medium);
-    border-color: var(--tertiary);
-    color: var(--secondary);
-    transform: translateY(-2px);
+    border-color: var(--tertiary-low);
     box-shadow: var(--shadow-card);
   }
+}
 
-  .provider-favicon {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-    border-radius: 2px;
+.episode-number {
+  flex-shrink: 0;
+  width: 100px;
+  padding: 20px 10px;
+  background: var(--primary-low);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-right: 1px solid var(--primary-low);
+
+  .number {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--tertiary);
+    margin-bottom: 4px;
     display: block;
   }
 
-  .provider-name {
-    @media (max-width: 480px) {
-      display: none; // Show only favicon on very small screens
+  .air-date {
+    font-size: 0.75rem;
+    color: var(--primary-medium);
+  }
+}
+
+.episode-discussion-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0; // Padding handled by internal containers
+  gap: 0;
+}
+
+.episode-main-info {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; // Center content
+  text-align: center;
+
+  .episode-title-container {
+    margin-bottom: 12px;
+
+    .discussion-link,
+    .episode-title-only {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--tertiary);
+      }
     }
   }
 }
 
-// Clean up legacy streaming section if it exists
+.episode-streaming-sidebar {
+  flex-shrink: 0;
+  width: 120px;
+  border-left: 1px dashed var(--primary-low);
+  background: var(--secondary-very-low);
+  transition: var(--anime-transition);
+
+  &:hover {
+    background: var(--primary-low);
+
+    .streaming-action-hover {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .streaming-provider-box {
+      opacity: 0.2;
+    }
+  }
+
+  .streaming-sidebar-link {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--primary);
+  }
+
+  .streaming-provider-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: var(--anime-transition);
+
+    .provider-large-favicon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .provider-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary-high);
+    }
+  }
+
+  .streaming-action-hover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: var(--anime-transition);
+    color: var(--tertiary);
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .episode-discussion-item {
+    flex-direction: column;
+  }
+
+  .episode-number {
+    width: 100%;
+    flex-direction: row;
+    gap: 15px;
+    padding: 10px;
+    border-right: none;
+    border-bottom: 1px solid var(--primary-low);
+  }
+
+  .episode-streaming-sidebar {
+    width: 100%;
+    height: 60px;
+    border-left: none;
+    border-top: 1px dashed var(--primary-low);
+
+    .streaming-provider-box {
+      flex-direction: row;
+      gap: 12px;
+    }
+  }
+}
+
 .anime-streaming-section {
   display: none !important;
 }
