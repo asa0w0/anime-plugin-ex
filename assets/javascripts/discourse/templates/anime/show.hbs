@@ -70,7 +70,7 @@
     </div>
     {{/if}}
 
-    {{#if (or this.model.episodeDiscussions.length (eq this.model.status "Currently Airing"))}}
+    {{#if (and (eq this.model.status "Currently Airing") this.model.episodeDiscussions.length)}}
     <div class="anime-episodes-section">
         <h2>{{d-icon "film"}} Episodes & Discussions</h2>
 
@@ -95,14 +95,6 @@
             </div>
             {{/each}}
         </div>
-        {{else}}
-        <div class="no-episodes-yet">
-            <p>{{d-icon "clock"}} No episode discussions yet.</p>
-            {{#if (eq this.model.status "Currently Airing")}}
-            <p class="info-text">Episode discussions will be created automatically when new episodes air.</p>
-            {{/if}}
-        </div>
-        {{/if}}
     </div>
     {{/if}}
 
