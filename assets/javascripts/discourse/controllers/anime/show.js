@@ -33,9 +33,43 @@ export default class ShowController extends Controller {
     }
 
     get paginatedEpisodes() {
-        const episodes = this.model?.episodeDiscussions || [];
+        const episodes = this.enhancedEpisodes || [];
         const start = (this.episodePage - 1) * this.episodesPerPage;
         return episodes.slice(start, start + this.episodesPerPage);
+    }
+
+    get enhancedEpisodes() {
+        const episodes = this.model?.episodeDiscussions || [];
+        const streaming = this.model?.anilist?.streaming || [];
+
+        if (streaming.length === 0) {
+            return episodes;
+        }
+
+        return episodes.map((ep) => {
+            // Find a streaming link that matches this episode number
+            // AniList titles often look like "Episode 1 - Title" or just "1"
+            const match = streaming.find((s) => {
+                const titleMatch = s.title.match(/Episode\s+(\d+)/i) || s.title.match(/^(\d+)/);
+                return titleMatch && parseInt(titleMatch[1], 10) === ep.episode_number;
+            });
+
+            if (match) {
+                // Get favicon using Google service
+                const domain = new URL(match.url).hostname;
+                const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+
+                return {
+                    ...ep,
+                    streaming: {
+                        ...match,
+                        faviconUrl
+                    }
+                };
+            }
+
+            return ep;
+        });
     }
 
     get watchlistStatus() {

@@ -2122,3 +2122,72 @@
     }
   }
 }
+
+// Integrated Streaming Links in Episode List
+.episode-discussion-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+.episode-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.btn-streaming {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary-low);
+  color: var(--primary);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: var(--anime-transition);
+  border: 1px solid transparent;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--primary-medium);
+    border-color: var(--tertiary);
+    color: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+
+  .provider-favicon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    border-radius: 2px;
+    display: block;
+  }
+
+  .provider-name {
+    @media (max-width: 480px) {
+      display: none; // Show only favicon on very small screens
+    }
+  }
+}
+
+// Clean up legacy streaming section if it exists
+.anime-streaming-section {
+  display: none !important;
+}

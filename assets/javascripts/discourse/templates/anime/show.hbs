@@ -106,19 +106,30 @@
                         {{/if}}
                     </div>
 
-                    {{#if episode.forum_topic}}
-                    <span class="discussion-stats">
-                        {{episode.forum_topic.post_count}} {{#if (eq episode.forum_topic.post_count
-                        1)}}reply{{else}}replies{{/if}}
-                    </span>
-                    {{else}}
-                    {{#if (and this.currentUser (not (eq this.model.status "Not yet aired")))}}
-                    <button type="button" class="btn btn-small btn-create-ep-discussion" {{on "click" (fn
-                        this.createDiscussion "episodes" episode)}}>
-                        {{d-icon "plus"}} Start Discussion
-                    </button>
-                    {{/if}}
-                    {{/if}}
+                    <div class="episode-actions">
+                        {{#if episode.streaming}}
+                        <a href={{episode.streaming.url}} target="_blank" rel="noopener"
+                            class="btn btn-small btn-streaming" title="Watch on {{episode.streaming.site}}">
+                            <img src={{episode.streaming.faviconUrl}} alt={{episode.streaming.site}}
+                                class="provider-favicon" />
+                            <span class="provider-name">{{episode.streaming.site}}</span>
+                        </a>
+                        {{/if}}
+
+                        {{#if episode.forum_topic}}
+                        <span class="discussion-stats">
+                            {{episode.forum_topic.post_count}} {{#if (eq episode.forum_topic.post_count
+                            1)}}reply{{else}}replies{{/if}}
+                        </span>
+                        {{else}}
+                        {{#if (and this.currentUser (not (eq this.model.status "Not yet aired")))}}
+                        <button type="button" class="btn btn-small btn-create-ep-discussion" {{on "click" (fn
+                            this.createDiscussion "episodes" episode)}}>
+                            {{d-icon "plus"}} Start Discussion
+                        </button>
+                        {{/if}}
+                        {{/if}}
+                    </div>
                 </div>
             </div>
             {{/each}}
@@ -232,29 +243,6 @@
                     {{/if}}
                 </div>
             </div>
-            {{/each}}
-        </div>
-    </div>
-    {{/if}}
-
-    {{!-- Streaming Links --}}
-    {{#if this.model.anilist.streaming}}
-    <div class="anime-streaming-section">
-        <h2>{{d-icon "play-circle"}} Streaming</h2>
-        <div class="streaming-list">
-            {{#each this.model.anilist.streaming as |stream|}}
-            <a href={{stream.url}} target="_blank" rel="noopener" class="streaming-link">
-                <div class="stream-thumbnail">
-                    {{#if stream.thumbnail}}
-                    <img src={{stream.thumbnail}} alt={{stream.title}} loading="lazy" />
-                    {{/if}}
-                </div>
-                <div class="stream-info">
-                    <div class="stream-site">{{stream.site}}</div>
-                    <div class="stream-title">{{stream.title}}</div>
-                </div>
-                {{d-icon "external-link-alt"}}
-            </a>
             {{/each}}
         </div>
     </div>
