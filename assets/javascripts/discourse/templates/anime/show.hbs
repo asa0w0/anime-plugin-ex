@@ -72,9 +72,9 @@
     </div>
     {{/if}}
 
-    {{#if this.model.episodeDiscussions.length}}
     <div class="anime-episodes-section">
         <h2>{{d-icon "film"}} Episodes & Discussions</h2>
+        {{#if this.model.episodeDiscussions.length}}
         <div class="episode-discussions-list">
             {{#each this.model.episodeDiscussions as |episode|}}
             <div class="episode-discussion-item {{if episode.forum_topic 'has-discussion'}}">
@@ -120,8 +120,15 @@
             </div>
             {{/each}}
         </div>
+        {{else}}
+        <p class="no-episodes-message">
+            {{d-icon "info-circle"}} No episode information available for this anime yet.
+            {{#if this.currentUser}}
+            Episode discussions will appear here once they are created.
+            {{/if}}
+        </p>
+        {{/if}}
     </div>
-    {{/if}}
 
     <div class="anime-discussion-section">
         <h2>{{d-icon "comments"}} Discussions</h2>

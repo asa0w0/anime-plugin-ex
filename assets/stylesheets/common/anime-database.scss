@@ -736,6 +736,20 @@
     border-left: 4px solid var(--tertiary);
   }
 
+  .no-episodes-message {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--primary-medium);
+    background: var(--primary-very-low);
+    border-radius: 6px;
+    border: 1px dashed var(--primary-low);
+
+    .d-icon {
+      color: var(--primary-high);
+      margin-right: 0.5rem;
+    }
+  }
+
   .no-episodes-yet {
     padding: 30px;
     text-align: center;
