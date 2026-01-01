@@ -45,9 +45,7 @@
                     {{else if anime.broadcast.day}}
                     <div class="countdown-badge airing">
                         {{d-icon "broadcast-tower"}} {{anime.broadcast.day}}
-                        {{#if anime.nextEpisodeTime}}
-                        at {{anime.nextEpisodeTime}}
-                        {{/if}}
+                        {{#if anime.nextEpisodeTime}}at {{anime.nextEpisodeTime}}{{/if}}
                     </div>
                     {{/if}}
                 </div>
@@ -55,16 +53,18 @@
                 <div class="card-info-section">
                     <h3 class="anime-title">{{anime.title}}</h3>
 
-                    {{#if anime.genres.length}}
+                    {{#if anime.genres}}
                     <div class="anime-genres-subtle">
-                        {{#each (take 3 anime.genres) as |genre|}}
+                        {{#each anime.genres as |genre index|}}
+                        {{#if (lt index 3)}}
                         <span class="genre-pill">{{genre.name}}</span>
+                        {{/if}}
                         {{/each}}
                     </div>
                     {{/if}}
 
                     <div class="anime-metadata">
-                        {{#if anime.studios.length}}
+                        {{#if anime.studios}}
                         <div class="meta-item">
                             <span class="meta-label">Studio:</span>
                             <span class="meta-value studio-name">{{anime.studios.0.name}}</span>
