@@ -4,70 +4,25 @@ import { action } from "@ember/object";
 
 export default class CalendarController extends Controller {
     @tracked showOnlyWatchlist = false;
+    @tracked sortBy = "countdown"; // countdown, popularity, title, date
+    @tracked viewMode = "grid"; // grid or list
 
-    allDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-
-    // Get days starting from today
-    get days() {
-        const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const dayMap = [6, 0, 1, 2, 3, 4, 5]; // Map JS day to our array index
-        const todayIndex = dayMap[today];
-
-        // Reorder array to start with today
+    get sortOptions() {
         return [
-            ...this.allDays.slice(todayIndex),
-            ...this.allDays.slice(0, todayIndex)
+            { value: "countdown", label: "Next Episode" },
+            { value: "popularity", label: "Popularity" },
+            { value: "title", label: "Title (A-Z)" },
+            { value: "date", label: "Release Date" }
         ];
     }
 
-    // Convert JST time to user's local time
-    convertJSTToLocal(jstTimeString) {
-        if (!jstTimeString) return null;
-
-        // Parse time like "23:30" from JST
-        const [hours, minutes] = jstTimeString.split(':').map(Number);
-
-        // Create date in JST (UTC+9)
-        const jstDate = new Date();
-        jstDate.setUTCHours(hours - 9, minutes, 0, 0); // Convert JST to UTC
-
-        // Format in user's local time
-        return jstDate.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
-    }
-
-    get todayDay() {
-        const today = new Date().getDay();
-        const dayMap = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-        return dayMap[today];
-    }
-
-    get dayLabels() {
-        return {
-            monday: "Monday",
-            tuesday: "Tuesday",
-            wednesday: "Wednesday",
-            thursday: "Thursday",
-            friday: "Friday",
-            saturday: "Saturday",
-            sunday: "Sunday"
-        };
-    }
-
-    get scheduleByDay() {
+    get animeList() {
         if (!this.model?.data) {
-            console.log("Calendar: No model data");
-            return {};
+            return [];
         }
 
-        // Jikan /schedules endpoint returns data array directly
         let data = Array.isArray(this.model.data) ? this.model.data : [];
         const watchlistIds = this.model.watchlist_anime_ids || [];
-
-        console.log("Calendar: Total anime:", data.length, "| Watchlist:", watchlistIds.length);
 
         // Filter by watchlist if enabled
         if (this.showOnlyWatchlist && watchlistIds.length > 0) {
@@ -75,46 +30,143 @@ export default class CalendarController extends Controller {
                 const animeId = anime.mal_id.toString();
                 return watchlistIds.includes(animeId);
             });
-            console.log("Calendar: Filtered to", data.length, "watchlist anime");
         }
 
-        if (data.length > 0) {
-            console.log("Calendar: First anime:", data[0].title);
-        }
-
-        // Group anime by day
-        const grouped = {
-            monday: [],
-            tuesday: [],
-            wednesday: [],
-            thursday: [],
-            friday: [],
-            saturday: [],
-            sunday: []
-        };
-
-        data.forEach(anime => {
-            // Jikan API uses "broadcast" object with "day" field in PLURAL form
-            const broadcastDay = anime.broadcast?.day;
-            if (broadcastDay) {
-                // Convert plural to singular: "thursdays" -> "thursday"
-                let day = broadcastDay.toLowerCase().trim();
-                if (day.endsWith('s')) {
-                    day = day.slice(0, -1); // Remove trailing 's'
-                }
-                if (grouped[day]) {
-                    grouped[day].push(anime);
-                }
-            }
+        // Add countdown information
+        data = data.map(anime => {
+            return {
+                ...anime,
+                countdown: this.calculateCountdown(anime),
+                nextEpisodeTime: this.getNextEpisodeTime(anime)
+            };
         });
 
-        console.log("Calendar: Grouped by day:", Object.keys(grouped).map(day => `${day}: ${grouped[day].length}`));
-        return grouped;
+        // Sort
+        return this.sortAnimeList(data);
+    }
+
+    sortAnimeList(data) {
+        const sorted = [...data];
+
+        switch (this.sortBy) {
+            case "countdown":
+                sorted.sort((a, b) => {
+                    if (!a.countdown && !b.countdown) return 0;
+                    if (!a.countdown) return 1;
+                    if (!b.countdown) return -1;
+                    return a.countdown.totalSeconds - b.countdown.totalSeconds;
+                });
+                break;
+            case "popularity":
+                sorted.sort((a, b) => (b.members || 0) - (a.members || 0));
+                break;
+            case "title":
+                sorted.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+                break;
+            case "date":
+                sorted.sort((a, b) => {
+                    const aDate = new Date(a.aired?.from || 0);
+                    const bDate = new Date(b.aired?.from || 0);
+                    return bDate - aDate;
+                });
+                break;
+        }
+
+        return sorted;
+    }
+
+    calculateCountdown(anime) {
+        if (!anime.broadcast?.day || !anime.broadcast?.time) {
+            return null;
+        }
+
+        const now = new Date();
+        const dayMap = {
+            "monday": 1, "mondays": 1,
+            "tuesday": 2, "tuesdays": 2,
+            "wednesday": 3, "wednesdays": 3,
+            "thursday": 4, "thursdays": 4,
+            "friday": 5, "fridays": 5,
+            "saturday": 6, "saturdays": 6,
+            "sunday": 0, "sundays": 0
+        };
+
+        const targetDay = dayMap[anime.broadcast.day.toLowerCase()];
+        if (targetDay === undefined) return null;
+
+        // Parse JST time
+        const [jstHours, jstMinutes] = anime.broadcast.time.split(':').map(Number);
+
+        // Create next occurrence in JST
+        const nextAir = new Date();
+        nextAir.setUTCHours(jstHours - 9, jstMinutes, 0, 0); // JST is UTC+9
+
+        // Find next occurrence of target day
+        const currentDay = now.getDay();
+        let daysUntil = targetDay - currentDay;
+        if (daysUntil < 0 || (daysUntil === 0 && now > nextAir)) {
+            daysUntil += 7;
+        }
+
+        nextAir.setDate(now.getDate() + daysUntil);
+
+        const diff = nextAir - now;
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes_remaining = Math.floor((totalSeconds % 3600) / 60);
+
+        return {
+            days,
+            hours,
+            minutes: minutes_remaining,
+            totalSeconds,
+            formatted: this.formatCountdown(days, hours, minutes_remaining)
+        };
+    }
+
+    formatCountdown(days, hours, minutes) {
+        if (days > 0) {
+            return `${days}d ${hours}h`;
+        } else if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+        } else {
+            return `${minutes}m`;
+        }
+    }
+
+    getNextEpisodeTime(anime) {
+        if (!anime.broadcast?.time) return null;
+
+        const [hours, minutes] = anime.broadcast.time.split(':').map(Number);
+        const jstDate = new Date();
+        jstDate.setUTCHours(hours - 9, minutes, 0, 0);
+
+        return jstDate.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    }
+
+    truncateSynopsis(text, maxLength = 180) {
+        if (!text) return "";
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength).trim() + "...";
     }
 
     @action
     toggleWatchlistFilter() {
         this.showOnlyWatchlist = !this.showOnlyWatchlist;
-        console.log("Calendar: Watchlist filter toggled to:", this.showOnlyWatchlist);
+    }
+
+    @action
+    changeSortBy(event) {
+        this.sortBy = event.target.value;
+    }
+
+    @action
+    toggleViewMode() {
+        this.viewMode = this.viewMode === "grid" ? "list" : "grid";
     }
 }

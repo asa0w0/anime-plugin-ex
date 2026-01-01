@@ -1,43 +1,115 @@
-<div class="anime-container calendar-page">
+<div class="anime-calendar-container">
     <div class="calendar-header">
         <div class="header-content">
             <h1>{{d-icon "calendar-alt"}} Airing Schedule</h1>
+            <p class="subtitle">Discover what's airing this season</p>
+        </div>
+
+        <div class="calendar-controls">
+            <div class="control-group">
+                <label>Sort by:</label>
+                <select class="sort-select" {{on "change" this.changeSortBy}}>
+                    {{#each this.sortOptions as |option|}}
+                    <option value={{option.value}} selected={{eq this.sortBy option.value}}>
+                        {{option.label}}
+                    </option>
+                    {{/each}}
+                </select>
+            </div>
+
             {{#if this.currentUser}}
-            <button type="button" class="btn watchlist-toggle {{if this.showOnlyWatchlist " active"}}" {{on "click"
+            <button type="button" class="btn-watchlist-filter {{if this.showOnlyWatchlist 'active'}}" {{on "click"
                 this.toggleWatchlistFilter}}>
                 {{d-icon "heart"}}
-                {{d-icon (if this.showOnlyWatchlist "check-square" "square")}}
-                My Watchlist
+                {{#if this.showOnlyWatchlist}}Showing Watchlist{{else}}My Watchlist{{/if}}
             </button>
             {{/if}}
+
+            <button type="button" class="btn-view-mode" {{on "click" this.toggleViewMode}}>
+                {{d-icon (if (eq this.viewMode "grid") "th-list" "th-large")}}
+            </button>
         </div>
-        <p>See what's airing this week (times shown in your local timezone)</p>
     </div>
 
-    <div class="calendar-grid">
-        {{#each this.days as |day|}}
-        <div class="calendar-day {{if (eq day (this.todayDay)) " today"}}">
-            <h3>
-                {{get this.dayLabels day}}
-                {{#if (eq day (this.todayDay))}}
-                <span class="today-badge">Today</span>
-                {{/if}}
-            </h3>
-            <div class="day-anime-list">
-                {{#each (get this.scheduleByDay day) as |anime|}}
-                <LinkTo @route="anime.show" @model={{anime.mal_id}} class="calendar-anime-item">
-                    <img src={{anime.images.jpg.small_image_url}} alt={{anime.title}} loading="lazy" />
-                    <div class="anime-info">
-                        <span class="anime-title">{{anime.title}}</span>
-                        {{#if anime.broadcast.time}}
-                        <span class="anime-time">{{this.convertJSTToLocal anime.broadcast.time}}</span>
+    <div class="anime-grid {{this.viewMode}}-view">
+        {{#each this.animeList as |anime|}}
+        <div class="anime-card-livechart">
+            <LinkTo @route="anime.show" @model={{anime.mal_id}} class="card-link">
+                <div class="card-poster-section">
+                    <img src={{or anime.images.jpg.large_image_url anime.images.jpg.image_url}} alt={{anime.title}}
+                        loading="lazy" />
+                    {{#if anime.countdown}}
+                    <div class="countdown-badge">
+                        {{d-icon "clock"}} Next episode in {{anime.countdown.formatted}}
+                    </div>
+                    {{else if anime.broadcast.day}}
+                    <div class="countdown-badge airing">
+                        {{d-icon "broadcast-tower"}} {{anime.broadcast.day}}
+                        {{#if anime.nextEpisodeTime}}
+                        at {{anime.nextEpisodeTime}}
                         {{/if}}
                     </div>
-                </LinkTo>
-                {{else}}
-                <p class="no-anime">{{if this.showOnlyWatchlist "No watchlist anime airing" "No anime airing"}}</p>
-                {{/each}}
-            </div>
+                    {{/if}}
+                </div>
+
+                <div class="card-info-section">
+                    <h3 class="anime-title">{{anime.title}}</h3>
+
+                    {{#if anime.genres.length}}
+                    <div class="anime-genres-subtle">
+                        {{#each (take 3 anime.genres) as |genre|}}
+                        <span class="genre-pill">{{genre.name}}</span>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+
+                    <div class="anime-metadata">
+                        {{#if anime.studios.length}}
+                        <div class="meta-item">
+                            <span class="meta-label">Studio:</span>
+                            <span class="meta-value studio-name">{{anime.studios.0.name}}</span>
+                        </div>
+                        {{/if}}
+
+                        {{#if anime.source}}
+                        <div class="meta-item">
+                            <span class="meta-label">Source:</span>
+                            <span class="meta-value">{{anime.source}}</span>
+                        </div>
+                        {{/if}}
+
+                        {{#if anime.episodes}}
+                        <div class="meta-item">
+                            <span class="meta-label">Episodes:</span>
+                            <span class="meta-value">{{anime.episodes}}</span>
+                        </div>
+                        {{/if}}
+
+                        {{#if anime.score}}
+                        <div class="meta-item">
+                            <span class="meta-label">Score:</span>
+                            <span class="meta-value score">⭐ {{anime.score}}</span>
+                        </div>
+                        {{/if}}
+                    </div>
+
+                    {{#if anime.synopsis}}
+                    <p class="anime-synopsis">{{this.truncateSynopsis anime.synopsis}}</p>
+                    {{/if}}
+
+                    <div class="anime-external-links">
+                        <a href="https://myanimelist.net/anime/{{anime.mal_id}}" target="_blank" rel="noopener"
+                            class="external-link" title="MyAnimeList">
+                            {{d-icon "external-link-alt"}} MAL
+                        </a>
+                    </div>
+                </div>
+            </LinkTo>
+        </div>
+        {{else}}
+        <div class="no-anime-message">
+            <p>{{d-icon "info-circle"}} {{#if this.showOnlyWatchlist}}No anime in your watchlist for this
+                season.{{else}}No anime found.{{/if}}</p>
         </div>
         {{/each}}
     </div>
