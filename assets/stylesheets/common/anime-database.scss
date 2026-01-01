@@ -1596,3 +1596,529 @@
     margin-bottom: 20px;
   }
 }
+
+// ========================================
+// AniList & TMDB Integration Styles (Responsive)
+// ========================================
+
+// Characters Section - Highly Responsive
+.anime-characters-section {
+  margin: 40px 0;
+  padding: 30px;
+  background: var(--secondary);
+  border-radius: 16px;
+  border: 1px solid var(--primary-low);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin: 30px 0;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .d-icon {
+      color: var(--tertiary);
+    }
+  }
+
+  .characters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    @media (max-width: 992px) {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+
+  .character-card {
+    background: var(--primary-very-low);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--anime-transition);
+    border: 1px solid var(--primary-low);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-card);
+      border-color: var(--tertiary);
+    }
+
+    img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+    }
+
+    .character-info {
+      padding: 12px;
+
+      @media (max-width: 768px) {
+        padding: 8px;
+      }
+
+      h4 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        color: var(--primary);
+        line-height: 1.3;
+
+        @media (max-width: 768px) {
+          font-size: 0.85rem;
+        }
+      }
+
+      .native-name {
+        font-size: 0.8rem;
+        color: var(--primary-medium);
+        margin: 0;
+
+        @media (max-width: 768px) {
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+// Relations Section - Responsive
+.anime-relations-section {
+  margin: 40px 0;
+  padding: 30px;
+  background: var(--secondary);
+  border-radius: 16px;
+  border: 1px solid var(--primary-low);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+    }
+
+    .d-icon {
+      color: var(--tertiary);
+    }
+  }
+
+  .relations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+
+    @media (max-width: 992px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .relation-card {
+    background: var(--primary-very-low);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--anime-transition);
+    border: 1px solid var(--primary-low);
+    position: relative;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .relation-type {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--tertiary);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .relation-info {
+      padding: 12px;
+
+      h4 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0 0 6px 0;
+        color: var(--primary);
+        line-height: 1.3;
+      }
+
+      .relation-format {
+        font-size: 0.8rem;
+        color: var(--primary-medium);
+        margin: 0 0 8px 0;
+      }
+
+      .relation-link {
+        font-size: 0.85rem;
+        color: var(--tertiary);
+        text-decoration: none;
+        font-weight: 600;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// Streaming, Cast, Videos, Posters - All Responsive
+.anime-streaming-section,
+.anime-external-section,
+.anime-cast-section,
+.anime-videos-section,
+.anime-posters-section {
+  margin: 40px 0;
+  padding: 30px;
+  background: var(--secondary);
+  border-radius: 16px;
+  border: 1px solid var(--primary-low);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin: 30px 0;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+    }
+
+    .d-icon {
+      color: var(--tertiary);
+    }
+  }
+}
+
+// Streaming Links
+.streaming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .streaming-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: var(--primary-very-low);
+    border-radius: 10px;
+    border: 1px solid var(--primary-low);
+    text-decoration: none;
+    transition: var(--anime-transition);
+
+    @media (max-width: 768px) {
+      padding: 12px;
+      gap: 10px;
+    }
+
+    &:hover {
+      background: var(--primary-low);
+      border-color: var(--tertiary);
+      transform: translateX(5px);
+    }
+
+    .stream-thumbnail {
+      width: 120px;
+      aspect-ratio: 16/9;
+      border-radius: 6px;
+      overflow: hidden;
+      flex-shrink: 0;
+
+      @media (max-width: 480px) {
+        width: 80px;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .stream-info {
+      flex: 1;
+
+      .stream-site {
+        font-size: 0.8rem;
+        color: var(--primary-medium);
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .stream-title {
+        font-size: 1rem;
+        color: var(--primary);
+        font-weight: 600;
+
+        @media (max-width: 480px) {
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .d-icon {
+      color: var(--primary-medium);
+      flex-shrink: 0;
+    }
+  }
+}
+
+// External Links
+.external-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: var(--primary-very-low);
+    border: 1px solid var(--primary-low);
+    border-radius: 8px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--anime-transition);
+
+    &:hover {
+      background: var(--tertiary);
+      color: white;
+      border-color: var(--tertiary);
+      transform: translateY(-2px);
+    }
+
+    &.anilist {
+      background: var(--tertiary-low);
+      color: var(--tertiary);
+    }
+  }
+}
+
+// Cast Grid
+.cast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .cast-card {
+    background: var(--primary-very-low);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--anime-transition);
+    border: 1px solid var(--primary-low);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-card);
+    }
+
+    img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .no-photo {
+      width: 100%;
+      aspect-ratio: 2/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-low);
+      color: var(--primary-medium);
+
+      .d-icon {
+        font-size: 3rem;
+      }
+    }
+
+    .cast-info {
+      padding: 12px;
+
+      @media (max-width: 768px) {
+        padding: 8px;
+      }
+
+      h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        color: var(--primary);
+        line-height: 1.3;
+
+        @media (max-width: 768px) {
+          font-size: 0.85rem;
+        }
+      }
+
+      .character-name {
+        font-size: 0.8rem;
+        color: var(--primary-medium);
+        margin: 0;
+        font-style: italic;
+
+        @media (max-width: 768px) {
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+// Videos Grid
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .video-card {
+    background: var(--primary-very-low);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--primary-low);
+
+    iframe {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border: none;
+    }
+
+    .video-title {
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0;
+
+      @media (max-width: 768px) {
+        font-size: 0.85rem;
+        padding: 10px;
+      }
+    }
+  }
+}
+
+// Posters Grid
+.posters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: var(--anime-transition);
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-card);
+    }
+  }
+}
