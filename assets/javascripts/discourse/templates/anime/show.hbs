@@ -125,19 +125,21 @@
                         </div>
                     </div>
 
-                    {{#if episode.streaming}}
-                    <div class="episode-streaming-sidebar">
-                        <a href={{episode.streaming.url}} target="_blank" rel="noopener" class="streaming-sidebar-link"
-                            title="Watch on {{episode.streaming.site}}">
+                    {{#if episode.streamingProviders}}
+                    <div class="episode-streaming-sidebar {{if (gt episode.streamingProviders.length 1) "
+                        multi-provider"}}">
+                        {{#each episode.streamingProviders as |provider|}}
+                        <a href={{provider.url}} target="_blank" rel="noopener" class="streaming-sidebar-link"
+                            title="Watch on {{provider.site}} ({{provider.type}} link)">
                             <div class="streaming-provider-box">
-                                <img src={{episode.streaming.faviconUrl}} alt={{episode.streaming.site}}
-                                    class="provider-large-favicon" />
-                                <span class="provider-label">{{episode.streaming.site}}</span>
+                                <img src={{provider.faviconUrl}} alt={{provider.site}} class="provider-large-favicon" />
+                                <span class="provider-label">{{provider.site}}</span>
                             </div>
                             <div class="streaming-action-hover">
                                 {{d-icon "play"}}
                             </div>
                         </a>
+                        {{/each}}
                     </div>
                     {{/if}}
                 </div>

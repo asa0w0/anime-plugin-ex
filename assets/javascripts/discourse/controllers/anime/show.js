@@ -40,35 +40,44 @@ export default class ShowController extends Controller {
 
     get enhancedEpisodes() {
         const episodes = this.model?.episodeDiscussions || [];
-        const streaming = this.model?.anilist?.streaming || [];
-
-        if (streaming.length === 0) {
-            return episodes;
-        }
+        const anilistStreaming = this.model?.anilist?.streaming || [];
+        const jikanStreaming = this.model?.streaming || []; // General series links from Jikan
 
         return episodes.map((ep) => {
-            // Find a streaming link that matches this episode number
-            // AniList titles often look like "Episode 1 - Title" or just "1"
-            const match = streaming.find((s) => {
-                const titleMatch = s.title.match(/Episode\s+(\d+)/i) || s.title.match(/^(\d+)/);
-                return titleMatch && parseInt(titleMatch[1], 10) === ep.episode_number;
+            const providers = new Map();
+
+            // 1. Process Jikan series links as base providers
+            jikanStreaming.forEach((s) => {
+                const domain = new URL(s.url).hostname;
+                providers.set(s.name, {
+                    site: s.name,
+                    url: s.url,
+                    faviconUrl: `https://www.google.com/s2/favicons?domain=${domain}&sz=32`,
+                    type: "series"
+                });
             });
 
-            if (match) {
-                // Get favicon using Google service
-                const domain = new URL(match.url).hostname;
-                const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+            // 2. Process AniList deep links and override/add
+            anilistStreaming.forEach((s) => {
+                const titleMatch = s.title.match(/Episode\s+(\d+)/i) || s.title.match(/^(\d+)/);
+                const epNum = titleMatch ? parseInt(titleMatch[1], 10) : null;
 
-                return {
-                    ...ep,
-                    streaming: {
-                        ...match,
-                        faviconUrl
-                    }
-                };
-            }
+                if (epNum === ep.episode_number) {
+                    const domain = new URL(s.url).hostname;
+                    // Prefer deep links over series links for matched episodes
+                    providers.set(s.site, {
+                        site: s.site,
+                        url: s.url,
+                        faviconUrl: `https://www.google.com/s2/favicons?domain=${domain}&sz=32`,
+                        type: "episode"
+                    });
+                }
+            });
 
-            return ep;
+            return {
+                ...ep,
+                streamingProviders: Array.from(providers.values())
+            };
         });
     }
 
