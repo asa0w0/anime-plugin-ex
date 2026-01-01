@@ -78,6 +78,27 @@ export default class AnimeCard extends Component {
       this.args.onToggleMenu(this.args.anime.mal_id);
     } else {
       this.showStatusMenu = !this.showStatusMenu;
+
+      // Close menu when clicking anywhere else on the page
+      if (this.showStatusMenu) {
+        this.documentClickHandler = (e) => {
+          if (!e.target.closest('.anime-card-quick-add-container')) {
+            this.showStatusMenu = false;
+            document.removeEventListener('click', this.documentClickHandler);
+          }
+        };
+        // Use setTimeout to avoid immediate triggering
+        setTimeout(() => {
+          document.addEventListener('click', this.documentClickHandler);
+        }, 0);
+      }
+    }
+  }
+
+  willDestroy() {
+    super.willDestroy();
+    if (this.documentClickHandler) {
+      document.removeEventListener('click', this.documentClickHandler);
     }
   }
 
