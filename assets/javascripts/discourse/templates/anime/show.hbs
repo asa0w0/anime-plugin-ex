@@ -73,7 +73,6 @@
     {{#if (and (eq this.model.status "Currently Airing") this.model.episodeDiscussions.length)}}
     <div class="anime-episodes-section">
         <h2>{{d-icon "film"}} Episodes & Discussions</h2>
-
         <div class="episode-discussions-list">
             {{#each this.model.episodeDiscussions as |episode|}}
             <div class="episode-discussion-item">
