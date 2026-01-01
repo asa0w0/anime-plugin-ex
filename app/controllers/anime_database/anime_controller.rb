@@ -265,6 +265,8 @@ module AnimeDatabase
         {
           episode_number: ep_num,
           title: ep["title"],
+          title_japanese: ep["title_japanese"],
+          duration: ep["duration"],
           aired_at: ep["aired"] || local_et&.aired_at,
           filler: ep["filler"],
           recap: ep["recap"],

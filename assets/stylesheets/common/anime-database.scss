@@ -2175,7 +2175,7 @@
   .episode-discussion-info {
     flex: 1 !important;
     display: flex !important;
-    flex-direction: row !important; // FORCE SIDE-BY-SIDE
+    flex-direction: row !important;
     align-items: stretch !important;
     padding: 0 !important;
     gap: 0 !important;
@@ -2186,60 +2186,88 @@
     padding: 20px !important;
     display: flex !important;
     flex-direction: column !important;
-    align-items: center !important;
+    align-items: flex-start !important; // LEFT-ALIGN
     justify-content: center !important;
-    text-align: center;
+    text-align: left !important;
 
     .episode-title-container {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
+      width: 100%;
 
       .discussion-link,
       .episode-title-only {
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: 1.2rem;
+        font-weight: 700;
         color: var(--primary);
         text-decoration: none;
+        display: block;
+        margin-bottom: 4px;
 
         &:hover {
           color: var(--tertiary);
         }
+      }
+
+      .episode-title-japanese {
+        font-size: 0.9rem;
+        color: var(--primary-medium);
+        opacity: 0.8;
+        font-style: italic;
+        margin-bottom: 6px;
+      }
+
+      .episode-metadata-sub {
+        display: flex;
+        gap: 12px;
+        font-size: 0.8rem;
+        color: var(--primary-high);
+
+        .duration {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          .d-icon {
+            font-size: 0.75rem;
+          }
+        }
+      }
+    }
+
+    .episode-actions {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+
+      .discussion-stats {
+        font-size: 0.85rem;
+        background: var(--primary-low);
+        padding: 4px 10px;
+        border-radius: 20px;
+        color: var(--primary-medium);
       }
     }
   }
 
   .episode-streaming-sidebar {
     flex-shrink: 0 !important;
-    width: 140px !important;
+    width: 180px !important; // WIDER Sidebar
     border-left: 1px dashed var(--primary-low) !important;
     background: var(--secondary-very-low);
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
-    align-content: center !important;
-    justify-content: center !important;
-    padding: 8px !important;
-    gap: 8px !important;
+    align-content: flex-start !important; // Top align
+    justify-content: flex-start !important;
+    padding: 10px !important;
+    gap: 6px !important;
     transition: var(--anime-transition);
 
-    &.multi-provider {
-      .streaming-sidebar-link {
-        flex: 1 1 55px; // 2 columns in 140px
-        height: auto !important;
-        padding: 10px 4px;
-        border-bottom: none;
-        background: var(--primary-low);
-        border-radius: 8px;
-
-        &:hover {
-          background: var(--primary-medium);
-        }
-      }
-    }
-
     .streaming-sidebar-link {
-      display: flex;
-      flex: 1;
-      height: 100% !important;
+      flex: 1 0 48px !important; // 3 columns with gaps/padding
+      max-width: 55px !important;
+      height: 60px !important;
       position: relative;
       align-items: center;
       justify-content: center;
@@ -2247,9 +2275,10 @@
       color: var(--primary);
       transition: var(--anime-transition);
       border-radius: 8px;
+      background: var(--primary-low);
 
       &:hover {
-        background: var(--primary-low);
+        background: var(--primary-medium);
 
         .streaming-action-hover {
           opacity: 1;
@@ -2270,16 +2299,16 @@
       transition: var(--anime-transition);
 
       .provider-large-favicon {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
         object-fit: contain;
       }
 
       .provider-label {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
         color: var(--primary-high);
-        max-width: 55px;
+        max-width: 45px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -2296,7 +2325,7 @@
       transform: translateY(5px);
       transition: var(--anime-transition);
       color: var(--tertiary);
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
   }
 

@@ -105,6 +105,16 @@
                                 {{/if}}
                             </span>
                             {{/if}}
+
+                            {{#if episode.title_japanese}}
+                            <div class="episode-title-japanese">{{episode.title_japanese}}</div>
+                            {{/if}}
+
+                            {{#if episode.duration}}
+                            <div class="episode-metadata-sub">
+                                <span class="duration">{{d-icon "clock"}} {{episode.duration}}m</span>
+                            </div>
+                            {{/if}}
                         </div>
 
                         <div class="episode-actions">
