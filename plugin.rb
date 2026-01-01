@@ -79,7 +79,7 @@ after_initialize do
         end
         
         # Invalidate episodes list cache so the new discussion shows up immediately
-        Discourse.cache.delete("anime_episodes_list_#{mal_id}")
+        Discourse.cache.delete("anime_episodes_list_v2_#{mal_id}")
         
         Rails.logger.info("[Anime Plugin] Linked manual episode discussion: anime_id=#{mal_id} ep=#{ep_number} to topic #{topic.id}")
       else
