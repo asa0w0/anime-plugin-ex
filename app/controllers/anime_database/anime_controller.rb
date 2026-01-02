@@ -487,7 +487,7 @@ module AnimeDatabase
 
     private
 
-    def fetch_from_api(url, retry_count = 1)
+    def fetch_from_api(url, retry_count = 2)
       begin
         fd = FinalDestination.new(url)
         endpoint = fd.resolve
@@ -498,24 +498,31 @@ module AnimeDatabase
           endpoint,
           headers: { "User-Agent" => "Discourse Anime Plugin" },
           expects: [200, 404, 429],
-          timeout: 10
+          connect_timeout: 10,
+          read_timeout: 15,
+          write_timeout: 10
         )
         
+        # Rate limited - wait and retry
         if response.status == 429 && retry_count > 0
-          sleep(1)
+          Rails.logger.warn("[Anime Plugin] Rate limited (429), waiting 1.5s before retry...")
+          sleep(1.5)
           return fetch_from_api(url, retry_count - 1)
         end
 
         JSON.parse(response.body)
       rescue => e
-        if retry_count > 0 && (e.is_a?(Excon::Error::Timeout) || e.is_a?(Excon::Error::Socket) || e.message.include?("timeout"))
-          sleep(0.5)
+        # Retry on timeout or socket errors
+        if retry_count > 0 && (e.is_a?(Excon::Error::Timeout) || e.is_a?(Excon::Error::Socket) || e.message.to_s.include?("timeout"))
+          Rails.logger.warn("[Anime Plugin] Timeout/Socket error, retrying (#{retry_count} left)... Error: #{e.message}")
+          sleep(1)
           return fetch_from_api(url, retry_count - 1)
         end
         
-        Rails.logger.error("Anime Plugin API Error: #{e.message}")
+        Rails.logger.error("[Anime Plugin] API Error after all retries: #{e.class} - #{e.message}")
         { error: "Failed to fetch data from API", message: e.message }
       end
     end
+
   end
 end
