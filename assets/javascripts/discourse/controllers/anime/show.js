@@ -298,14 +298,21 @@ export default class ShowController extends Controller {
         }
     }
 
+    vibrate(duration = 10) {
+        if ("vibrate" in navigator) {
+            navigator.vibrate(duration);
+        }
+    }
+
     @action
     async quickAddToWatchlist() {
-        // Just toggle the menu
+        this.vibrate(5);
         this.fabMenuOpen = !this.fabMenuOpen;
     }
 
     @action
     async setStatusFromFab(status) {
+        this.vibrate(15);
         if (!this.currentUser) {
             return;
         }
@@ -324,13 +331,13 @@ export default class ShowController extends Controller {
             if (response.success) {
                 this._manualStatus = status;
                 this.fabMenuOpen = false;
+                this.vibrate([10, 50, 10]); // Success pattern
             } else {
                 console.error("Watchlist error:", response);
                 alert(response.error || "Failed to update watchlist");
             }
         } catch (error) {
             console.error("Error updating watchlist:", error);
-            // Show user-friendly error
             if (error.jqXHR?.responseJSON?.error) {
                 alert(error.jqXHR.responseJSON.error);
             }
@@ -340,6 +347,7 @@ export default class ShowController extends Controller {
 
     @action
     closeFabMenu() {
+        this.vibrate(5);
         this.fabMenuOpen = false;
     }
 }
