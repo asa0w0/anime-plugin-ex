@@ -94,7 +94,12 @@ after_initialize do
 
   require_relative "app/controllers/anime_database/anime_controller"
   require_relative "app/models/anime_episode_topic"
+  require_relative "app/models/anime_database/anime_cache"
+  require_relative "app/models/anime_database/anime_episode_cache"
   require_relative "app/jobs/anime_database/anime_episode_discussion_job"
+  require_relative "app/jobs/anime_database/anime_sync_job"
+  require_relative "app/jobs/anime_database/episode_sync_job"
+  require_relative "app/jobs/anime_database/airing_anime_sync_job"
 
   module ::AnimeDatabase
     class Engine < ::Rails::Engine
