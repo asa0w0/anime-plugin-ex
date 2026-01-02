@@ -41,31 +41,48 @@ module AnimeDatabase
 
     def show
       id = params[:id]
-      cache_key = "anime_details_#{id}"
-
+      
       begin
-        raw_response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
-          url = "https://api.jikan.moe/v4/anime/#{id}/full"
-          res = fetch_from_api(url)
+        # Try local cache first
+        cached_anime = AnimeDatabase::AnimeCache.find_by(mal_id: id)
+        
+        if cached_anime && !cached_anime.stale?
+          # Fresh cache hit - return immediately without API call
+          Rails.logger.debug("[Anime Plugin] Local cache hit for ID #{id}")
+          anime_data = cached_anime.to_api_hash
+        else
+          # Cache miss or stale - fetch from API
+          cache_key = "anime_details_#{id}"
           
-          # Don't cache error responses or 404s from Jikan
-          if res.is_a?(Hash) && (res["error"] || (res["status"] && res["status"].to_i >= 400) || !res["data"])
-            # Return a special marker to avoid caching
-            { _api_error: true, status: res["status"] || 500, message: res["message"] || "API Error" }
+          raw_response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
+            url = "https://api.jikan.moe/v4/anime/#{id}/full"
+            res = fetch_from_api(url)
+            
+            if res.is_a?(Hash) && (res["error"] || (res["status"] && res["status"].to_i >= 400) || !res["data"])
+              { _api_error: true, status: res["status"] || 500, message: res["message"] || "API Error" }
+            else
+              res
+            end
+          end
+          
+          if raw_response.nil? || raw_response[:_api_error] || raw_response["_api_error"] || !raw_response.is_a?(Hash) || !raw_response["data"]
+            # API failed - try to return stale cache if available
+            if cached_anime
+              Rails.logger.warn("[Anime Plugin] API failed for ID #{id}, returning stale cache")
+              anime_data = cached_anime.to_api_hash
+            else
+              Rails.logger.warn("[Anime Plugin] API data missing and no cache for ID #{id}")
+              Discourse.cache.delete(cache_key)
+              return render json: { error: "Anime data not available", status: 404 }, status: 404
+            end
           else
-            res
+            anime_data = raw_response["data"].dup
+            Rails.logger.debug("[Anime Plugin] API data for #{id}: #{anime_data['title']}")
+            
+            # Queue background sync to update local cache
+            Jobs.enqueue(:anime_sync_job, mal_id: id)
           end
         end
-        
-        if raw_response.nil? || raw_response[:_api_error] || raw_response["_api_error"] || !raw_response.is_a?(Hash) || !raw_response["data"]
-          Rails.logger.warn("[Anime Plugin] API data missing or error for ID #{id}. Response: #{raw_response.inspect}")
-          Discourse.cache.delete(cache_key) # Ensure we don't keep a bad record
-          return render json: { error: "Anime data not available", status: 404 }, status: 404
-        end
-
-        # We have valid data from Jikan
-        anime_data = raw_response["data"].dup
-        Rails.logger.debug("[Anime Plugin] Valid anime data found for #{id}: #{anime_data['title']}")
 
         # Fetch additional data from AniList and TMDB
         anilist_data = AnilistService.fetch_by_mal_id(id)
@@ -217,52 +234,64 @@ module AnimeDatabase
     
     def episodes
       anime_id = params[:id]
-      cache_key = "anime_episodes_list_v4_#{anime_id}"
-
-      # Fetch from API with cache
-      api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
-        all_episodes = []
-        page = 1
-        has_next = true
-        fetch_success = false
-        max_pages = 3 # Reduced from 5 to prevent long requests
-
-        Rails.logger.info("[Anime Plugin] Fetching episodes for anime_id=#{anime_id} from API...")
-
-        # Fetch pages without blocking sleep (rate limiting handled in fetch_from_api)
-        while has_next && page <= max_pages
-          url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}"
-          response = fetch_from_api(url)
-          
-          if response.is_a?(Hash) && response["data"].is_a?(Array)
-            all_episodes.concat(response["data"])
-            has_next = response.dig("pagination", "has_next_page") || false
-            fetch_success = true
-            
-            Rails.logger.debug("[Anime Plugin] Fetched page #{page} for anime_id=#{anime_id}. Found #{response["data"].length} episodes. has_next=#{has_next}")
-          else
-            Rails.logger.error("[Anime Plugin] Failed to fetch episodes page #{page} for anime_id=#{anime_id}. Response: #{response.inspect}")
-            break
-          end
-          
-          page += 1
-          # NOTE: Removed sleep(0.5) - rate limiting is handled by fetch_from_api retry logic
-        end
-
-        # Only cache if we actually got some data
-        if fetch_success && (all_episodes.present? || page > 1)
-          all_episodes
-        else
-          nil
-        end
-      end
-
-      api_episodes ||= []
       
-      # If still empty after cache attempt (e.g. nil returned from block), 
-      # we might want to log it specifically
-      if api_episodes.empty?
-        Rails.logger.warn("[Anime Plugin] Episode list is empty for anime_id=#{anime_id} after API fetch attempt.")
+      # Try local cache first
+      cached_episodes = AnimeDatabase::AnimeEpisodeCache.for_anime(anime_id).to_a
+      anime_cache = AnimeDatabase::AnimeCache.find_by(mal_id: anime_id)
+      
+      if cached_episodes.present? && anime_cache && !anime_cache.episodes_stale?
+        # Fresh cache hit - use local data
+        Rails.logger.debug("[Anime Plugin] Local episode cache hit for anime_id=#{anime_id}")
+        api_episodes = cached_episodes.map(&:to_api_hash)
+      else
+        # Cache miss or stale - fetch from API
+        cache_key = "anime_episodes_list_v4_#{anime_id}"
+        
+        api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
+          all_episodes = []
+          page = 1
+          has_next = true
+          fetch_success = false
+          max_pages = 3
+
+          Rails.logger.info("[Anime Plugin] Fetching episodes for anime_id=#{anime_id} from API...")
+
+          while has_next && page <= max_pages
+            url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}"
+            response = fetch_from_api(url)
+            
+            if response.is_a?(Hash) && response["data"].is_a?(Array)
+              all_episodes.concat(response["data"])
+              has_next = response.dig("pagination", "has_next_page") || false
+              fetch_success = true
+              
+              Rails.logger.debug("[Anime Plugin] Fetched page #{page} for anime_id=#{anime_id}. Found #{response["data"].length} episodes.")
+            else
+              Rails.logger.error("[Anime Plugin] Failed to fetch episodes page #{page} for anime_id=#{anime_id}")
+              break
+            end
+            
+            page += 1
+          end
+
+          if fetch_success && (all_episodes.present? || page > 1)
+            # Queue background sync to update local cache
+            Jobs.enqueue(:episode_sync_job, mal_id: anime_id)
+            all_episodes
+          else
+            nil
+          end
+        end
+
+        api_episodes ||= []
+        
+        # Fallback to stale local cache if API failed
+        if api_episodes.empty? && cached_episodes.present?
+          Rails.logger.warn("[Anime Plugin] API failed, using stale local cache for anime_id=#{anime_id}")
+          api_episodes = cached_episodes.map(&:to_api_hash)
+        elsif api_episodes.empty?
+          Rails.logger.warn("[Anime Plugin] Episode list is empty for anime_id=#{anime_id}")
+        end
       end
       
       # Fetch local episode discussions
