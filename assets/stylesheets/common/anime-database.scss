@@ -1116,18 +1116,22 @@
     top: 130px; // Below top controls
     z-index: 90;
     display: inline-block;
-    padding: 6px 20px;
+    padding: 8px 24px;
     border-radius: 100px;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     box-shadow: var(--shadow-low);
     background: var(--secondary);
     border: 1px solid var(--primary-low);
+    font-weight: 700;
 
     @media (max-width: 768px) {
-      top: 110px;
+      top: 140px; // Clear the tabs
+      font-size: 0.85rem;
+      padding: 6px 18px;
+      margin-bottom: 15px;
     }
   }
 
@@ -1162,33 +1166,37 @@
   .watchlist-item {
     position: relative;
     overflow: hidden;
-    background: transparent; // Reveal swipe layers below
-    margin-bottom: 12px;
+    background: transparent;
+    margin-bottom: 15px;
     border-radius: 16px;
     border: 1px solid var(--primary-low);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 
     .swipe-layer {
       position: absolute;
       top: 0;
+      left: 0;
+      right: 0;
       bottom: 0;
-      width: 100%;
       display: flex;
       align-items: center;
       padding: 0 25px;
       color: white;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       gap: 10px;
       z-index: 1;
       opacity: 0;
       transition: opacity 0.2s ease;
 
       .d-icon {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
       }
 
       &.swipe-layer-right {
-        background: #27ae60; // Complete
+        background: #2ecc71; // Complete
         justify-content: flex-start;
       }
 
@@ -1209,13 +1217,17 @@
     .item-content-wrapper {
       position: relative;
       z-index: 2;
-      background: var(--secondary);
+      background: var(--secondary) !important;
       transition: transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
       display: flex;
       align-items: center;
-      padding: 10px;
+      padding: 12px;
       gap: 15px;
-      border-radius: 15px; // Slightly less than parent to avoid bleed
+      width: 100%;
+      min-height: 124px;
+      flex: 1;
+      box-sizing: border-box;
+      border-radius: 15px; // Stay within parent borders
 
       .selection-indicator {
         flex: 0 0 30px;
@@ -1223,7 +1235,7 @@
         align-items: center;
         justify-content: center;
         color: var(--primary-medium);
-        font-size: 1.2rem;
+        font-size: 1.3rem;
 
         .d-icon-check-circle {
           color: var(--tertiary);
@@ -1231,34 +1243,22 @@
       }
 
       &.selected {
-        background: var(--tertiary-very-low);
+        background: var(--tertiary-very-low) !important;
       }
 
       .anime-card-image {
         flex: 0 0 80px;
         height: 120px;
-        border-radius: 10px;
+        border-radius: 12px;
         overflow: hidden;
         position: relative;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
         img {
-          width: 100%;
-          height: 100%;
+          width: 80px !important;
+          height: 120px !important;
           object-fit: cover !important;
-        }
-
-        .item-actions {
-          opacity: 1;
-          transform: none;
-          top: 5px;
-          right: 5px;
-          display: none; // Hidden in favor of swipe, but kept for non-touch if needed
-
-          .btn-danger {
-            width: 32px;
-            height: 32px;
-            background: rgba(var(--danger-rgb), 0.85);
-          }
+          background: transparent !important;
         }
       }
 
@@ -1271,35 +1271,37 @@
         box-shadow: none !important;
 
         .anime-card-title {
-          margin: 0;
+          margin: 0 !important;
           background: transparent !important;
           border: none !important;
           padding: 0 !important;
           box-shadow: none !important;
 
           a {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             line-height: 1.3;
             color: var(--primary) !important;
             background: transparent !important;
+            text-decoration: none !important;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            text-decoration: none !important;
+            border: none !important;
+            box-shadow: none !important;
           }
         }
       }
     }
 
     &:active .item-content-wrapper {
-      background: var(--primary-low);
+      background: var(--primary-very-low) !important;
     }
 
     &.edit-mode .item-content-wrapper {
-      padding-left: 5px;
+      padding-left: 8px;
     }
   }
 }
