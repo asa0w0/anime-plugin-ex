@@ -2369,6 +2369,11 @@
       border-color: var(--tertiary-low);
       box-shadow: var(--shadow-card);
     }
+
+    // Allow overflow on mobile for horizontal scrolling
+    @media (max-width: 600px) {
+      overflow: visible;
+    }
   }
 
   .episode-number {
