@@ -120,9 +120,6 @@ module Jobs
       end
     end
 
-    
-    private
-    
     def fetch_anime_data(mal_id)
       url = "https://api.jikan.moe/v4/anime/#{mal_id}/full"
       

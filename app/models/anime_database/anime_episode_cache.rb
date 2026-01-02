@@ -52,8 +52,6 @@ module AnimeDatabase
       )
     end
     
-    private
-    
     def self.parse_duration(duration_str)
       return nil unless duration_str.present?
       
@@ -67,5 +65,6 @@ module AnimeDatabase
         nil
       end
     end
+    private_class_method :parse_duration
   end
 end
