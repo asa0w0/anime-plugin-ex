@@ -2,14 +2,43 @@
     <h1>My Anime Watchlist</h1>
 
     {{#if this.model.length}}
+    <div class="watchlist-controls-top">
+        <div class="watchlist-search">
+            {{d-icon "magnifying-glass"}}
+            <input type="text" placeholder="Search title..." value={{this.searchTerm}} {{on "input"
+                this.setSearchTerm}} />
+            {{#if this.searchTerm}}
+            <button type="button" class="btn-clear-search" {{on "click" this.clearSearch}}>
+                {{d-icon "times"}}
+            </button>
+            {{/if}}
+        </div>
+
+        <div class="watchlist-nav-tabs">
+            <button type="button" class="nav-tab {{if (eq this.activeFilter 'all') 'active'}}" {{on "click" (fn
+                this.setActiveFilter 'all' )}}>All</button>
+            <button type="button" class="nav-tab {{if (eq this.activeFilter 'watching') 'active'}}" {{on "click" (fn
+                this.setActiveFilter 'watching' )}}>Watching</button>
+            <button type="button" class="nav-tab {{if (eq this.activeFilter 'plan_to_watch') 'active'}}" {{on "click"
+                (fn this.setActiveFilter 'plan_to_watch' )}}>Planned</button>
+            <button type="button" class="nav-tab {{if (eq this.activeFilter 'completed') 'active'}}" {{on "click" (fn
+                this.setActiveFilter 'completed' )}}>Completed</button>
+            <button type="button" class="nav-tab {{if (eq this.activeFilter 'on_hold') 'active'}}" {{on "click" (fn
+                this.setActiveFilter 'on_hold' )}}>On Hold</button>
+            <button type="button" class="nav-tab {{if (eq this.activeFilter 'dropped') 'active'}}" {{on "click" (fn
+                this.setActiveFilter 'dropped' )}}>Dropped</button>
+        </div>
+    </div>
+
     <div class="watchlist-groups">
+        {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'watching'))}}
         <div class="watchlist-group watching">
             <h2>Watching</h2>
-            <div class="anime-grid">
+            <div class="anime-grid watchlist-grid">
                 {{#each this.watching as |item|}}
                 <div class="anime-card watchlist-item">
                     <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} />
+                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
@@ -29,14 +58,16 @@
                 {{/unless}}
             </div>
         </div>
+        {{/if}}
 
+        {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'plan_to_watch'))}}
         <div class="watchlist-group plan_to_watch">
             <h2>Plan to Watch</h2>
-            <div class="anime-grid">
+            <div class="anime-grid watchlist-grid">
                 {{#each this.planned as |item|}}
                 <div class="anime-card watchlist-item">
                     <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} />
+                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
@@ -56,14 +87,16 @@
                 {{/unless}}
             </div>
         </div>
+        {{/if}}
 
+        {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'completed'))}}
         <div class="watchlist-group completed">
             <h2>Completed</h2>
-            <div class="anime-grid">
+            <div class="anime-grid watchlist-grid">
                 {{#each this.completed as |item|}}
                 <div class="anime-card watchlist-item">
                     <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} />
+                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
@@ -83,14 +116,16 @@
                 {{/unless}}
             </div>
         </div>
+        {{/if}}
 
+        {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'on_hold'))}}
         <div class="watchlist-group on_hold">
             <h2>On Hold</h2>
-            <div class="anime-grid">
+            <div class="anime-grid watchlist-grid">
                 {{#each this.onHold as |item|}}
                 <div class="anime-card watchlist-item">
                     <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} />
+                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
@@ -110,14 +145,16 @@
                 {{/unless}}
             </div>
         </div>
+        {{/if}}
 
+        {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'dropped'))}}
         <div class="watchlist-group dropped">
             <h2>Dropped</h2>
-            <div class="anime-grid">
+            <div class="anime-grid watchlist-grid">
                 {{#each this.dropped as |item|}}
                 <div class="anime-card watchlist-item">
                     <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} />
+                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                         <div class="item-actions">
                             <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                 this.removeFromWatchlist item.anime_id)}}>
@@ -137,6 +174,7 @@
                 {{/unless}}
             </div>
         </div>
+        {{/if}}
     </div>
     {{else}}
     <div class="no-items">

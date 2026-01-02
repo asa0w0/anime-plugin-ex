@@ -1002,82 +1002,118 @@
   }
 }
 
-// Watchlist Controls
-.anime-watchlist-actions {
-  background: var(--tertiary-low);
-  padding: 20px;
-  border-radius: 16px;
-  border: 1px solid var(--tertiary-medium);
+// Watchlist Top Controls
+.watchlist-controls-top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--secondary);
+  padding: 15px 0;
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--primary-low);
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin-top: 10px;
 
-  .watchlist-controls {
-    display: flex;
-    gap: 12px;
+  @media (max-width: 768px) {
+    background: rgba(var(--secondary-rgb), 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 10px 0;
+    margin: 0 -15px 20px -15px;
+    padding: 10px 15px;
+  }
 
-    @media (max-width: 600px) {
-      flex-direction: column;
-      gap: 10px;
+  .watchlist-search {
+    position: relative;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
 
-      select.watchlist-status-select,
-      button.btn-primary {
-        width: 100%;
-        height: 48px; // Touch-friendly height
+    .d-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary-medium);
+      pointer-events: none;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 40px 10px 40px;
+      border: 1px solid var(--primary-low);
+      border-radius: 100px;
+      background: var(--primary-very-low);
+      font-size: 1rem;
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--tertiary);
+        background: var(--secondary);
+        box-shadow: 0 0 0 3px var(--tertiary-low);
+      }
+    }
+
+    .btn-clear-search {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      padding: 4px;
+      color: var(--primary-medium);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: var(--primary);
       }
     }
   }
 
-  select.watchlist-status-select {
-    flex: 1;
-    border-radius: 8px;
-    border: 1px solid var(--primary-low);
-    background: var(--secondary);
-    height: 40px;
-    padding: 0 15px;
-  }
-
-  button.btn-primary {
-    height: 40px;
-    padding: 0 25px;
-    font-weight: bold;
-    border-radius: 8px;
-  }
-
-  .current-status-info {
+  .watchlist-nav-tabs {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-    color: var(--primary-high);
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch;
 
-    .current-status-badge {
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: white;
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
-      &.watching {
-        background: #3498db;
+    .nav-tab {
+      flex: 0 0 auto;
+      padding: 8px 18px;
+      border-radius: 20px;
+      background: var(--primary-very-low);
+      border: 1px solid var(--primary-low);
+      color: var(--primary-medium);
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--primary-low);
+        color: var(--primary);
       }
 
-      &.completed {
-        background: #27ae60;
+      &.active {
+        background: var(--tertiary);
+        color: white;
+        border-color: var(--tertiary);
+        box-shadow: 0 4px 10px rgba(var(--tertiary-rgb), 0.3);
       }
 
-      &.plan_to_watch {
-        background: #9b59b6;
-      }
-
-      &.on_hold {
-        background: #f39c12;
-      }
-
-      &.dropped {
-        background: #7f8c8d;
+      &:active {
+        transform: scale(0.95);
       }
     }
   }
@@ -1088,52 +1124,134 @@
   h1 {
     font-size: 3rem;
     font-weight: 800;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     text-align: center;
 
     @media (max-width: 768px) {
-      font-size: 2rem;
+      font-size: 2.2rem;
+      margin-top: 10px;
     }
   }
 
   .watchlist-group {
     margin-bottom: 60px;
 
+    @media (max-width: 768px) {
+      margin-bottom: 40px;
+    }
+
     h2 {
       display: inline-block;
       padding: 8px 24px;
       border-radius: 100px;
-      margin-bottom: 30px;
-      font-size: 1.2rem;
+      margin-bottom: 25px;
+      font-size: 1.1rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       box-shadow: var(--shadow-low);
+
+      @media (max-width: 768px) {
+        font-size: 0.9rem;
+        padding: 6px 18px;
+        margin-bottom: 15px;
+      }
     }
 
     &.watching h2 {
-      background: var(--success);
-      color: var(--secondary);
+      background: #3498db;
+      color: white;
     }
 
-    &.plain_to_watch h2,
     &.plan_to_watch h2 {
-      background: var(--tertiary);
-      color: var(--secondary);
+      background: #9b59b6;
+      color: white;
     }
 
     &.completed h2 {
-      background: var(--primary-high);
-      color: var(--secondary);
+      background: #27ae60;
+      color: white;
     }
 
     &.on_hold h2 {
-      background: var(--primary-medium);
-      color: var(--secondary);
+      background: #f39c12;
+      color: white;
     }
 
     &.dropped h2 {
-      background: var(--danger);
-      color: var(--secondary);
+      background: #7f8c8d;
+      color: white;
+    }
+  }
+
+  // Mobile List View Transformation
+  @media (max-width: 768px) {
+    .watchlist-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      .watchlist-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        background: var(--primary-very-low);
+        padding: 10px;
+        border-radius: 16px;
+        border: 1px solid var(--primary-low);
+        gap: 15px;
+
+        .anime-card-image {
+          flex: 0 0 70px;
+          height: 100px;
+          border-radius: 10px;
+          overflow: hidden;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .item-actions {
+            opacity: 1;
+            transform: none;
+            top: 5px;
+            right: 5px;
+
+            .btn-danger {
+              width: 32px;
+              height: 32px;
+              background: rgba(var(--danger-rgb), 0.85);
+            }
+          }
+        }
+
+        .anime-card-content {
+          flex: 1;
+          padding: 0;
+          text-align: left;
+
+          .anime-card-title {
+            margin: 0;
+
+            a {
+              font-size: 1rem;
+              font-weight: 700;
+              line-height: 1.3;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              line-clamp: 2;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+            }
+          }
+        }
+
+        &:active {
+          background: var(--primary-low);
+          transform: scale(0.98);
+        }
+      }
     }
   }
 }
