@@ -1,4 +1,12 @@
 <div class="anime-detail-container">
+    {{#if this.backdropUrl}}
+    <div class="anime-backdrop-wrapper">
+        <div class="anime-backdrop-image" style={{html-safe (concat "background-image: url(" this.backdropUrl ")" )}}>
+        </div>
+        <div class="anime-backdrop-overlay"></div>
+    </div>
+    {{/if}}
+
     <div class="anime-detail-header">
         <div class="anime-detail-image">
             <img src={{or this.model.images.jpg.large_image_url
@@ -317,14 +325,22 @@
     {{!-- Additional Media --}}
     {{#if this.model.tmdb.videos}}
     <div class="anime-videos-section">
-        <h2>{{d-icon "video"}} Videos & Trailers</h2>
+        <div class="section-header">
+            <h2>{{d-icon "video"}} Videos & Trailers</h2>
+        </div>
         <div class="videos-grid">
             {{#each this.model.tmdb.videos as |video|}}
             {{#if (eq video.site "YouTube")}}
-            <div class="video-card">
-                <iframe src="https://www.youtube-nocookie.com/embed/{{video.key}}" frameborder="0" allowfullscreen
-                    loading="lazy"></iframe>
-                <p class="video-title">{{video.name}}</p>
+            <div class="video-card" {{on "click" (fn this.playVideo video)}}>
+                <div class="video-thumbnail">
+                    <img src="https://img.youtube.com/vi/{{video.key}}/mqdefault.jpg" alt={{video.name}}
+                        loading="lazy" />
+                    <div class="play-overlay">{{d-icon "play"}}</div>
+                </div>
+                <div class="video-info">
+                    <span class="video-type">{{video.type}}</span>
+                    <p class="video-title">{{video.name}}</p>
+                </div>
             </div>
             {{/if}}
             {{/each}}
@@ -332,13 +348,36 @@
     </div>
     {{/if}}
 
+    {{!-- Video Modal --}}
+    {{#if this.activeVideo}}
+    <div class="anime-video-modal" {{on "click" this.closeVideo}}>
+        <div class="modal-content" {{on "click" this.stopClick}}>
+            <button type="button" class="close-modal" {{on "click" this.closeVideo}}>
+                {{d-icon "times"}}
+            </button>
+            <div class="video-wrapper">
+                <iframe src="https://www.youtube-nocookie.com/embed/{{this.activeVideo.key}}?autoplay=1" frameborder="0"
+                    allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+            <div class="modal-footer">
+                <h3>{{this.activeVideo.name}}</h3>
+                <span class="video-type">{{this.activeVideo.type}}</span>
+            </div>
+        </div>
+    </div>
+    {{/if}}
+
     {{!-- Alternative Posters --}}
     {{#if this.model.tmdb.posters}}
     <div class="anime-posters-section">
-        <h2>{{d-icon "images"}} Alternative Posters</h2>
+        <div class="section-header">
+            <h2>{{d-icon "images"}} Alternative Posters</h2>
+        </div>
         <div class="posters-grid">
             {{#each this.model.tmdb.posters as |poster|}}
-            <img src="https://image.tmdb.org/t/p/w342{{poster.file_path}}" alt="Poster" loading="lazy" />
+            <div class="poster-item">
+                <img src="https://image.tmdb.org/t/p/w342{{poster.file_path}}" alt="Poster" loading="lazy" />
+            </div>
             {{/each}}
         </div>
     </div>

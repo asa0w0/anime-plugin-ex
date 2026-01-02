@@ -12,6 +12,14 @@ export default class ShowController extends Controller {
     @tracked selectedStatus = null;
     @tracked _manualStatus = null;
     @tracked episodePage = 1;
+    @tracked activeVideo = null; // For video modal
+
+    get backdropUrl() {
+        if (this.model?.tmdb?.backdrop_path) {
+            return `https://image.tmdb.org/t/p/original${this.model.tmdb.backdrop_path}`;
+        }
+        return null;
+    }
 
     slugify(text) {
         return text
@@ -226,6 +234,21 @@ export default class ShowController extends Controller {
             : 'What do you think about this anime?';
 
         return body;
+    }
+
+    @action
+    playVideo(video) {
+        this.activeVideo = video;
+    }
+
+    @action
+    closeVideo() {
+        this.activeVideo = null;
+    }
+
+    @action
+    stopClick(event) {
+        event.stopPropagation();
     }
 
     @action
