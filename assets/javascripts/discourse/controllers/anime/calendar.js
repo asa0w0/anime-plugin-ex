@@ -76,6 +76,25 @@ export default class CalendarController extends Controller {
     }
 
     calculateCountdown(anime) {
+        // Prefer precise AniList timestamp
+        if (anime.airing_at) {
+            const now = new Date();
+            const airDate = new Date(anime.airing_at * 1000);
+            const diff = airDate - now;
+
+            if (diff > 0) {
+                const totalSeconds = Math.floor(diff / 1000);
+                const days = Math.floor(totalSeconds / 86400);
+                const hours = Math.floor((totalSeconds % 86400) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+                return {
+                    days, hours, minutes, totalSeconds,
+                    formatted: this.formatCountdown(days, hours, minutes)
+                };
+            }
+        }
+
         if (!anime.broadcast?.day || !anime.broadcast?.time) {
             return null;
         }
@@ -136,6 +155,11 @@ export default class CalendarController extends Controller {
     }
 
     getNextEpisodeTime(anime) {
+        if (anime.airing_at) {
+            return new Date(anime.airing_at * 1000).toLocaleTimeString([], {
+                hour: '2-digit', minute: '2-digit', hour12: false
+            });
+        }
         if (!anime.broadcast?.time) return null;
 
         const [hours, minutes] = anime.broadcast.time.split(':').map(Number);

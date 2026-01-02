@@ -21,6 +21,58 @@ class AnilistService
     nil
   end
 
+  def self.fetch_airing_schedule(days = 7)
+    return nil unless SiteSetting.anime_enable_anilist
+
+    start_time = Time.now.to_i
+    end_time = (Time.now + days.days).to_i
+
+    query = <<~GRAPHQL
+      query ($start: Int, $end: Int) {
+        Page(page: 1, perPage: 50) {
+          airingSchedules(airingAt_greater: $start, airingAt_less: $end, sort: TIME_DESC) {
+            airingAt
+            episode
+            media {
+              id
+              idMal
+              title {
+                romaji
+                english
+              }
+              coverImage {
+                large
+              }
+              popularity
+              averageScore
+              genres
+              description
+              status
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    uri = URI(ENDPOINT)
+    request = Net::HTTP::Post.new(uri)
+    request['Content-Type'] = 'application/json'
+    request.body = {
+      query: query,
+      variables: { start: start_time, end: end_time }
+    }.to_json
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+
+    if response.code == '200'
+      JSON.parse(response.body).dig('data', 'Page', 'airingSchedules')
+    else
+      nil
+    end
+  end
+
   private
 
   def self.execute_query(mal_id)
