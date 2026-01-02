@@ -296,21 +296,32 @@ export default class ShowController extends Controller {
         }
 
         try {
-            await ajax("/anime/watchlist", {
+            const response = await ajax("/anime/watchlist", {
                 type: "POST",
                 data: {
                     anime_id: this.model.mal_id,
                     status: status,
                     title: this.model.title,
-                    image_url: this.model.images.jpg.image_url,
+                    image_url: this.model.images?.jpg?.image_url || "",
                 }
             });
-            this._manualStatus = status;
-            this.fabMenuOpen = false;
+
+            if (response.success) {
+                this._manualStatus = status;
+                this.fabMenuOpen = false;
+            } else {
+                console.error("Watchlist error:", response);
+                alert(response.error || "Failed to update watchlist");
+            }
         } catch (error) {
             console.error("Error updating watchlist:", error);
+            // Show user-friendly error
+            if (error.jqXHR?.responseJSON?.error) {
+                alert(error.jqXHR.responseJSON.error);
+            }
         }
     }
+
 
     @action
     closeFabMenu() {
