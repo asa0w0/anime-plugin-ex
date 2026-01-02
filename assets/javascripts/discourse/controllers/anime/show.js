@@ -42,6 +42,14 @@ export default class ShowController extends Controller {
         return Math.ceil(episodes.length / this.episodesPerPage);
     }
 
+    get scoreColorClass() {
+        const score = parseFloat(this.model?.score);
+        if (isNaN(score)) return "unknown";
+        if (score >= 8.0) return "high";
+        if (score >= 6.0) return "medium";
+        return "low";
+    }
+
     get paginatedEpisodes() {
         const episodes = this.enhancedEpisodes || [];
         const start = (this.episodePage - 1) * this.episodesPerPage;

@@ -15,9 +15,11 @@
         </div>
         <div class="anime-detail-info">
             <h1>{{or this.model.title "Loading..."}}</h1>
-            <div class="anime-rating">
-                <span class="label">Score:</span>
-                <span class="value">{{or this.model.score "N/A"}}</span>
+            <div class="anime-rating {{this.scoreColorClass}}">
+                <span class="score-circle">
+                    <span class="value">{{or this.model.score "N/A"}}</span>
+                </span>
+                <span class="label">User Score</span>
             </div>
             <div class="anime-meta">
                 <p><strong>Status:</strong> {{or this.model.status "N/A"}}</p>
