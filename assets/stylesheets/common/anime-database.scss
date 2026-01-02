@@ -437,10 +437,19 @@
     z-index: 0;
   }
 
-  @media (media-width: 900px) {
-    grid-template-columns: 1fr;
-    padding: 30px;
-    gap: 30px;
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr !important;
+    padding: 20px !important;
+    gap: 20px !important;
+    text-align: center;
+
+    .anime-detail-image img {
+      max-width: 240px;
+    }
+
+    .anime-detail-info h1 {
+      font-size: 1.8rem;
+    }
   }
 
   .anime-detail-image {
@@ -496,21 +505,29 @@
 
     .anime-meta {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 15px;
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
 
       p {
         margin: 0;
         font-size: 1rem;
         color: var(--primary-high);
+        background: var(--primary-very-low);
+        padding: 10px;
+        border-radius: 12px;
 
         strong {
           display: block;
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           text-transform: uppercase;
           letter-spacing: 0.05em;
           color: var(--primary-medium);
-          margin-bottom: 2px;
+          margin-bottom: 4px;
         }
       }
     }
@@ -953,8 +970,15 @@
     display: flex;
     gap: 12px;
 
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
       flex-direction: column;
+      gap: 10px;
+
+      select.watchlist-status-select,
+      button.btn-primary {
+        width: 100%;
+        height: 48px; // Touch-friendly height
+      }
     }
   }
 
@@ -1434,11 +1458,29 @@
     }
 
     .anime-search-bar {
+      width: 100%;
+
       input {
         padding: 12px 15px 12px 40px;
         font-size: 1.1em;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .search-section {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .btn-advanced-search {
+      align-self: center;
+      width: 100%;
+      justify-content: center;
+      background: var(--primary-very-low);
+      padding: 10px;
     }
   }
 
@@ -1546,8 +1588,12 @@
   animation: slideDown 0.3s ease-out;
 
   .filter-group {
-    flex: 1;
+    flex: 1 1 140px;
     min-width: 140px;
+
+    @media (max-width: 480px) {
+      flex: 1 1 100%;
+    }
 
     label {
       display: block;
@@ -1559,10 +1605,11 @@
 
     select {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       border: 1px solid var(--primary-low);
-      border-radius: 6px;
+      border-radius: 8px;
       background: var(--secondary);
+      font-size: 1rem; // Prevents iOS zoom
     }
   }
 }
@@ -1634,7 +1681,7 @@
 
   .characters-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 20px;
 
     @media (max-width: 1200px) {
@@ -1967,7 +2014,7 @@
 // Cast Grid
 .cast-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 20px;
 
   @media (max-width: 992px) {
@@ -2114,6 +2161,10 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .video-card {
@@ -2206,8 +2257,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 10px; // Smaller padding for mobile
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   .modal-content {
     width: 100%;
@@ -2267,6 +2319,16 @@
       font-weight: 600;
       font-size: 0.8rem;
     }
+  }
+}
+
+.posters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -2518,17 +2580,37 @@
     .episode-number {
       width: 100% !important;
       flex-direction: row !important;
+      justify-content: flex-start !important;
       gap: 15px;
-      padding: 10px !important;
+      padding: 15px !important;
       border-right: none !important;
       border-bottom: 1px solid var(--primary-low) !important;
+
+      .number {
+        font-size: 1.4rem;
+        margin-bottom: 0;
+      }
+    }
+
+    .episode-main-info {
+      padding: 15px !important;
+
+      .episode-title-container {
+
+        .discussion-link,
+        .episode-title-only {
+          font-size: 1.1rem;
+        }
+      }
     }
 
     .episode-streaming-sidebar {
       width: 100% !important;
-      height: 60px !important;
+      height: auto !important;
+      min-height: 60px !important;
       border-left: none !important;
       border-top: 1px dashed var(--primary-low) !important;
+      padding: 15px !important;
 
       .streaming-provider-box {
         flex-direction: row !important;
