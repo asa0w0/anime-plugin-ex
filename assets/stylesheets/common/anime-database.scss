@@ -2369,11 +2369,6 @@
       border-color: var(--tertiary-low);
       box-shadow: var(--shadow-card);
     }
-
-    // Allow overflow on mobile for horizontal scrolling
-    @media (max-width: 600px) {
-      overflow: visible;
-    }
   }
 
   .episode-number {
@@ -2641,25 +2636,16 @@
       padding: 10px 12px !important;
       display: flex !important;
       flex-direction: row !important;
-      flex-wrap: nowrap !important;
-      overflow-x: auto !important;
+      flex-wrap: wrap !important;
+      justify-content: flex-start !important;
       gap: 8px !important;
-      -webkit-overflow-scrolling: touch;
-
-      // Hide scrollbar but allow scrolling
-      &::-webkit-scrollbar {
-        display: none;
-      }
-
-      -ms-overflow-style: none;
-      scrollbar-width: none;
 
       .streaming-sidebar-link {
         flex: 0 0 auto !important;
-        width: 44px !important;
-        height: 44px !important;
+        width: 40px !important;
+        height: 40px !important;
         max-width: none !important;
-        border-radius: 10px;
+        border-radius: 8px;
         background: var(--primary-low);
       }
 
@@ -2668,8 +2654,8 @@
         gap: 0 !important;
 
         .provider-large-favicon {
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
         }
 
         // Hide labels on mobile, show only icons
