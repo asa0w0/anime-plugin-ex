@@ -2716,3 +2716,257 @@
 .anime-streaming-section {
   display: none !important;
 }
+
+// ========================================
+// COMPREHENSIVE MOBILE OPTIMIZATIONS
+// ========================================
+
+// Touch device detection - disable hover effects
+@media (hover: none) and (pointer: coarse) {
+
+  .anime-card:hover,
+  .anime-card-enhanced:hover {
+    transform: none !important;
+
+    .anime-card-image img {
+      transform: none !important;
+    }
+  }
+
+  .anime-card-quick-add {
+    opacity: 1 !important;
+  }
+
+  .calendar-anime-item:hover,
+  .relation-card:hover,
+  .character-card:hover,
+  .cast-card:hover,
+  .video-card:hover {
+    transform: none !important;
+  }
+}
+
+// Mobile Pagination - Full width, touch friendly
+@media (max-width: 600px) {
+  .anime-pagination {
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 15px 10px !important;
+
+    .btn {
+      width: 100% !important;
+      min-height: 48px !important;
+      justify-content: center !important;
+      font-size: 1rem !important;
+    }
+
+    .page-info {
+      order: -1;
+      padding: 8px 0;
+    }
+  }
+
+  .calendar-footer .load-more-btn {
+    width: 100%;
+    min-height: 50px;
+  }
+}
+
+// Mobile Calendar Page
+@media (max-width: 768px) {
+  .calendar-page {
+    .calendar-header {
+      padding: 20px 15px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+
+      h1 {
+        font-size: 1.5rem;
+        flex-direction: column;
+        gap: 8px;
+
+        .d-icon {
+          font-size: 1.5rem;
+        }
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+
+    .calendar-day {
+      padding: 15px;
+      min-height: auto;
+
+      h3 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+      }
+    }
+
+    .calendar-anime-item {
+      padding: 8px;
+      gap: 10px;
+
+      img {
+        width: 40px;
+        height: 58px;
+      }
+
+      .anime-info {
+        .anime-title {
+          font-size: 0.8rem;
+        }
+
+        .anime-time {
+          font-size: 0.65rem;
+        }
+      }
+    }
+  }
+}
+
+// Mobile Seasons Page
+@media (max-width: 768px) {
+  .seasons-page {
+    .seasons-header {
+      padding: 20px 15px;
+      border-radius: 16px;
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      p {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+      }
+    }
+
+    .season-selector {
+      flex-direction: column;
+      gap: 15px;
+
+      .year-group {
+        width: 100%;
+
+        .season-buttons {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+
+          .season-btn {
+            padding: 12px 10px;
+            font-size: 0.9rem;
+            min-height: 48px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mobile Watchlist Page
+@media (max-width: 600px) {
+  .anime-watchlist-container {
+    padding: 15px 10px;
+
+    h1 {
+      font-size: 1.6rem !important;
+      margin-bottom: 25px !important;
+    }
+
+    .watchlist-group {
+      margin-bottom: 40px;
+
+      h2 {
+        font-size: 1rem;
+        padding: 6px 18px;
+      }
+    }
+  }
+
+  .watchlist-item .item-actions {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+  }
+}
+
+// Mobile Detail Page Header
+@media (max-width: 600px) {
+  .anime-detail-header {
+    padding: 15px !important;
+    margin-top: 20px !important;
+
+    .anime-detail-image img {
+      max-width: 200px !important;
+      margin: 0 auto;
+    }
+
+    .anime-detail-info {
+      text-align: center;
+
+      h1 {
+        font-size: 1.5rem !important;
+      }
+
+      .anime-rating {
+        justify-content: center;
+      }
+
+      .anime-genres {
+        justify-content: center;
+      }
+    }
+  }
+
+  .anime-synopsis {
+    padding: 15px !important;
+
+    h2 {
+      font-size: 1.3rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+  }
+
+  .anime-trailer {
+    padding: 15px !important;
+
+    .anime-video-container {
+      border-radius: 12px;
+    }
+  }
+}
+
+// Touch-friendly button sizes
+@media (max-width: 600px) {
+
+  .btn,
+  button {
+    min-height: 44px;
+  }
+
+  .btn-small {
+    min-height: 40px;
+    padding: 8px 14px;
+  }
+
+  .anime-discussion-section,
+  .anime-episodes-section {
+    padding: 15px !important;
+
+    h2 {
+      font-size: 1.3rem;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
