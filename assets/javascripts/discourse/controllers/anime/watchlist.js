@@ -117,7 +117,7 @@ export default class WatchlistController extends Controller {
         this._currentX = 0;
     }
 
-    // Computed getters
+    // Computed getters - Single pass optimization
     get filteredModel() {
         const term = (this.searchTerm || "").trim().toLowerCase();
         const items = this.model || [];
@@ -129,24 +129,43 @@ export default class WatchlistController extends Controller {
         );
     }
 
+    // Single-pass grouping for all status categories
+    get groupedByStatus() {
+        const groups = {
+            watching: [],
+            plan_to_watch: [],
+            completed: [],
+            on_hold: [],
+            dropped: []
+        };
+
+        for (const item of this.filteredModel) {
+            if (groups[item.status]) {
+                groups[item.status].push(item);
+            }
+        }
+
+        return groups;
+    }
+
     get watching() {
-        return this.filteredModel.filter(item => item.status === "watching");
+        return this.groupedByStatus.watching;
     }
 
     get planned() {
-        return this.filteredModel.filter(item => item.status === "plan_to_watch");
+        return this.groupedByStatus.plan_to_watch;
     }
 
     get completed() {
-        return this.filteredModel.filter(item => item.status === "completed");
+        return this.groupedByStatus.completed;
     }
 
     get onHold() {
-        return this.filteredModel.filter(item => item.status === "on_hold");
+        return this.groupedByStatus.on_hold;
     }
 
     get dropped() {
-        return this.filteredModel.filter(item => item.status === "dropped");
+        return this.groupedByStatus.dropped;
     }
 
     @action

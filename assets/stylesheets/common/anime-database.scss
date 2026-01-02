@@ -1,10 +1,39 @@
 // Variables for consistent premium look
 :root {
+  // Layout & Spacing
   --anime-card-radius: 16px;
+  --anime-card-radius-sm: 10px;
+  --anime-spacing-xs: 5px;
+  --anime-spacing-sm: 10px;
+  --anime-spacing-md: 15px;
+  --anime-spacing-lg: 25px;
+  --anime-spacing-xl: 40px;
+
+  // Animations
   --anime-transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --anime-transition-fast: all 0.15s ease;
+
+  // Glass Effect
   --anime-glass-bg: rgba(var(--secondary-rgb), 0.7);
   --anime-glass-blur: blur(12px);
+
+  // Shadows
+  --anime-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --anime-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --anime-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+  // Status Colors
+  --anime-status-watching: #3498db;
+  --anime-status-completed: #27ae60;
+  --anime-status-planned: #9b59b6;
+  --anime-status-onhold: #f39c12;
+  --anime-status-dropped: #7f8c8d;
+
+  // Breakpoints (for reference, used with @media)
+  // $mobile: 768px
+  // $tablet: 1024px
 }
+
 
 .anime-database-container,
 .anime-detail-container,

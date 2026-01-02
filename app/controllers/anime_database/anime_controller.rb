@@ -217,7 +217,7 @@ module AnimeDatabase
     
     def episodes
       anime_id = params[:id]
-      cache_key = "anime_episodes_list_v3_#{anime_id}"
+      cache_key = "anime_episodes_list_v4_#{anime_id}"
 
       # Fetch from API with cache
       api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
@@ -225,11 +225,12 @@ module AnimeDatabase
         page = 1
         has_next = true
         fetch_success = false
+        max_pages = 3 # Reduced from 5 to prevent long requests
 
         Rails.logger.info("[Anime Plugin] Fetching episodes for anime_id=#{anime_id} from API...")
 
-        # Fetch all pages of episodes
-        while has_next && page <= 5
+        # Fetch pages without blocking sleep (rate limiting handled in fetch_from_api)
+        while has_next && page <= max_pages
           url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}"
           response = fetch_from_api(url)
           
@@ -245,14 +246,14 @@ module AnimeDatabase
           end
           
           page += 1
-          sleep(0.5) if has_next
+          # NOTE: Removed sleep(0.5) - rate limiting is handled by fetch_from_api retry logic
         end
 
-        # Only cache if we actually got some data or if the API confirmed 0 episodes
+        # Only cache if we actually got some data
         if fetch_success && (all_episodes.present? || page > 1)
           all_episodes
         else
-          nil # Returning nil prevents caching in most Discourse.cache setups
+          nil
         end
       end
 
