@@ -4,6 +4,8 @@ module Jobs
   class AnimeSyncJob < ::Jobs::Base
     sidekiq_options queue: 'low'
     
+    MAX_IMAGE_SIZE = 5.megabytes
+    
     def execute(args)
       mal_id = args[:mal_id]
       return if mal_id.blank?
@@ -15,6 +17,7 @@ module Jobs
       return unless response && response['data']
       
       data = response['data']
+      image_url = data.dig('images', 'jpg', 'large_image_url')
       
       # Upsert into local cache
       AnimeDatabase::AnimeCache.upsert({
@@ -23,7 +26,7 @@ module Jobs
         title_english: data['title_english'],
         title_japanese: data['title_japanese'],
         synopsis: data['synopsis'],
-        image_url: data.dig('images', 'jpg', 'large_image_url'),
+        image_url: image_url,
         banner_url: data.dig('images', 'jpg', 'image_url'),
         score: data['score'],
         scored_by: data['scored_by'],
@@ -52,6 +55,11 @@ module Jobs
       
       Rails.logger.info("[AnimeSyncJob] Successfully synced anime #{mal_id}: #{data['title']}")
       
+      # Download and upload image to Discourse
+      if image_url.present?
+        download_and_upload_image(mal_id, image_url)
+      end
+      
       # Queue episode sync if anime is airing
       if map_status(data['status']) == 'airing'
         Jobs.enqueue(:episode_sync_job, mal_id: mal_id)
@@ -61,6 +69,57 @@ module Jobs
       Rails.logger.error("[AnimeSyncJob] Error syncing anime #{mal_id}: #{e.class} - #{e.message}")
       Rails.logger.error(e.backtrace.first(5).join("\n"))
     end
+    
+    private
+    
+    def download_and_upload_image(mal_id, image_url)
+      anime_cache = AnimeDatabase::AnimeCache.find_by(mal_id: mal_id)
+      return unless anime_cache
+      
+      # Skip if already has a local image
+      if anime_cache.local_image_url.present?
+        Rails.logger.debug("[AnimeSyncJob] Anime #{mal_id} already has local image")
+        return
+      end
+      
+      begin
+        # Download image
+        tempfile = FileHelper.download(
+          image_url,
+          max_file_size: MAX_IMAGE_SIZE,
+          tmp_file_name: "anime_#{mal_id}",
+          follow_redirect: true
+        )
+        
+        return unless tempfile
+        
+        # Determine filename
+        filename = "anime_cover_#{mal_id}.jpg"
+        
+        # Create upload using Discourse's UploadCreator
+        upload = UploadCreator.new(
+          tempfile,
+          filename,
+          type: "composer"
+        ).create_for(Discourse.system_user.id)
+        
+        if upload.persisted?
+          anime_cache.update(
+            local_image_upload_id: upload.id,
+            local_image_url: upload.url
+          )
+          Rails.logger.info("[AnimeSyncJob] Uploaded image for anime #{mal_id}: #{upload.url}")
+        else
+          Rails.logger.warn("[AnimeSyncJob] Failed to upload image for anime #{mal_id}: #{upload.errors.full_messages.join(', ')}")
+        end
+        
+      rescue => e
+        Rails.logger.error("[AnimeSyncJob] Error downloading/uploading image for #{mal_id}: #{e.message}")
+      ensure
+        tempfile&.close!
+      end
+    end
+
     
     private
     

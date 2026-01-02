@@ -72,6 +72,9 @@ module AnimeDatabase
     
     # Convert to API-compatible format
     def to_api_hash
+      # Prefer local image if available
+      effective_image_url = local_image_url.presence || image_url
+      
       {
         'mal_id' => mal_id,
         'title' => title,
@@ -79,7 +82,7 @@ module AnimeDatabase
         'title_japanese' => title_japanese,
         'synopsis' => synopsis,
         'images' => {
-          'jpg' => { 'large_image_url' => image_url }
+          'jpg' => { 'large_image_url' => effective_image_url }
         },
         'score' => score&.to_f,
         'scored_by' => scored_by,
@@ -103,7 +106,8 @@ module AnimeDatabase
         'themes' => (themes || []).map { |t| { 'name' => t } },
         'demographics' => (demographics || []).map { |d| { 'name' => d } },
         '_cached' => true,
-        '_cached_at' => last_api_sync_at&.iso8601
+        '_cached_at' => last_api_sync_at&.iso8601,
+        '_local_image' => local_image_url.present?
       }
     end
     
