@@ -12,11 +12,13 @@ module AnimeDatabase
       order_by = params[:sort].presence || "score"
       sort_order = params[:order].presence || "desc"
 
-      cache_key = "anime_list_search_#{query}_#{type}_#{status}_#{genres}_#{order_by}_#{sort_order}"
+      page = params[:page].presence || 1
+      
+      cache_key = "anime_list_search_#{query}_#{type}_#{status}_#{genres}_#{order_by}_#{sort_order}_p#{page}"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         if query.present? || type.present? || status.present? || genres.present?
-          url = "https://api.jikan.moe/v4/anime?limit=24"
+          url = "https://api.jikan.moe/v4/anime?limit=24&page=#{page}"
           url += "&q=#{CGI.escape(query)}" if query
           url += "&type=#{CGI.escape(type)}" if type
           url += "&status=#{CGI.escape(status)}" if status
@@ -25,7 +27,7 @@ module AnimeDatabase
           fetch_from_api(url)
         else
           # Fallback to top anime if no filters
-          fetch_from_api("https://api.jikan.moe/v4/top/anime?limit=24")
+          fetch_from_api("https://api.jikan.moe/v4/top/anime?limit=24&page=#{page}")
         end
       end
 

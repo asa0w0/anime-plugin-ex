@@ -33,7 +33,9 @@ export default class IndexRoute extends Route {
 
         return {
             anime: animeData,
-            watchlistData: watchlistData
+            watchlistData: watchlistData,
+            pagination: response.pagination,
+            hasNextPage: response.pagination?.has_next_page || false
         };
     }
 

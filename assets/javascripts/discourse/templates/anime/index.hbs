@@ -26,9 +26,9 @@
   </div>
 
   <div class="anime-grid">
-    {{#if this.model.anime}}
-    {{#if this.model.anime.length}}
-    {{#each this.model.anime as |anime|}}
+    {{#if this.fullAnimeList}}
+    {{#if this.fullAnimeList.length}}
+    {{#each this.fullAnimeList as |anime|}}
     <AnimeCard @anime={{anime}} @watchlistData={{this.watchlistData}} @onWatchlistUpdate={{this.refreshWatchlist}}
       @activeAnimeId={{this.activeAnimeId}} @onToggleMenu={{this.toggleMenu}} />
     {{/each}}
@@ -41,6 +41,19 @@
     <div class="anime-loading">
       <p>Loading anime database...</p>
     </div>
+    {{/if}}
+  </div>
+
+  <div class="calendar-footer">
+    {{#if this.hasNextPage}}
+    <button type="button" class="btn btn-primary load-more-btn" {{on "click" this.loadMore}}
+      disabled={{this.loadingMore}}>
+      {{#if this.loadingMore}}
+      {{d-icon "spinner" class="fa-spin"}} Loading...
+      {{else}}
+      {{d-icon "plus"}} Load More Anime
+      {{/if}}
+    </button>
     {{/if}}
   </div>
 </div>

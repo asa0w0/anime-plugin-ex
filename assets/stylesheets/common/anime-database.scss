@@ -2538,6 +2538,48 @@
   }
 }
 
+.calendar-footer {
+  margin-top: 40px;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid var(--primary-low);
+  width: 100%;
+
+  .load-more-btn {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: var(--anime-transition);
+
+    .fa-spin {
+      margin-right: 5px;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(var(--tertiary-rgb), 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+
+  .no-more-anime {
+    color: var(--primary-medium);
+    font-size: 0.95rem;
+    font-style: italic;
+  }
+}
+
 .anime-streaming-section {
   display: none !important;
 }
