@@ -14,12 +14,17 @@ export default class WatchlistController extends Controller {
     }
 
     get filteredModel() {
-        let items = this.model || [];
-        if (this.searchTerm) {
-            const query = this.searchTerm.toLowerCase();
-            items = items.filter(item => item.title.toLowerCase().includes(query));
+        const term = (this.searchTerm || "").trim().toLowerCase();
+        const items = this.model || [];
+
+        if (!term) {
+            return items;
         }
-        return items;
+
+        return items.filter(item => {
+            const title = (item.title || "").toLowerCase();
+            return title.includes(term);
+        });
     }
 
     get watching() {
@@ -44,19 +49,19 @@ export default class WatchlistController extends Controller {
 
     @action
     setSearchTerm(event) {
-        this.searchTerm = event.target.value;
+        this.set("searchTerm", event.target.value);
     }
 
     @action
     clearSearch() {
         this.vibrate(5);
-        this.searchTerm = "";
+        this.set("searchTerm", "");
     }
 
     @action
     setActiveFilter(filter) {
         this.vibrate(5);
-        this.activeFilter = filter;
+        this.set("activeFilter", filter);
     }
 
     @action
@@ -64,7 +69,8 @@ export default class WatchlistController extends Controller {
         this.vibrate(15);
         try {
             await ajax(`/anime/watchlist/${animeId}`, { type: "DELETE" });
-            this.set("model", this.model.filter(item => item.anime_id !== animeId));
+            const newModel = (this.model || []).filter(item => item.anime_id !== animeId);
+            this.set("model", newModel);
             this.vibrate([10, 50, 10]); // Success pattern
         } catch (error) {
             console.error("Error removing from watchlist:", error);

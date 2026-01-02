@@ -1201,15 +1201,15 @@
         gap: 15px;
 
         .anime-card-image {
-          flex: 0 0 70px;
-          height: 100px;
+          flex: 0 0 80px;
+          height: 120px;
           border-radius: 10px;
           overflow: hidden;
 
           img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover !important;
           }
 
           .item-actions {
@@ -1230,14 +1230,22 @@
           flex: 1;
           padding: 0;
           text-align: left;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
 
           .anime-card-title {
             margin: 0;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
 
             a {
               font-size: 1rem;
               font-weight: 700;
               line-height: 1.3;
+              color: var(--primary) !important;
+              background: transparent !important;
               display: -webkit-box;
               -webkit-line-clamp: 2;
               line-clamp: 2;
