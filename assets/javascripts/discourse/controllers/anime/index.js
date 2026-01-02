@@ -35,11 +35,11 @@ export default class IndexController extends Controller {
     constructor() {
         super(...arguments);
         this.showFilters = !!(this.type || this.status || this.genre || (this.sort && this.sort !== this.siteSettings.anime_default_sort));
-        this.hasNextPage = this.model?.hasNextPage || false;
     }
 
     get fullAnimeList() {
-        return [...(this.model?.anime || []), ...this.extraAnime];
+        const initialAnime = this.model?.anime || [];
+        return [...initialAnime, ...this.extraAnime];
     }
 
     @action
@@ -59,7 +59,8 @@ export default class IndexController extends Controller {
                 sort: this.sort
             };
 
-            const result = await ajax("/anime", { data: params });
+            // Use .json explicitly to ensure we get a JSON response
+            const result = await ajax("/anime.json", { data: params });
 
             if (result && result.data) {
                 this.extraAnime = [...this.extraAnime, ...result.data];
