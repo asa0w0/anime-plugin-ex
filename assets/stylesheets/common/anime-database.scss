@@ -2265,12 +2265,14 @@
     transition: var(--anime-transition);
 
     .streaming-sidebar-link {
+      display: flex !important;
+      flex-direction: column !important;
       flex: 1 0 48px !important; // 3 columns with gaps/padding
       max-width: 55px !important;
       height: 60px !important;
       position: relative;
-      align-items: center;
-      justify-content: center;
+      align-items: center !important;
+      justify-content: center !important;
       text-decoration: none;
       color: var(--primary);
       transition: var(--anime-transition);
