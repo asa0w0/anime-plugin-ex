@@ -1,17 +1,22 @@
 <div class="anime-watchlist-container">
     <h1>My Anime Watchlist</h1>
 
-    {{#if this.model.length}}
     <div class="watchlist-controls-top">
-        <div class="watchlist-search">
-            {{d-icon "magnifying-glass"}}
-            <input type="text" placeholder="Search title..." value={{this.searchTerm}} {{on "input"
-                this.setSearchTerm}} />
-            {{#if this.searchTerm}}
-            <button type="button" class="btn-clear-search" {{on "click" this.clearSearch}}>
-                {{d-icon "times"}}
+        <div class="watchlist-top-row">
+            <div class="watchlist-search">
+                {{d-icon "magnifying-glass"}}
+                <input type="text" placeholder="Search title..." value={{this.searchTerm}} {{on "input"
+                    this.setSearchTerm}} />
+                {{#if this.searchTerm}}
+                <button type="button" class="btn-clear-search" {{on "click" this.clearSearch}}>
+                    {{d-icon "times"}}
+                </button>
+                {{/if}}
+            </div>
+            <button type="button" class="btn btn-default btn-bulk-edit {{if this.editMode 'active'}}" {{on "click"
+                this.toggleEditMode}}>
+                {{#if this.editMode}}Cancel{{else}}Edit{{/if}}
             </button>
-            {{/if}}
         </div>
 
         <div class="watchlist-nav-tabs">
@@ -33,23 +38,43 @@
     <div class="watchlist-groups">
         {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'watching'))}}
         <div class="watchlist-group watching">
-            <h2>Watching</h2>
+            <h2>Watching ({{this.watching.length}})</h2>
             <div class="anime-grid watchlist-grid">
                 {{#each this.watching as |item|}}
-                <div class="anime-card watchlist-item">
-                    <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
-                        <div class="item-actions">
-                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-can"}}
-                            </button>
-                        </div>
+                <div class="anime-card watchlist-item {{if (this.isItemSelected item.anime_id) 'selected'}} {{if this.editMode 'edit-mode'}}"
+                    data-anime-id={{item.anime_id}}>
+                    {{!-- Background Swipe Layers --}}
+                    <div class="swipe-layer swipe-layer-right">
+                        {{d-icon "check"}} <span>Complete</span>
                     </div>
-                    <div class="anime-card-content">
-                        <h3 class="anime-card-title">
-                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
-                        </h3>
+                    <div class="swipe-layer swipe-layer-left">
+                        {{d-icon "trash-can"}} <span>Delete</span>
+                    </div>
+
+                    <div class="item-content-wrapper" {{on "touchstart" (fn this.handleTouchStart item.anime_id)}}
+                        {{on "touchmove" this.handleTouchMove}} {{on "touchend" (fn this.handleTouchEnd item.anime_id)}}
+                        {{on "click" (if this.editMode (fn this.toggleSelection item.anime_id))}}>
+
+                        {{#if this.editMode}}
+                        <div class="selection-indicator">
+                            {{d-icon (if (this.isItemSelected item.anime_id) "check-circle" "circle")}}
+                        </div>
+                        {{/if}}
+
+                        <div class="anime-card-image">
+                            <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
+                            <div class="item-actions">
+                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                    this.removeFromWatchlist item.anime_id)}}>
+                                    {{d-icon "trash-can"}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="anime-card-content">
+                            <h3 class="anime-card-title">
+                                <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                            </h3>
+                        </div>
                     </div>
                 </div>
                 {{/each}}
@@ -62,23 +87,42 @@
 
         {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'plan_to_watch'))}}
         <div class="watchlist-group plan_to_watch">
-            <h2>Plan to Watch</h2>
+            <h2>Plan to Watch ({{this.planned.length}})</h2>
             <div class="anime-grid watchlist-grid">
                 {{#each this.planned as |item|}}
-                <div class="anime-card watchlist-item">
-                    <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
-                        <div class="item-actions">
-                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-can"}}
-                            </button>
-                        </div>
+                <div class="anime-card watchlist-item {{if (this.isItemSelected item.anime_id) 'selected'}} {{if this.editMode 'edit-mode'}}"
+                    data-anime-id={{item.anime_id}}>
+                    <div class="swipe-layer swipe-layer-right">
+                        {{d-icon "check"}} <span>Complete</span>
                     </div>
-                    <div class="anime-card-content">
-                        <h3 class="anime-card-title">
-                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
-                        </h3>
+                    <div class="swipe-layer swipe-layer-left">
+                        {{d-icon "trash-can"}} <span>Delete</span>
+                    </div>
+
+                    <div class="item-content-wrapper" {{on "touchstart" (fn this.handleTouchStart item.anime_id)}}
+                        {{on "touchmove" this.handleTouchMove}} {{on "touchend" (fn this.handleTouchEnd item.anime_id)}}
+                        {{on "click" (if this.editMode (fn this.toggleSelection item.anime_id))}}>
+
+                        {{#if this.editMode}}
+                        <div class="selection-indicator">
+                            {{d-icon (if (this.isItemSelected item.anime_id) "check-circle" "circle")}}
+                        </div>
+                        {{/if}}
+
+                        <div class="anime-card-image">
+                            <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
+                            <div class="item-actions">
+                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                    this.removeFromWatchlist item.anime_id)}}>
+                                    {{d-icon "trash-can"}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="anime-card-content">
+                            <h3 class="anime-card-title">
+                                <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                            </h3>
+                        </div>
                     </div>
                 </div>
                 {{/each}}
@@ -91,23 +135,42 @@
 
         {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'completed'))}}
         <div class="watchlist-group completed">
-            <h2>Completed</h2>
+            <h2>Completed ({{this.completed.length}})</h2>
             <div class="anime-grid watchlist-grid">
                 {{#each this.completed as |item|}}
-                <div class="anime-card watchlist-item">
-                    <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
-                        <div class="item-actions">
-                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-can"}}
-                            </button>
-                        </div>
+                <div class="anime-card watchlist-item {{if (this.isItemSelected item.anime_id) 'selected'}} {{if this.editMode 'edit-mode'}}"
+                    data-anime-id={{item.anime_id}}>
+                    <div class="swipe-layer swipe-layer-right">
+                        {{d-icon "check"}} <span>Complete</span>
                     </div>
-                    <div class="anime-card-content">
-                        <h3 class="anime-card-title">
-                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
-                        </h3>
+                    <div class="swipe-layer swipe-layer-left">
+                        {{d-icon "trash-can"}} <span>Delete</span>
+                    </div>
+
+                    <div class="item-content-wrapper" {{on "touchstart" (fn this.handleTouchStart item.anime_id)}}
+                        {{on "touchmove" this.handleTouchMove}} {{on "touchend" (fn this.handleTouchEnd item.anime_id)}}
+                        {{on "click" (if this.editMode (fn this.toggleSelection item.anime_id))}}>
+
+                        {{#if this.editMode}}
+                        <div class="selection-indicator">
+                            {{d-icon (if (this.isItemSelected item.anime_id) "check-circle" "circle")}}
+                        </div>
+                        {{/if}}
+
+                        <div class="anime-card-image">
+                            <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
+                            <div class="item-actions">
+                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                    this.removeFromWatchlist item.anime_id)}}>
+                                    {{d-icon "trash-can"}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="anime-card-content">
+                            <h3 class="anime-card-title">
+                                <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                            </h3>
+                        </div>
                     </div>
                 </div>
                 {{/each}}
@@ -120,23 +183,42 @@
 
         {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'on_hold'))}}
         <div class="watchlist-group on_hold">
-            <h2>On Hold</h2>
+            <h2>On Hold ({{this.onHold.length}})</h2>
             <div class="anime-grid watchlist-grid">
                 {{#each this.onHold as |item|}}
-                <div class="anime-card watchlist-item">
-                    <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
-                        <div class="item-actions">
-                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-can"}}
-                            </button>
-                        </div>
+                <div class="anime-card watchlist-item {{if (this.isItemSelected item.anime_id) 'selected'}} {{if this.editMode 'edit-mode'}}"
+                    data-anime-id={{item.anime_id}}>
+                    <div class="swipe-layer swipe-layer-right">
+                        {{d-icon "check"}} <span>Complete</span>
                     </div>
-                    <div class="anime-card-content">
-                        <h3 class="anime-card-title">
-                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
-                        </h3>
+                    <div class="swipe-layer swipe-layer-left">
+                        {{d-icon "trash-can"}} <span>Delete</span>
+                    </div>
+
+                    <div class="item-content-wrapper" {{on "touchstart" (fn this.handleTouchStart item.anime_id)}}
+                        {{on "touchmove" this.handleTouchMove}} {{on "touchend" (fn this.handleTouchEnd item.anime_id)}}
+                        {{on "click" (if this.editMode (fn this.toggleSelection item.anime_id))}}>
+
+                        {{#if this.editMode}}
+                        <div class="selection-indicator">
+                            {{d-icon (if (this.isItemSelected item.anime_id) "check-circle" "circle")}}
+                        </div>
+                        {{/if}}
+
+                        <div class="anime-card-image">
+                            <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
+                            <div class="item-actions">
+                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                    this.removeFromWatchlist item.anime_id)}}>
+                                    {{d-icon "trash-can"}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="anime-card-content">
+                            <h3 class="anime-card-title">
+                                <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                            </h3>
+                        </div>
                     </div>
                 </div>
                 {{/each}}
@@ -149,23 +231,42 @@
 
         {{#if (or (eq this.activeFilter 'all') (eq this.activeFilter 'dropped'))}}
         <div class="watchlist-group dropped">
-            <h2>Dropped</h2>
+            <h2>Dropped ({{this.dropped.length}})</h2>
             <div class="anime-grid watchlist-grid">
                 {{#each this.dropped as |item|}}
-                <div class="anime-card watchlist-item">
-                    <div class="anime-card-image">
-                        <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
-                        <div class="item-actions">
-                            <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                this.removeFromWatchlist item.anime_id)}}>
-                                {{d-icon "trash-can"}}
-                            </button>
-                        </div>
+                <div class="anime-card watchlist-item {{if (this.isItemSelected item.anime_id) 'selected'}} {{if this.editMode 'edit-mode'}}"
+                    data-anime-id={{item.anime_id}}>
+                    <div class="swipe-layer swipe-layer-right">
+                        {{d-icon "check"}} <span>Complete</span>
                     </div>
-                    <div class="anime-card-content">
-                        <h3 class="anime-card-title">
-                            <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
-                        </h3>
+                    <div class="swipe-layer swipe-layer-left">
+                        {{d-icon "trash-can"}} <span>Delete</span>
+                    </div>
+
+                    <div class="item-content-wrapper" {{on "touchstart" (fn this.handleTouchStart item.anime_id)}}
+                        {{on "touchmove" this.handleTouchMove}} {{on "touchend" (fn this.handleTouchEnd item.anime_id)}}
+                        {{on "click" (if this.editMode (fn this.toggleSelection item.anime_id))}}>
+
+                        {{#if this.editMode}}
+                        <div class="selection-indicator">
+                            {{d-icon (if (this.isItemSelected item.anime_id) "check-circle" "circle")}}
+                        </div>
+                        {{/if}}
+
+                        <div class="anime-card-image">
+                            <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
+                            <div class="item-actions">
+                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
+                                    this.removeFromWatchlist item.anime_id)}}>
+                                    {{d-icon "trash-can"}}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="anime-card-content">
+                            <h3 class="anime-card-title">
+                                <a href="/anime/{{item.anime_id}}">{{item.title}}</a>
+                            </h3>
+                        </div>
                     </div>
                 </div>
                 {{/each}}
@@ -176,6 +277,27 @@
         </div>
         {{/if}}
     </div>
+    {{#if this.editMode}}
+    <div class="watchlist-bulk-actions">
+        <div class="selection-info">
+            <button type="button" class="btn-select-all" {{on "click" this.toggleSelectAll}}>
+                {{if this.isAllSelected "Deselect All" "Select All"}}
+            </button>
+            <span class="count">{{this.selectedIds.size}} selected</span>
+        </div>
+        <div class="action-buttons">
+            <button type="button" class="btn btn-danger" {{on "click" this.bulkDelete}}>
+                {{d-icon "trash-can"}} Delete
+            </button>
+            <button type="button" class="btn btn-primary" {{on "click" (fn this.bulkChangeStatus "completed" )}}>
+                {{d-icon "check"}} Complete
+            </button>
+            <button type="button" class="btn btn-default" {{on "click" (fn this.bulkChangeStatus "plan_to_watch" )}}>
+                {{d-icon "clock"}} Plan
+            </button>
+        </div>
+    </div>
+    {{/if}}
     {{else}}
     <div class="no-items">
         <p>Your watchlist is empty. Go to an anime page to add one!</p>
