@@ -141,9 +141,7 @@
                 {{#each this.completed as |item|}}
                 <div class="anime-card watchlist-item {{if (this.isItemSelected item.anime_id) 'selected'}} {{if this.editMode 'edit-mode'}}"
                     data-anime-id={{item.anime_id}}>
-                    <div class="swipe-layer swipe-layer-right">
-                        {{d-icon "check"}} <span>Complete</span>
-                    </div>
+                    {{!-- Background Swipe Layers --}}
                     <div class="swipe-layer swipe-layer-left">
                         {{d-icon "trash-can"}} <span>Delete</span>
                     </div>

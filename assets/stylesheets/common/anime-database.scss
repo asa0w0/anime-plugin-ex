@@ -1157,90 +1157,15 @@
   }
 }
 
-// Mobile List View Transformation
+// Mobile List View Transformation & Swipe Implementation
 @media (max-width: 768px) {
-  .watchlist-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    .watchlist-item {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      background: var(--primary-very-low);
-      padding: 10px;
-      border-radius: 16px;
-      border: 1px solid var(--primary-low);
-      gap: 15px;
-
-      .anime-card-image {
-        flex: 0 0 80px;
-        height: 120px;
-        border-radius: 10px;
-        overflow: hidden;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover !important;
-        }
-
-        .item-actions {
-          opacity: 1;
-          transform: none;
-          top: 5px;
-          right: 5px;
-
-          .btn-danger {
-            width: 32px;
-            height: 32px;
-            background: rgba(var(--danger-rgb), 0.85);
-          }
-        }
-      }
-
-      .anime-card-content {
-        flex: 1;
-        padding: 0;
-        text-align: left;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-
-        .anime-card-title {
-          margin: 0;
-          background: transparent !important;
-          border: none !important;
-          padding: 0 !important;
-
-          a {
-            font-size: 1rem;
-            font-weight: 700;
-            line-height: 1.3;
-            color: var(--primary) !important;
-            background: transparent !important;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-          }
-        }
-      }
-
-      &:active {
-        background: var(--primary-low);
-        transform: scale(0.98);
-      }
-    }
-  }
-
-  // Swipe-to-Action & Bulk Edit Implementation
   .watchlist-item {
     position: relative;
     overflow: hidden;
-    background: var(--secondary);
+    background: transparent; // Reveal swipe layers below
+    margin-bottom: 12px;
+    border-radius: 16px;
+    border: 1px solid var(--primary-low);
 
     .swipe-layer {
       position: absolute;
@@ -1290,135 +1215,161 @@
       align-items: center;
       padding: 10px;
       gap: 15px;
-      border-bottom: 1px solid var(--primary-low);
+      border-radius: 15px; // Slightly less than parent to avoid bleed
+
+      .selection-indicator {
+        flex: 0 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-medium);
+        font-size: 1.2rem;
+
+        .d-icon-check-circle {
+          color: var(--tertiary);
+        }
+      }
+
+      &.selected {
+        background: var(--tertiary-very-low);
+      }
+
+      .anime-card-image {
+        flex: 0 0 80px;
+        height: 120px;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover !important;
+        }
+
+        .item-actions {
+          opacity: 1;
+          transform: none;
+          top: 5px;
+          right: 5px;
+          display: none; // Hidden in favor of swipe, but kept for non-touch if needed
+
+          .btn-danger {
+            width: 32px;
+            height: 32px;
+            background: rgba(var(--danger-rgb), 0.85);
+          }
+        }
+      }
+
+      .anime-card-content {
+        flex: 1;
+        padding: 0 !important;
+        text-align: left;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+
+        .anime-card-title {
+          margin: 0;
+          background: transparent !important;
+          border: none !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+
+          a {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--primary) !important;
+            background: transparent !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-decoration: none !important;
+          }
+        }
+      }
+    }
+
+    &:active .item-content-wrapper {
+      background: var(--primary-low);
     }
 
     &.edit-mode .item-content-wrapper {
       padding-left: 5px;
     }
+  }
+}
 
-    .selection-indicator {
-      flex: 0 0 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary-medium);
-      font-size: 1.2rem;
+// Bulk Actions Floating Bar
+.watchlist-bulk-actions {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: rgba(var(--secondary-rgb), 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--primary-low);
+  border-radius: 100px;
+  padding: 10px 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
-      .d-icon-check-circle {
-        color: var(--tertiary);
-      }
+  .selection-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--primary-low);
+    padding-bottom: 5px;
+
+    .btn-select-all {
+      background: none;
+      border: none;
+      color: var(--tertiary);
+      font-weight: 700;
+      padding: 0;
     }
 
-    &.selected {
-      background: var(--tertiary-very-low);
-
-      .item-content-wrapper {
-        background: transparent;
-      }
-    }
-
-    .anime-card-image {
-      flex: 0 0 80px;
-      height: 120px;
-      border-radius: 8px;
-      overflow: hidden;
-      position: relative;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover !important;
-      }
-    }
-
-    .anime-card-content {
-      flex: 1;
-
-      .anime-card-title {
-        margin: 0;
-
-        a {
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: var(--primary);
-        }
-      }
-    }
-
-    // Hide old delete button in mobile list view
-    .item-actions {
-      display: none;
+    .count {
+      color: var(--primary-high);
+      font-weight: 600;
     }
   }
 
-  // Bulk Actions Floating Bar
-  .watchlist-bulk-actions {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    background: rgba(var(--secondary-rgb), 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--primary-low);
-    border-radius: 100px;
-    padding: 10px 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
+  .action-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    justify-content: space-around;
 
-    .selection-info {
+    .btn {
+      background: none;
+      border: none;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      font-size: 0.85rem;
-      border-bottom: 1px solid var(--primary-low);
-      padding-bottom: 5px;
+      gap: 2px;
+      font-size: 0.7rem;
+      color: var(--primary-high);
+      padding: 5px;
 
-      .btn-select-all {
-        background: none;
-        border: none;
+      .d-icon {
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      &.btn-danger {
+        color: var(--danger);
+      }
+
+      &.btn-primary {
         color: var(--tertiary);
-        font-weight: 700;
-        padding: 0;
-      }
-
-      .count {
-        color: var(--primary-high);
-        font-weight: 600;
-      }
-    }
-
-    .action-buttons {
-      display: flex;
-      justify-content: space-around;
-
-      .btn {
-        background: none;
-        border: none;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        font-size: 0.7rem;
-        color: var(--primary-high);
-        padding: 5px;
-
-        .d-icon {
-          font-size: 1.1rem;
-          margin: 0;
-        }
-
-        &.btn-danger {
-          color: var(--danger);
-        }
-
-        &.btn-primary {
-          color: var(--tertiary);
-        }
       }
     }
   }
