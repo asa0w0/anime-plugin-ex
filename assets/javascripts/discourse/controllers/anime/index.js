@@ -59,8 +59,8 @@ export default class IndexController extends Controller {
                 sort: this.sort
             };
 
-            // Use .json explicitly to ensure we get a JSON response
-            const result = await ajax("/anime.json", { data: params });
+            // Using /anime without .json to avoid route matching issues on engine root
+            const result = await ajax("/anime", { data: params });
 
             if (result && result.data) {
                 this.extraAnime = [...this.extraAnime, ...result.data];
