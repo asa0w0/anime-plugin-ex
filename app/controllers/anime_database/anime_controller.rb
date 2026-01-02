@@ -217,13 +217,14 @@ module AnimeDatabase
     
     def episodes
       anime_id = params[:id]
-      cache_key = "anime_episodes_list_v2_#{anime_id}"
+      cache_key = "anime_episodes_list_v3_#{anime_id}"
 
       # Fetch from API with cache
       api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         all_episodes = []
         page = 1
         has_next = true
+        fetch_success = false
 
         Rails.logger.info("[Anime Plugin] Fetching episodes for anime_id=#{anime_id} from API...")
 
@@ -232,25 +233,36 @@ module AnimeDatabase
           url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}"
           response = fetch_from_api(url)
           
-          unless response.is_a?(Hash) && response["data"].is_a?(Array)
+          if response.is_a?(Hash) && response["data"].is_a?(Array)
+            all_episodes.concat(response["data"])
+            has_next = response.dig("pagination", "has_next_page") || false
+            fetch_success = true
+            
+            Rails.logger.debug("[Anime Plugin] Fetched page #{page} for anime_id=#{anime_id}. Found #{response["data"].length} episodes. has_next=#{has_next}")
+          else
             Rails.logger.error("[Anime Plugin] Failed to fetch episodes page #{page} for anime_id=#{anime_id}. Response: #{response.inspect}")
             break
           end
           
-          all_episodes.concat(response["data"])
-          has_next = response.dig("pagination", "has_next_page") || false
-          
-          Rails.logger.debug("[Anime Plugin] Fetched page #{page} for anime_id=#{anime_id}. Found #{response["data"].length} episodes. has_next=#{has_next}")
-          
           page += 1
-          sleep(0.5) if has_next # Slightly longer sleep to be safe with Jikan rate limits
+          sleep(0.5) if has_next
         end
 
-        all_episodes
+        # Only cache if we actually got some data or if the API confirmed 0 episodes
+        if fetch_success && (all_episodes.present? || page > 1)
+          all_episodes
+        else
+          nil # Returning nil prevents caching in most Discourse.cache setups
+        end
       end
 
       api_episodes ||= []
-      Rails.logger.info("[Anime Plugin] Returning #{api_episodes.length} episodes for anime_id=#{anime_id}")
+      
+      # If still empty after cache attempt (e.g. nil returned from block), 
+      # we might want to log it specifically
+      if api_episodes.empty?
+        Rails.logger.warn("[Anime Plugin] Episode list is empty for anime_id=#{anime_id} after API fetch attempt.")
+      end
       
       # Fetch local episode discussions
       local_discussions = AnimeDatabase::AnimeEpisodeTopic
@@ -300,6 +312,8 @@ module AnimeDatabase
 
       # Sort by episode number
       merged_episodes.sort_by! { |e| e[:episode_number] }
+
+      Rails.logger.info("[Anime Plugin] Returning #{merged_episodes.length} merged episodes for anime_id=#{anime_id} (API: #{api_episodes.length}, Local extras: #{merged_episodes.length - api_episodes.length})")
 
       render json: { episodes: merged_episodes }
     rescue => e
