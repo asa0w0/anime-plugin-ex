@@ -100,7 +100,14 @@ export default class ShowController extends Controller {
         if (!status) {
             return "";
         }
-        return status.charAt(0).toUpperCase() + status.slice(1);
+        const labels = {
+            watching: "Watching",
+            completed: "Completed",
+            plan_to_watch: "Plan to Watch",
+            on_hold: "On Hold",
+            dropped: "Dropped"
+        };
+        return labels[status] || (status.charAt(0).toUpperCase() + status.slice(1));
     }
 
     @action

@@ -997,6 +997,43 @@
     font-weight: bold;
     border-radius: 8px;
   }
+
+  .current-status-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--primary-high);
+
+    .current-status-badge {
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: white;
+
+      &.watching {
+        background: #3498db;
+      }
+
+      &.completed {
+        background: #27ae60;
+      }
+
+      &.plan_to_watch {
+        background: #9b59b6;
+      }
+
+      &.on_hold {
+        background: #f39c12;
+      }
+
+      &.dropped {
+        background: #7f8c8d;
+      }
+    }
+  }
 }
 
 // Watchlist Page
@@ -1031,7 +1068,8 @@
       color: var(--secondary);
     }
 
-    &.planned h2 {
+    &.plain_to_watch h2,
+    &.plan_to_watch h2 {
       background: var(--tertiary);
       color: var(--secondary);
     }
@@ -1041,7 +1079,7 @@
       color: var(--secondary);
     }
 
-    &.on-hold h2 {
+    &.on_hold h2 {
       background: var(--primary-medium);
       color: var(--secondary);
     }
@@ -3109,8 +3147,16 @@
         background: #27ae60;
       }
 
-      &.planned {
+      &.plan_to_watch {
         background: #9b59b6;
+      }
+
+      &.on_hold {
+        background: #f39c12;
+      }
+
+      &.dropped {
+        background: #7f8c8d;
       }
     }
 
@@ -3158,7 +3204,7 @@
           font-size: 1rem;
         }
 
-        &.planned {
+        &.plan_to_watch {
           background: #9b59b6;
           color: white;
         }
@@ -3170,6 +3216,16 @@
 
         &.completed {
           background: #27ae60;
+          color: white;
+        }
+
+        &.on_hold {
+          background: #f39c12;
+          color: white;
+        }
+
+        &.dropped {
+          background: #7f8c8d;
           color: white;
         }
 

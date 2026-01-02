@@ -34,13 +34,16 @@
             <div class="anime-watchlist-actions">
                 <div class="watchlist-controls">
                     <select class="watchlist-status-select" {{on "change" this.changeStatus}}>
-                        <option value="">Choose Status...</option>
-                        <option value="planned" selected={{eq (or this.selectedStatus this.watchlistStatus) "planned"
-                            }}>Plan to Watch</option>
+                        <option value="plan_to_watch" selected={{eq (or this.selectedStatus
+                            this.watchlistStatus) "plan_to_watch" }}>Plan to Watch</option>
                         <option value="watching" selected={{eq (or this.selectedStatus this.watchlistStatus) "watching"
                             }}>Watching</option>
                         <option value="completed" selected={{eq (or this.selectedStatus
                             this.watchlistStatus) "completed" }}>Completed</option>
+                        <option value="on_hold" selected={{eq (or this.selectedStatus this.watchlistStatus) "on_hold"
+                            }}>On Hold</option>
+                        <option value="dropped" selected={{eq (or this.selectedStatus this.watchlistStatus) "dropped"
+                            }}>Dropped</option>
                     </select>
 
                     <button type="button" class="btn btn-primary" {{on "click" this.saveToWatchlist}} disabled={{not (or
@@ -428,8 +431,9 @@
 
     {{!-- Status Menu --}}
     <div class="fab-menu {{if this.fabMenuOpen 'visible'}}">
-        <button type="button" class="fab-menu-item planned {{if (eq this.watchlistStatus 'planned') 'active'}}"
-            {{on "click" (fn this.setStatusFromFab "planned" )}}>
+        <button type="button"
+            class="fab-menu-item plan_to_watch {{if (eq this.watchlistStatus 'plan_to_watch') 'active'}}" {{on "click"
+            (fn this.setStatusFromFab "plan_to_watch" )}}>
             {{d-icon "clock"}} Plan to Watch
         </button>
         <button type="button" class="fab-menu-item watching {{if (eq this.watchlistStatus 'watching') 'active'}}"
@@ -439,6 +443,14 @@
         <button type="button" class="fab-menu-item completed {{if (eq this.watchlistStatus 'completed') 'active'}}"
             {{on "click" (fn this.setStatusFromFab "completed" )}}>
             {{d-icon "check"}} Completed
+        </button>
+        <button type="button" class="fab-menu-item on_hold {{if (eq this.watchlistStatus 'on_hold') 'active'}}"
+            {{on "click" (fn this.setStatusFromFab "on_hold" )}}>
+            {{d-icon "pause"}} On Hold
+        </button>
+        <button type="button" class="fab-menu-item dropped {{if (eq this.watchlistStatus 'dropped') 'active'}}"
+            {{on "click" (fn this.setStatusFromFab "dropped" )}}>
+            {{d-icon "times"}} Dropped
         </button>
     </div>
 
