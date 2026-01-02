@@ -1190,6 +1190,17 @@
   }
 }
 
+// Desktop: Hide mobile-only swipe elements
+.watchlist-item {
+  .swipe-layer {
+    display: none !important;
+  }
+
+  .selection-indicator {
+    display: none;
+  }
+}
+
 // Mobile List View Transformation & Swipe Implementation
 @media (max-width: 768px) {
   .watchlist-item {
@@ -1209,7 +1220,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      display: flex;
+      display: flex !important; // Override desktop hide
       align-items: center;
       padding: 0 25px;
       color: white;
