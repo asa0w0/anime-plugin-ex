@@ -473,7 +473,7 @@ module AnimeDatabase
 
     private
 
-    def fetch_from_api(url)
+    def fetch_from_api(url, retry_count = 1)
       begin
         fd = FinalDestination.new(url)
         endpoint = fd.resolve
@@ -483,14 +483,24 @@ module AnimeDatabase
         response = Excon.get(
           endpoint,
           headers: { "User-Agent" => "Discourse Anime Plugin" },
-          expects: [200, 404],
-          timeout: 5
+          expects: [200, 404, 429],
+          timeout: 10
         )
         
+        if response.status == 429 && retry_count > 0
+          sleep(1)
+          return fetch_from_api(url, retry_count - 1)
+        end
+
         JSON.parse(response.body)
       rescue => e
+        if retry_count > 0 && (e.is_a?(Excon::Error::Timeout) || e.is_a?(Excon::Error::Socket) || e.message.include?("timeout"))
+          sleep(0.5)
+          return fetch_from_api(url, retry_count - 1)
+        end
+        
         Rails.logger.error("Anime Plugin API Error: #{e.message}")
-        { error: "Failed to fetch data from API" }
+        { error: "Failed to fetch data from API", message: e.message }
       end
     end
   end
