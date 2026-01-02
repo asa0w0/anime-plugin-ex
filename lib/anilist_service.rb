@@ -55,6 +55,11 @@ class AnilistService
     GRAPHQL
 
     uri = URI(ENDPOINT)
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
+    
     request = Net::HTTP::Post.new(uri)
     request['Content-Type'] = 'application/json'
     request.body = {
@@ -62,15 +67,24 @@ class AnilistService
       variables: { start: start_time, end: end_time }
     }.to_json
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request(request)
-    end
+    response = http.request(request)
 
     if response.code == '200'
-      JSON.parse(response.body).dig('data', 'Page', 'airingSchedules')
+      data = JSON.parse(response.body)
+      data.dig('data', 'Page', 'airingSchedules') || []
     else
+      Rails.logger.warn("[AniList] Schedule API returned #{response.code}")
       nil
     end
+  rescue Net::OpenTimeout, Net::ReadTimeout => e
+    Rails.logger.error("[AniList] Timeout fetching schedule: #{e.message}")
+    nil
+  rescue JSON::ParserError => e
+    Rails.logger.error("[AniList] JSON parse error: #{e.message}")
+    nil
+  rescue => e
+    Rails.logger.error("[AniList] Unexpected error: #{e.class} - #{e.message}")
+    nil
   end
 
   private
@@ -134,6 +148,11 @@ class AnilistService
     GRAPHQL
 
     uri = URI(ENDPOINT)
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
+    
     request = Net::HTTP::Post.new(uri)
     request['Content-Type'] = 'application/json'
     request['Accept'] = 'application/json'
@@ -142,16 +161,20 @@ class AnilistService
       variables: { malId: mal_id.to_i }
     }.to_json
 
-    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request(request)
-    end
+    response = http.request(request)
 
     if response.code == '200'
       data = JSON.parse(response.body)
       data.dig('data', 'Media')
     else
-      Rails.logger.error("AniList API returned #{response.code}: #{response.body}")
+      Rails.logger.warn("[AniList] API returned #{response.code} for MAL ID #{mal_id}")
       nil
     end
+  rescue Net::OpenTimeout, Net::ReadTimeout => e
+    Rails.logger.error("[AniList] Timeout for MAL ID #{mal_id}: #{e.message}")
+    nil
+  rescue JSON::ParserError => e
+    Rails.logger.error("[AniList] JSON parse error for MAL ID #{mal_id}: #{e.message}")
+    nil
   end
 end

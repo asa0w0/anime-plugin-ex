@@ -2,96 +2,131 @@ import Controller from "@ember/controller";
 import { action } from "@ember/object";
 import { tracked } from "@glimmer/tracking";
 import { ajax } from "discourse/lib/ajax";
+import { later, cancel } from "@ember/runloop";
 
 export default class WatchlistController extends Controller {
     @tracked searchTerm = "";
     @tracked activeFilter = "all";
     @tracked editMode = false;
     @tracked selectedIds = new Set();
-    @tracked selectionTrigger = 0; // Trigger for reactivity
+    @tracked selectionTrigger = 0;
+    @tracked isLoading = false;
 
-    // Swipe state
-    startX = 0;
-    currentX = 0;
-    activeSwipeId = null;
+    // Swipe state (non-tracked for performance)
+    _startX = 0;
+    _currentX = 0;
+    _activeSwipeId = null;
+    _activeElement = null;
+    _searchDebounceTimer = null;
 
-    @action
-    handleTouchStart(animeId, event) {
-        if (this.editMode) return;
-        this.startX = event.touches[0].clientX;
-        this.activeSwipeId = animeId;
-    }
-
-    @action
-    handleTouchMove(event) {
-        if (!this.activeSwipeId || this.editMode) return;
-        this.currentX = event.touches[0].clientX;
-        const diff = this.currentX - this.startX;
-
-        // Find the element and apply transform for visual feedback
-        const el = document.querySelector(`[data-anime-id="${this.activeSwipeId}"] .item-content-wrapper`);
-        if (el) {
-            // Limit swipe distance
-            const translate = Math.max(Math.min(diff, 100), -100);
-            el.style.transform = `translateX(${translate}px)`;
-
-            // Show background layers based on direction
-            const parent = el.parentElement;
-            if (diff > 20) {
-                parent.classList.add('swiping-right');
-                parent.classList.remove('swiping-left');
-            } else if (diff < -20) {
-                parent.classList.add('swiping-left');
-                parent.classList.remove('swiping-right');
-            } else {
-                parent.classList.remove('swiping-left', 'swiping-right');
+    // Vibration helper
+    vibrate(duration = 10) {
+        if ("vibrate" in navigator) {
+            try {
+                navigator.vibrate(duration);
+            } catch (e) {
+                // Ignore vibration errors on unsupported devices
             }
         }
     }
 
+    // Debounced search
     @action
-    handleTouchEnd(animeId, event) {
-        if (!this.activeSwipeId || this.editMode) return;
+    setSearchTerm(event) {
+        const value = event.target.value;
 
-        const diff = this.currentX - this.startX;
-        const el = document.querySelector(`[data-anime-id="${this.activeSwipeId}"] .item-content-wrapper`);
-
-        if (el) {
-            el.style.transform = '';
-            el.parentElement.classList.remove('swiping-left', 'swiping-right');
+        // Cancel previous debounce timer
+        if (this._searchDebounceTimer) {
+            cancel(this._searchDebounceTimer);
         }
 
+        // Debounce 300ms for performance
+        this._searchDebounceTimer = later(this, () => {
+            this.searchTerm = value;
+        }, 300);
+    }
+
+    @action
+    clearSearch() {
+        this.vibrate(5);
+        if (this._searchDebounceTimer) {
+            cancel(this._searchDebounceTimer);
+        }
+        this.searchTerm = "";
+    }
+
+    // Touch handlers with cached element references
+    @action
+    handleTouchStart(animeId, event) {
+        if (this.editMode) return;
+
+        this._startX = event.touches[0].clientX;
+        this._activeSwipeId = animeId;
+
+        // Cache the element reference immediately
+        const target = event.currentTarget;
+        this._activeElement = target;
+    }
+
+    @action
+    handleTouchMove(event) {
+        if (!this._activeSwipeId || this.editMode || !this._activeElement) return;
+
+        this._currentX = event.touches[0].clientX;
+        const diff = this._currentX - this._startX;
+
+        // Use cached element reference
+        const el = this._activeElement;
+        const translate = Math.max(Math.min(diff, 100), -100);
+        el.style.transform = `translateX(${translate}px)`;
+
+        // Toggle swipe classes on parent
+        const parent = el.parentElement;
+        if (parent) {
+            parent.classList.toggle('swiping-right', diff > 20);
+            parent.classList.toggle('swiping-left', diff < -20);
+        }
+    }
+
+    @action
+    handleTouchEnd(animeId) {
+        if (!this._activeSwipeId || this.editMode) return;
+
+        const diff = this._currentX - this._startX;
+
+        // Use cached element reference
+        if (this._activeElement) {
+            this._activeElement.style.transform = '';
+            const parent = this._activeElement.parentElement;
+            if (parent) {
+                parent.classList.remove('swiping-left', 'swiping-right');
+            }
+        }
+
+        // Trigger actions based on swipe distance
         if (diff > 80) {
-            // Swipe Right -> Complete
             this.setStatusDirectly(animeId, 'completed');
         } else if (diff < -80) {
-            // Swipe Left -> Delete
             this.removeFromWatchlist(animeId);
         }
 
-        this.activeSwipeId = null;
-        this.startX = 0;
-        this.currentX = 0;
+        // Reset state
+        this._activeSwipeId = null;
+        this._activeElement = null;
+        this._startX = 0;
+        this._currentX = 0;
     }
 
-    vibrate(duration = 10) {
-        if ("vibrate" in navigator) {
-            navigator.vibrate(duration);
-        }
-    }
-
+    // Computed getters
     get filteredModel() {
         const term = (this.searchTerm || "").trim().toLowerCase();
         const items = this.model || [];
 
-        if (!term) {
-            return items;
-        }
+        if (!term) return items;
 
-        return items.filter(item => {
-            const title = (item.title || "").toLowerCase();
-            return title.includes(term);
-        });
+        return items.filter(item =>
+            (item.title || "").toLowerCase().includes(term)
+        );
     }
 
     get watching() {
@@ -115,35 +150,24 @@ export default class WatchlistController extends Controller {
     }
 
     @action
-    setSearchTerm(event) {
-        this.set("searchTerm", event.target.value);
-    }
-
-    @action
-    clearSearch() {
-        this.vibrate(5);
-        this.set("searchTerm", "");
-    }
-
-    @action
     setActiveFilter(filter) {
         this.vibrate(5);
-        this.set("activeFilter", filter);
+        this.activeFilter = filter;
     }
 
     @action
     isItemSelected(animeId) {
-        this.selectionTrigger;
+        this.selectionTrigger; // Trigger reactivity
         return this.selectedIds.has(animeId);
     }
 
     @action
     toggleEditMode() {
         this.vibrate(5);
-        this.set("editMode", !this.editMode);
+        this.editMode = !this.editMode;
         if (!this.editMode) {
             this.selectedIds.clear();
-            this.set("selectionTrigger", this.selectionTrigger + 1);
+            this.selectionTrigger++;
         }
     }
 
@@ -155,11 +179,11 @@ export default class WatchlistController extends Controller {
         } else {
             this.selectedIds.add(animeId);
         }
-        this.set("selectionTrigger", this.selectionTrigger + 1);
+        this.selectionTrigger++;
     }
 
     get isAllSelected() {
-        this.selectionTrigger;
+        this.selectionTrigger; // Trigger reactivity
         return (this.model || []).length > 0 && this.selectedIds.size === (this.model || []).length;
     }
 
@@ -171,7 +195,7 @@ export default class WatchlistController extends Controller {
         } else {
             (this.model || []).forEach(item => this.selectedIds.add(item.anime_id));
         }
-        this.set("selectionTrigger", this.selectionTrigger + 1);
+        this.selectionTrigger++;
     }
 
     @action
@@ -181,16 +205,29 @@ export default class WatchlistController extends Controller {
         this.vibrate(10);
         if (!confirm(`Remove ${this.selectedIds.size} items from your watchlist?`)) return;
 
+        this.isLoading = true;
         const idsToRemove = Array.from(this.selectedIds);
+
         try {
-            await Promise.all(idsToRemove.map(id => ajax(`/anime/watchlist/${id}`, { type: "DELETE" })));
+            // Process in parallel with error collection
+            const results = await Promise.allSettled(
+                idsToRemove.map(id => ajax(`/anime/watchlist/${id}`, { type: "DELETE" }))
+            );
+
+            const failedCount = results.filter(r => r.status === 'rejected').length;
+            if (failedCount > 0) {
+                console.warn(`${failedCount} items failed to delete`);
+            }
+
             const newModel = (this.model || []).filter(item => !this.selectedIds.has(item.anime_id));
-            this.set("model", newModel);
+            this.model = newModel;
             this.selectedIds.clear();
-            this.set("editMode", false);
+            this.editMode = false;
             this.vibrate([10, 50, 10]);
         } catch (error) {
             console.error("Bulk delete error:", error);
+        } finally {
+            this.isLoading = false;
         }
     }
 
@@ -199,10 +236,14 @@ export default class WatchlistController extends Controller {
         if (this.selectedIds.size === 0) return;
 
         this.vibrate(10);
+        this.isLoading = true;
         const idsToUpdate = Array.from(this.selectedIds);
+
         try {
-            await Promise.all(idsToUpdate.map(id => {
+            const results = await Promise.allSettled(idsToUpdate.map(id => {
                 const item = this.model.find(i => i.anime_id === id);
+                if (!item) return Promise.reject('Item not found');
+
                 return ajax("/anime/watchlist", {
                     type: "POST",
                     data: {
@@ -214,19 +255,25 @@ export default class WatchlistController extends Controller {
                 });
             }));
 
-            // Refresh model or update locally
-            const newModel = this.model.map(item => {
+            const failedCount = results.filter(r => r.status === 'rejected').length;
+            if (failedCount > 0) {
+                console.warn(`${failedCount} items failed to update`);
+            }
+
+            // Update model locally
+            this.model = this.model.map(item => {
                 if (this.selectedIds.has(item.anime_id)) {
                     return { ...item, status };
                 }
                 return item;
             });
-            this.set("model", newModel);
             this.selectedIds.clear();
-            this.set("editMode", false);
+            this.editMode = false;
             this.vibrate([10, 50, 10]);
         } catch (error) {
             console.error("Bulk update error:", error);
+        } finally {
+            this.isLoading = false;
         }
     }
 
@@ -245,8 +292,7 @@ export default class WatchlistController extends Controller {
                     image_url: item.image_url
                 }
             });
-            const newModel = this.model.map(i => i.anime_id === animeId ? { ...i, status } : i);
-            this.set("model", newModel);
+            this.model = this.model.map(i => i.anime_id === animeId ? { ...i, status } : i);
             this.vibrate([10, 50, 10]);
         } catch (error) {
             console.error("Direct status update error:", error);
@@ -258,9 +304,8 @@ export default class WatchlistController extends Controller {
         this.vibrate(15);
         try {
             await ajax(`/anime/watchlist/${animeId}`, { type: "DELETE" });
-            const newModel = (this.model || []).filter(item => item.anime_id !== animeId);
-            this.set("model", newModel);
-            this.vibrate([10, 50, 10]); // Success pattern
+            this.model = (this.model || []).filter(item => item.anime_id !== animeId);
+            this.vibrate([10, 50, 10]);
         } catch (error) {
             console.error("Error removing from watchlist:", error);
         }

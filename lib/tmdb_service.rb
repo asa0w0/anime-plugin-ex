@@ -51,18 +51,28 @@ class TmdbService
     uri = URI("#{BASE_URL}/search/tv")
     uri.query = URI.encode_www_form(params)
 
-    response = Net::HTTP.get_response(uri)
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
+    
+    request = Net::HTTP::Get.new(uri)
+    response = http.request(request)
 
     if response.code == '200'
       data = JSON.parse(response.body)
       results = data['results'] || []
-      
-      # Return first match (usually most relevant)
       results.first
     else
-      Rails.logger.error("TMDB search returned #{response.code}: #{response.body}")
+      Rails.logger.warn("[TMDB] Search returned #{response.code} for '#{title}'")
       nil
     end
+  rescue Net::OpenTimeout, Net::ReadTimeout => e
+    Rails.logger.error("[TMDB] Timeout searching '#{title}': #{e.message}")
+    nil
+  rescue JSON::ParserError => e
+    Rails.logger.error("[TMDB] JSON parse error: #{e.message}")
+    nil
   end
 
   def self.execute_details(tmdb_id)
@@ -74,13 +84,25 @@ class TmdbService
     uri = URI("#{BASE_URL}/tv/#{tmdb_id}")
     uri.query = URI.encode_www_form(params)
 
-    response = Net::HTTP.get_response(uri)
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
+    
+    request = Net::HTTP::Get.new(uri)
+    response = http.request(request)
 
     if response.code == '200'
       JSON.parse(response.body)
     else
-      Rails.logger.error("TMDB details returned #{response.code}: #{response.body}")
+      Rails.logger.warn("[TMDB] Details returned #{response.code} for ID #{tmdb_id}")
       nil
     end
+  rescue Net::OpenTimeout, Net::ReadTimeout => e
+    Rails.logger.error("[TMDB] Timeout for ID #{tmdb_id}: #{e.message}")
+    nil
+  rescue JSON::ParserError => e
+    Rails.logger.error("[TMDB] JSON parse error for ID #{tmdb_id}: #{e.message}")
+    nil
   end
 end
