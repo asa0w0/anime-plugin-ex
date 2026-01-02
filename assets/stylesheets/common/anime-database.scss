@@ -2581,40 +2581,100 @@
       width: 100% !important;
       flex-direction: row !important;
       justify-content: flex-start !important;
-      gap: 15px;
-      padding: 15px !important;
+      align-items: center !important;
+      gap: 12px;
+      padding: 12px 15px !important;
       border-right: none !important;
       border-bottom: 1px solid var(--primary-low) !important;
 
       .number {
-        font-size: 1.4rem;
+        font-size: 1.1rem;
+        font-weight: 700;
         margin-bottom: 0;
+        color: var(--tertiary);
+      }
+
+      .air-date {
+        font-size: 0.8rem;
+        color: var(--primary-medium);
       }
     }
 
     .episode-main-info {
-      padding: 15px !important;
+      padding: 12px 15px !important;
 
       .episode-title-container {
 
         .discussion-link,
         .episode-title-only {
-          font-size: 1.1rem;
+          font-size: 1rem;
+          line-height: 1.4;
+        }
+
+        .episode-title-japanese {
+          font-size: 0.85rem;
+        }
+      }
+
+      .episode-actions {
+        margin-top: 10px;
+
+        .btn-create-ep-discussion {
+          width: 100%;
+          justify-content: center;
         }
       }
     }
 
+    // Compact horizontal streaming bar for mobile
     .episode-streaming-sidebar {
       width: 100% !important;
       height: auto !important;
-      min-height: 60px !important;
+      min-height: auto !important;
       border-left: none !important;
       border-top: 1px dashed var(--primary-low) !important;
-      padding: 15px !important;
+      padding: 10px 12px !important;
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      gap: 8px !important;
+      -webkit-overflow-scrolling: touch;
+
+      // Hide scrollbar but allow scrolling
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+
+      .streaming-sidebar-link {
+        flex: 0 0 auto !important;
+        width: 44px !important;
+        height: 44px !important;
+        max-width: none !important;
+        border-radius: 10px;
+        background: var(--primary-low);
+      }
 
       .streaming-provider-box {
-        flex-direction: row !important;
-        gap: 12px !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+
+        .provider-large-favicon {
+          width: 22px;
+          height: 22px;
+        }
+
+        // Hide labels on mobile, show only icons
+        .provider-label {
+          display: none !important;
+        }
+      }
+
+      .streaming-action-hover {
+        display: none;
       }
     }
   }
