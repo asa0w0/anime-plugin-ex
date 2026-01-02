@@ -418,12 +418,35 @@
 
 </div>
 
-{{!-- Sticky Watchlist FAB (Mobile Only) --}}
+{{!-- Sticky Watchlist FAB with Menu (Mobile Only) --}}
 {{#if this.currentUser}}
-<div class="anime-sticky-fab {{if this.watchlistStatus 'has-status'}}">
-    <button type="button" class="fab-btn {{this.watchlistStatus}}" {{on "click" (fn
-        this.scrollToSection "anime-detail-header" )}}>
-        {{#if this.watchlistStatus}}
+<div class="anime-sticky-fab {{if this.fabMenuOpen 'menu-open'}}">
+    {{!-- Backdrop to close menu --}}
+    {{#if this.fabMenuOpen}}
+    <div class="fab-backdrop" {{on "click" this.closeFabMenu}}></div>
+    {{/if}}
+
+    {{!-- Status Menu --}}
+    <div class="fab-menu {{if this.fabMenuOpen 'visible'}}">
+        <button type="button" class="fab-menu-item planned {{if (eq this.watchlistStatus 'planned') 'active'}}"
+            {{on "click" (fn this.setStatusFromFab "planned" )}}>
+            {{d-icon "clock"}} Plan to Watch
+        </button>
+        <button type="button" class="fab-menu-item watching {{if (eq this.watchlistStatus 'watching') 'active'}}"
+            {{on "click" (fn this.setStatusFromFab "watching" )}}>
+            {{d-icon "play"}} Watching
+        </button>
+        <button type="button" class="fab-menu-item completed {{if (eq this.watchlistStatus 'completed') 'active'}}"
+            {{on "click" (fn this.setStatusFromFab "completed" )}}>
+            {{d-icon "check"}} Completed
+        </button>
+    </div>
+
+    {{!-- Main FAB Button --}}
+    <button type="button" class="fab-btn {{this.watchlistStatus}}" {{on "click" this.quickAddToWatchlist}}>
+        {{#if this.fabMenuOpen}}
+        {{d-icon "times"}}
+        {{else if this.watchlistStatus}}
         {{d-icon "check"}}
         {{else}}
         {{d-icon "plus"}}

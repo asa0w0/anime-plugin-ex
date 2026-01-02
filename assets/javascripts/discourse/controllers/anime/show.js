@@ -14,6 +14,7 @@ export default class ShowController extends Controller {
     @tracked episodePage = 1;
     @tracked activeVideo = null; // For video modal
     @tracked synopsisExpanded = false; // For collapsible synopsis
+    @tracked fabMenuOpen = false; // For FAB status menu
 
     get backdropUrl() {
         if (this.model?.tmdb?.backdrop_path) {
@@ -281,4 +282,39 @@ export default class ShowController extends Controller {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
+
+    @action
+    async quickAddToWatchlist() {
+        // Just toggle the menu
+        this.fabMenuOpen = !this.fabMenuOpen;
+    }
+
+    @action
+    async setStatusFromFab(status) {
+        if (!this.currentUser) {
+            return;
+        }
+
+        try {
+            await ajax("/anime/watchlist", {
+                type: "POST",
+                data: {
+                    anime_id: this.model.mal_id,
+                    status: status,
+                    title: this.model.title,
+                    image_url: this.model.images.jpg.image_url,
+                }
+            });
+            this._manualStatus = status;
+            this.fabMenuOpen = false;
+        } catch (error) {
+            console.error("Error updating watchlist:", error);
+        }
+    }
+
+    @action
+    closeFabMenu() {
+        this.fabMenuOpen = false;
+    }
 }
+
