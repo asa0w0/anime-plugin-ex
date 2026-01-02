@@ -7,7 +7,7 @@
     </div>
     {{/if}}
 
-    <div class="anime-detail-header">
+    <div id="anime-detail-header" class="anime-detail-header">
         <div class="anime-detail-image">
             <img src={{or this.model.images.jpg.large_image_url
                 this.model.images.jpg.image_url "/plugins/anime-plugin-ex/images/no-image.png" }} alt={{or
@@ -66,15 +66,44 @@
         </div>
     </div>
 
-    <div class="anime-synopsis">
+    {{!-- Quick Jump Navigation (Mobile) --}}
+    <nav class="anime-quick-nav">
+        {{#if this.model.trailer.embed_url}}
+        <button type="button" class="quick-nav-btn" {{on "click" (fn this.scrollToSection "anime-trailer-section" )}}>
+            {{d-icon "play"}} Trailer
+        </button>
+        {{/if}}
+        <button type="button" class="quick-nav-btn" {{on "click" (fn this.scrollToSection "anime-episodes-section" )}}>
+            {{d-icon "film"}} Episoden
+        </button>
+        {{#if this.model.anilist.characters}}
+        <button type="button" class="quick-nav-btn" {{on "click" (fn this.scrollToSection "anime-characters-section"
+            )}}>
+            {{d-icon "users"}} Charaktere
+        </button>
+        {{/if}}
+        <button type="button" class="quick-nav-btn" {{on "click" (fn this.scrollToSection "anime-discussion-section"
+            )}}>
+            {{d-icon "comments"}} Diskussion
+        </button>
+    </nav>
+
+    <div class="anime-synopsis {{unless this.synopsisExpanded 'collapsed'}}">
         <h2>Synopsis</h2>
-        <p>{{this.model.synopsis}}</p>
+        <p class="synopsis-text">{{this.model.synopsis}}</p>
+        <button type="button" class="btn-expand-synopsis" {{on "click" this.toggleSynopsis}}>
+            {{#if this.synopsisExpanded}}
+            {{d-icon "chevron-up"}} Weniger anzeigen
+            {{else}}
+            {{d-icon "chevron-down"}} Mehr lesen
+            {{/if}}
+        </button>
     </div>
 
     {{#if this.model.trailer.embed_url}}
     {{#if (or (includes this.model.trailer.embed_url "youtube.com") (includes this.model.trailer.embed_url
     "youtube-nocookie.com"))}}
-    <div class="anime-trailer">
+    <div id="anime-trailer-section" class="anime-trailer">
         <h2>Trailer</h2>
         <div class="anime-video-container">
             <iframe src={{concat this.model.trailer.embed_url "?autoplay=0&rel=0" }} frameborder="0" allowfullscreen
@@ -85,7 +114,7 @@
     {{/if}}
     {{/if}}
 
-    <div class="anime-episodes-section">
+    <div id="anime-episodes-section" class="anime-episodes-section">
         <h2>{{d-icon "film"}} Episodes & Discussions</h2>
         {{#if this.model.episodeDiscussions.length}}
         <div class="episode-discussions-list">
@@ -191,7 +220,7 @@
         {{/if}}
     </div>
 
-    <div class="anime-discussion-section">
+    <div id="anime-discussion-section" class="anime-discussion-section">
         <h2>{{d-icon "comments"}} Discussions</h2>
 
         {{#if this.model.topics}}
@@ -237,7 +266,7 @@
 
     {{!-- Characters Section --}}
     {{#if this.model.anilist.characters}}
-    <div class="anime-characters-section">
+    <div id="anime-characters-section" class="anime-characters-section">
         <h2>{{d-icon "users"}} Characters</h2>
         <div class="characters-grid">
             {{#each this.model.anilist.characters as |character|}}
@@ -388,3 +417,17 @@
     {{/if}}
 
 </div>
+
+{{!-- Sticky Watchlist FAB (Mobile Only) --}}
+{{#if this.currentUser}}
+<div class="anime-sticky-fab {{if this.watchlistStatus 'has-status'}}">
+    <button type="button" class="fab-btn {{this.watchlistStatus}}" {{on "click" (fn
+        this.scrollToSection "anime-detail-header" )}}>
+        {{#if this.watchlistStatus}}
+        {{d-icon "check"}}
+        {{else}}
+        {{d-icon "plus"}}
+        {{/if}}
+    </button>
+</div>
+{{/if}}

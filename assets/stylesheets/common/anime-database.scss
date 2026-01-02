@@ -2970,3 +2970,174 @@
     }
   }
 }
+
+// ========================================
+// ADVANCED MOBILE UX FEATURES
+// ========================================
+
+// Quick Jump Navigation (Mobile Only)
+.anime-quick-nav {
+  display: none; // Hidden on desktop
+
+  @media (max-width: 768px) {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 12px 15px;
+    margin: 0 -15px 15px -15px;
+    background: var(--secondary);
+    border-bottom: 1px solid var(--primary-low);
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .quick-nav-btn {
+      flex: 0 0 auto;
+      padding: 10px 16px;
+      border-radius: 20px;
+      background: var(--primary-very-low);
+      border: 1px solid var(--primary-low);
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+
+      .d-icon {
+        font-size: 0.8rem;
+      }
+
+      &:active {
+        background: var(--tertiary);
+        color: white;
+        border-color: var(--tertiary);
+      }
+    }
+  }
+}
+
+// Collapsible Synopsis
+.anime-synopsis {
+  &.collapsed {
+    @media (max-width: 768px) {
+      .synopsis-text {
+        max-height: 120px;
+        overflow: hidden;
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 60px;
+          background: linear-gradient(transparent, var(--secondary));
+        }
+      }
+    }
+  }
+
+  .btn-expand-synopsis {
+    display: none;
+
+    @media (max-width: 768px) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--primary-very-low);
+      border: 1px solid var(--primary-low);
+      border-radius: 8px;
+      color: var(--primary-high);
+      font-size: 0.9rem;
+      font-weight: 500;
+
+      &:active {
+        background: var(--primary-low);
+      }
+    }
+  }
+}
+
+// Sticky Floating Action Button (Mobile Watchlist)
+.anime-sticky-fab {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+
+    .fab-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--tertiary);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      .d-icon {
+        font-size: 1.4rem;
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+
+      // Status colors
+      &.watching {
+        background: #3498db;
+      }
+
+      &.completed {
+        background: #27ae60;
+      }
+
+      &.planned {
+        background: #9b59b6;
+      }
+    }
+  }
+}
+
+// Optimized Backdrop for Mobile
+@media (max-width: 600px) {
+  .anime-backdrop-wrapper {
+    max-height: 150px;
+
+    .anime-backdrop-image {
+      background-size: cover;
+      background-position: center top;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .anime-backdrop-wrapper {
+    display: none; // Hide on very small screens to save bandwidth
+  }
+}
+
+// Smooth scroll offset for section IDs
+#anime-trailer-section,
+#anime-episodes-section,
+#anime-discussion-section,
+#anime-characters-section {
+  scroll-margin-top: 70px;
+}

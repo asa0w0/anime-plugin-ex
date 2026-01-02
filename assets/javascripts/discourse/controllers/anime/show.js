@@ -13,6 +13,7 @@ export default class ShowController extends Controller {
     @tracked _manualStatus = null;
     @tracked episodePage = 1;
     @tracked activeVideo = null; // For video modal
+    @tracked synopsisExpanded = false; // For collapsible synopsis
 
     get backdropUrl() {
         if (this.model?.tmdb?.backdrop_path) {
@@ -264,8 +265,20 @@ export default class ShowController extends Controller {
     prevEpisodePage() {
         if (this.episodePage > 1) {
             this.episodePage--;
-            // Scroll to top of episodes section
             document.querySelector('.anime-episodes-section')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    @action
+    toggleSynopsis() {
+        this.synopsisExpanded = !this.synopsisExpanded;
+    }
+
+    @action
+    scrollToSection(sectionId) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 }
