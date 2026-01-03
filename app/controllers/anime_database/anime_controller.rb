@@ -58,28 +58,34 @@ module AnimeDatabase
             url = "https://api.jikan.moe/v4/anime/#{id}/full"
             res = fetch_from_api(url)
             
+            # If /full fails with 404, try the basic endpoint as fallback
+            if res.is_a?(Hash) && res["status"] == 404
+              Rails.logger.warn("[Anime Plugin] /full failed with 404 for ID #{id}, trying basic endpoint...")
+              res = fetch_from_api("https://api.jikan.moe/v4/anime/#{id}")
+            end
+
             if res.is_a?(Hash) && (res["error"] || (res["status"] && res["status"].to_i >= 400) || !res["data"])
-              { _api_error: true, status: res["status"] || 500, message: res["message"] || "API Error" }
+              # Don't cache error responses in Discourse.cache
+              nil
             else
               res
             end
           end
-          
-          if raw_response.nil? || raw_response[:_api_error] || raw_response["_api_error"] || !raw_response.is_a?(Hash) || !raw_response["data"]
+
+          if raw_response.nil? || !raw_response.is_a?(Hash) || !raw_response["data"]
             # API failed - try to return stale cache if available
             if cached_anime
               Rails.logger.warn("[Anime Plugin] API failed for ID #{id}, returning stale cache")
               anime_data = cached_anime.to_api_hash
             else
               Rails.logger.warn("[Anime Plugin] API data missing and no cache for ID #{id}")
-              Discourse.cache.delete(cache_key)
+              Discourse.cache.delete(cache_key) # Ensure we don't keep a null entry
               return render json: { error: "Anime data not available", status: 404 }, status: 404
             end
           else
             anime_data = raw_response["data"].dup
-            Rails.logger.debug("[Anime Plugin] API data for #{id}: #{anime_data['title']}")
             
-            # Queue background sync to update local cache
+            # Queue background sync to update local persistent cache
             Jobs.enqueue(:anime_sync_job, mal_id: id)
           end
         end

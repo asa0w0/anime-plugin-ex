@@ -98,6 +98,7 @@ class AnilistService
           averageScore
           popularity
           favourites
+          episodes
           tags {
             name
             rank
