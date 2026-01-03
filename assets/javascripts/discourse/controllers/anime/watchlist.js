@@ -142,7 +142,15 @@ export default class WatchlistController extends Controller {
 
     // Sorted and filtered model for table display
     get sortedFilteredModel() {
-        const items = [...this.filteredModel];
+        const items = this.filteredModel.map(item => {
+            // Access selectionTrigger to make this reactive
+            this.selectionTrigger;
+            return {
+                ...item,
+                selected: this.selectedIds.has(item.anime_id)
+            };
+        });
+
         const col = this.sortColumn;
         const dir = this.sortDirection === "asc" ? 1 : -1;
 
@@ -273,7 +281,6 @@ export default class WatchlistController extends Controller {
         }
     }
 
-    @action
     isItemSelected(animeId) {
         this.selectionTrigger; // Trigger reactivity
         return this.selectedIds.has(animeId);
@@ -378,151 +385,11 @@ export default class WatchlistController extends Controller {
         }
     }
 
-    // Legacy methods (kept for backward compatibility with other templates)
-    @action
-    toggleStatusDropdown(animeId) {
-        this.vibrate(5);
-
-        if (this.openDropdownId === animeId) {
-            this.openDropdownId = null;
-        } else {
-            this.openDropdownId = animeId;
-        }
-    }
-
-    @action
-    async setStatusDirectly(animeId, newStatus) {
-        this.vibrate(10);
-        this.openDropdownId = null;
-
-        try {
-            await ajax("/anime/watchlist", {
-                method: "POST",
-                data: {
-                    anime_id: animeId,
-                    status: newStatus
-                }
-            });
-
-            // Update local model
-            const item = this.model.find(i => i.anime_id === Number(animeId) || i.anime_id === animeId);
-            if (item) {
-                item.status = newStatus;
-                // Trigger reactivity by creating a new array
-                this.model = [...this.model];
-            }
-        } catch (error) {
-            console.error("Failed to update status:", error);
-            alert("Failed to update status. Please try again.");
-        }
-    }
-
-    @action
-    async bulkDelete() {
-        if (this.selectedIds.size === 0) return;
-
-        this.vibrate(10);
-        if (!confirm(`Remove ${this.selectedIds.size} items from your watchlist?`)) return;
-
-        this.isLoading = true;
-        const idsToRemove = Array.from(this.selectedIds);
-
-        try {
-            // Process in parallel with error collection
-            const results = await Promise.allSettled(
-                idsToRemove.map(id => ajax(`/anime/watchlist/${id}`, { type: "DELETE" }))
-            );
-
-            const failedCount = results.filter(r => r.status === 'rejected').length;
-            if (failedCount > 0) {
-                console.warn(`${failedCount} items failed to delete`);
-            }
-
-            const newModel = (this.model || []).filter(item => !this.selectedIds.has(item.anime_id));
-            this.model = newModel;
-            this.selectedIds.clear();
-            this.editMode = false;
-            this.vibrate([10, 50, 10]);
-        } catch (error) {
-            console.error("Bulk delete error:", error);
-        } finally {
-            this.isLoading = false;
-        }
-    }
-
-    @action
-    async bulkChangeStatus(status) {
-        if (this.selectedIds.size === 0) return;
-
-        this.vibrate(10);
-        this.isLoading = true;
-        const idsToUpdate = Array.from(this.selectedIds);
-
-        try {
-            const results = await Promise.allSettled(idsToUpdate.map(id => {
-                const item = this.model.find(i => i.anime_id === id);
-                if (!item) return Promise.reject('Item not found');
-
-                return ajax("/anime/watchlist", {
-                    type: "POST",
-                    data: {
-                        anime_id: id,
-                        status: status,
-                        title: item.title,
-                        image_url: item.image_url
-                    }
-                });
-            }));
-
-            const failedCount = results.filter(r => r.status === 'rejected').length;
-            if (failedCount > 0) {
-                console.warn(`${failedCount} items failed to update`);
-            }
-
-            // Update model locally
-            this.model = this.model.map(item => {
-                if (this.selectedIds.has(item.anime_id)) {
-                    return { ...item, status };
-                }
-                return item;
-            });
-            this.selectedIds.clear();
-            this.editMode = false;
-            this.vibrate([10, 50, 10]);
-        } catch (error) {
-            console.error("Bulk update error:", error);
-        } finally {
-            this.isLoading = false;
-        }
-    }
-
-    @action
-    async setStatusDirectly(animeId, status) {
-        const item = this.model.find(i => i.anime_id === animeId);
-        if (!item) return;
-
-        try {
-            await ajax("/anime/watchlist", {
-                type: "POST",
-                data: {
-                    anime_id: animeId,
-                    status: status,
-                    title: item.title,
-                    image_url: item.image_url
-                }
-            });
-            this.model = this.model.map(i => i.anime_id === animeId ? { ...i, status } : i);
-            this.vibrate([10, 50, 10]);
-        } catch (error) {
-            console.error("Direct status update error:", error);
-        }
-    }
-
     @action
     async removeFromWatchlist(animeId) {
         this.vibrate(15);
         try {
-            await ajax(`/anime/watchlist/${animeId}`, { type: "DELETE" });
+            await ajax(`/anime/watchlist/${animeId}`, { method: "DELETE" });
             this.model = (this.model || []).filter(item => item.anime_id !== animeId);
             this.vibrate([10, 50, 10]);
         } catch (error) {

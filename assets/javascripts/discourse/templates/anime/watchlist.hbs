@@ -79,17 +79,18 @@
             </thead>
             <tbody>
                 {{#each this.sortedFilteredModel as |item index|}}
-                <tr class="watchlist-row status-{{item.status}} {{if (this.isItemSelected item.anime_id) 'selected'}}"
+                <tr class="watchlist-row status-{{item.status}} {{if item.selected 'selected'}}"
                     data-anime-id={{item.anime_id}}>
                     {{!-- Row Number --}}
                     <td class="col-num">
                         {{#if this.editMode}}
                         <button type="button" class="selection-checkbox" {{on "click" (fn this.toggleSelection
                             item.anime_id)}}>
-                            {{d-icon (if (this.isItemSelected item.anime_id) "check-square" "square")}}
+                            {{d-icon (if item.selected "check-square" "square")}}
                         </button>
                         {{else}}
-                        {{add index 1}}
+                        {{!-- Row Index (CSS counters can handle this better if add is missing) --}}
+                        <span class="row-index"></span>
                         {{/if}}
                     </td>
 

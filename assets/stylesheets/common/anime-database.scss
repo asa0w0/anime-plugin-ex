@@ -3904,6 +3904,7 @@
     width: 100%;
     border-collapse: collapse;
     background: var(--secondary);
+    counter-reset: rowNumber;
 
     thead {
       background: var(--primary-very-low);
@@ -3972,6 +3973,7 @@
     tbody .watchlist-row {
       border-left: 4px solid transparent;
       transition: background 0.15s;
+      counter-increment: rowNumber;
 
       &:hover {
         background: var(--primary-very-low);
@@ -4010,6 +4012,10 @@
           text-align: center;
           color: var(--primary-medium);
           font-size: 0.85rem;
+
+          .row-index::before {
+            content: counter(rowNumber);
+          }
 
           .selection-checkbox {
             background: none;
