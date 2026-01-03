@@ -10,10 +10,9 @@ class AnimescheduleService
     api_key = SiteSetting.anime_animeschedule_api_key
     return nil if api_key.blank?
 
-    # AnimeSchedule.net API v3 /timetables
-    # Returns the schedule for the current week by default
-    uri = URI("#{ENDPOINT}/timetables")
-    params = { airType: air_type, tz: "UTC" }
+    # AnimeSchedule.net API v3 /timetables/{airType}
+    uri = URI("#{ENDPOINT}/timetables/#{air_type}")
+    params = { tz: "Asia/Tokyo" } # Use Tokyo for consistency with mapping
     uri.query = URI.encode_www_form(params)
 
     http = Net::HTTP.new(uri.hostname, uri.port)
@@ -28,7 +27,9 @@ class AnimescheduleService
     response = http.request(request)
 
     if response.code == '200'
-      JSON.parse(response.body)
+      data = JSON.parse(response.body)
+      Rails.logger.info("[AnimeSchedule] Successfully fetched #{data.is_a?(Array) ? data.length : 'unknown'} items")
+      data
     else
       Rails.logger.warn("[AnimeSchedule] API returned #{response.code}: #{response.body}")
       nil

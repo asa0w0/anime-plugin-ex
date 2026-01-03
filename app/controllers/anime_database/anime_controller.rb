@@ -519,34 +519,44 @@ module AnimeDatabase
 
     def calendar
       source = SiteSetting.anime_calendar_source
-      cache_key = "anime_schedule_#{source}"
+      cache_key = "anime_schedule_#{source}_v2"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         case source
         when "animeschedule"
           items = AnimescheduleService.fetch_timetable
           if items.present?
+            Rails.logger.info("[AnimeSchedule] Mapping #{items.length} items for calendar")
             mapped_anime = items.map do |item|
-              next if item['websites'].blank? || item['websites']['myanimelist'].blank?
+              if item['websites'].blank? || item['websites']['myanimelist'].blank?
+                Rails.logger.debug("[AnimeSchedule] Skipping item without MAL ID: #{item['title']}")
+                next
+              end
               
-              airing_time = Time.parse(item['episodeDate']).in_time_zone("Tokyo")
-              
-              {
-                "mal_id" => item['websites']['myanimelist'],
-                "title" => item['title'],
-                "images" => {
-                  "jpg" => { "large_image_url" => item['image'] }
-                },
-                "episode" => item['episodeNumber'],
-                "status" => item['status'],
-                "broadcast" => {
-                  "day" => airing_time.strftime("%A"),
-                  "time" => airing_time.strftime("%H:%M"),
-                  "timezone" => "Asia/Tokyo"
-                },
-                "airing_at" => Time.parse(item['episodeDate']).to_i
-              }
+              begin
+                airing_time = Time.parse(item['episodeDate']).in_time_zone("Tokyo")
+                
+                {
+                  "mal_id" => item['websites']['myanimelist'],
+                  "title" => item['title'],
+                  "images" => {
+                    "jpg" => { "large_image_url" => item['image'] }
+                  },
+                  "episode" => item['episodeNumber'],
+                  "status" => item['status'],
+                  "broadcast" => {
+                    "day" => airing_time.strftime("%A"),
+                    "time" => airing_time.strftime("%H:%M"),
+                    "timezone" => "Asia/Tokyo"
+                  },
+                  "airing_at" => airing_time.to_i
+                }
+              rescue => e
+                Rails.logger.warn("[AnimeSchedule] Error mapping item #{item['title']}: #{e.message}")
+                next
+              end
             end.compact
+            Rails.logger.info("[AnimeSchedule] Successfully mapped #{mapped_anime.length} items")
             { "data" => mapped_anime }
           else
             nil
