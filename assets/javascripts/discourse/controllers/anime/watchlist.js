@@ -150,10 +150,14 @@ export default class WatchlistController extends Controller {
             const total = parseInt(item.total_episodes) || 0;
             const percentage = total > 0 ? Math.min(Math.round((watched / total) * 100), 100) : 0;
 
+            // Format status: replace underscores with spaces and uppercase
+            const formattedStatus = (item.status || "").replace(/_/g, " ").toUpperCase();
+
             return {
                 ...item,
                 selected: this.selectedIds.has(item.anime_id),
-                progress_percentage: percentage
+                progress_percentage: percentage,
+                formatted_status: formattedStatus
             };
         });
 
