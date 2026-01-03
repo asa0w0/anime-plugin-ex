@@ -3791,36 +3791,38 @@
     }
 
     .nav-tab-search {
-      flex: 0 0 300px;
+      flex: 0 0 280px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 6px 16px;
+      gap: 8px;
+      padding: 4px 12px;
       background: rgba(var(--primary-rgb), 0.05);
       border: 1px solid var(--primary-low);
-      border-radius: 24px;
+      border-radius: 20px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       backdrop-filter: blur(8px);
+      height: 32px;
 
       &:focus-within {
         background: var(--secondary);
         border-color: var(--tertiary);
         box-shadow: 0 0 0 3px rgba(var(--tertiary-rgb), 0.1);
-        flex: 0 0 350px;
+        flex: 0 0 320px;
       }
 
       .d-icon {
         color: var(--primary-medium);
+        font-size: 0.9em;
       }
 
       input {
         border: none;
         background: transparent;
         outline: none;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         width: 100%;
         color: var(--primary);
-        padding: 4px 0;
+        padding: 0;
       }
 
       .btn-clear-search {
@@ -3883,8 +3885,13 @@
 
   .watchlist-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
   }
 
   .watchlist-card {
@@ -4201,17 +4208,64 @@
 
 @media (max-width: 900px) {
   .anime-watchlist-container.modern-style {
-    .watchlist-cards-grid {
-      grid-template-columns: 1fr;
-    }
+    padding: 12px;
 
     .watchlist-header {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: stretch;
+      gap: 12px;
+      margin-bottom: 20px;
+
+      h1 {
+        font-size: 1.5rem;
+      }
 
       .nav-tab-search {
-        flex: 1 0 auto;
+        flex: 1 1 auto;
         width: 100%;
+        max-width: none;
+      }
+    }
+
+    .watchlist-controls-top {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+
+      .nav-pills {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        .nav-link {
+          white-space: nowrap;
+          font-size: 0.85rem;
+          padding: 5px 12px;
+        }
+      }
+    }
+
+    .watchlist-card {
+      .card-image {
+        flex: 0 0 90px;
+        height: 130px;
+      }
+
+      .card-content {
+        padding: 12px;
+
+        .card-header .anime-title {
+          font-size: 0.95rem;
+        }
+
+        .card-meta {
+          font-size: 0.8rem;
+          gap: 10px;
+        }
       }
     }
   }
