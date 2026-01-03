@@ -143,15 +143,24 @@ module AnimeDatabase
         end
 
         # Add watchlist status if user is logged in
-        watchlist_status = nil
+        watchlist_details = nil
         if current_user
-          entry = DB.query_single("SELECT status FROM anime_watchlists WHERE user_id = ? AND anime_id = ?", current_user.id, id.to_s).first
-          watchlist_status = entry
+          row = DB.query("SELECT status, episodes_watched, total_episodes FROM anime_watchlists WHERE user_id = ? AND anime_id = ?", current_user.id, id.to_s).first
+          if row
+            watchlist_details = {
+              status: row.status,
+              episodes_watched: row.episodes_watched || 0,
+              total_episodes: row.total_episodes || 0
+            }
+          end
         end
 
         # Merge local data into anime_data
+        # ...
+
+        # Merge local data into anime_data
         anime_data["topics"] = topics_data
-        anime_data["watchlist_status"] = watchlist_status
+        anime_data["watchlist_status"] = watchlist_details
 
         render json: { "data" => anime_data }
       rescue => e
@@ -410,7 +419,9 @@ module AnimeDatabase
             anime_id: row.anime_id,
             status: row.status,
             title: row.title,
-            image_url: row.image_url
+            image_url: row.image_url,
+            episodes_watched: row.respond_to?(:episodes_watched) ? row.episodes_watched : 0,
+            total_episodes: row.respond_to?(:total_episodes) ? row.total_episodes : 0
           }
         }
       }
@@ -424,21 +435,28 @@ module AnimeDatabase
       status = params[:status]
       title = params[:title]
       image_url = params[:image_url]
+      episodes_watched = params[:episodes_watched].to_i
+      total_episodes = params[:total_episodes].to_i
 
       # Validate status enum
+      # ...
       valid_statuses = %w[watching completed planned plan_to_watch on_hold dropped]
       unless valid_statuses.include?(status)
         return render json: { error: "Invalid status. Must be: #{valid_statuses.join(', ')}" }, status: 400
       end
 
-      DB.exec(<<~SQL, current_user.id, anime_id, status, title, image_url, Time.now, Time.now)
-        INSERT INTO anime_watchlists (user_id, anime_id, status, title, image_url, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+      DB.exec(<<~SQL, current_user.id, anime_id, status, title, image_url, episodes_watched, total_episodes, Time.now, Time.now)
+        INSERT INTO anime_watchlists (user_id, anime_id, status, title, image_url, episodes_watched, total_episodes, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (user_id, anime_id)
-        DO UPDATE SET status = EXCLUDED.status, updated_at = EXCLUDED.updated_at
+        DO UPDATE SET 
+          status = EXCLUDED.status, 
+          episodes_watched = EXCLUDED.episodes_watched,
+          total_episodes = EXCLUDED.total_episodes,
+          updated_at = EXCLUDED.updated_at
       SQL
 
-      render json: { success: true, status: status }
+      render json: { success: true, status: status, episodes_watched: episodes_watched }
     end
 
     def remove_watchlist

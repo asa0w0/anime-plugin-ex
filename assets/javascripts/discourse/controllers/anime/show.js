@@ -137,6 +137,8 @@ export default class ShowController extends Controller {
                     status: this.selectedStatus,
                     title: this.model.title,
                     image_url: this.model.images.jpg.image_url,
+                    episodes_watched: 0,
+                    total_episodes: this.model.episodes || 0,
                 }
             });
             this._manualStatus = this.selectedStatus;
@@ -325,6 +327,8 @@ export default class ShowController extends Controller {
                     status: status,
                     title: this.model.title,
                     image_url: this.model.images?.jpg?.image_url || "",
+                    episodes_watched: 0,
+                    total_episodes: this.model.episodes || 0,
                 }
             });
 

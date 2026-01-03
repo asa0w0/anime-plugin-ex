@@ -263,6 +263,7 @@ export default class WatchlistController extends Controller {
                 data: {
                     anime_id: animeId,
                     episodes_watched: newCount,
+                    total_episodes: item.total_episodes || 0,
                     status: item.status
                 }
             });
