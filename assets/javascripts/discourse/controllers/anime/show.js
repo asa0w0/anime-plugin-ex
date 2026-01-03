@@ -100,12 +100,15 @@ export default class ShowController extends Controller {
     }
 
     get watchlistStatus() {
-        return this._manualStatus || this.model?.watchlist_status;
+        if (this._manualStatus) return this._manualStatus;
+        const ws = this.model?.watchlist_status;
+        // Handle both string and object format
+        return typeof ws === 'object' ? ws?.status : ws;
     }
 
     get displayWatchlistStatus() {
         const status = this.watchlistStatus;
-        if (!status) {
+        if (!status || typeof status !== 'string') {
             return "";
         }
         const labels = {
