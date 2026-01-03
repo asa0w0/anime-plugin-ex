@@ -2,35 +2,28 @@ plugins:
   anime_database_enabled:
     default: true
     client: true
-
   anime_min_trust_level:
     default: 0
     enum: TrustLevelSetting
-
   anime_api_cache_duration:
     default: 24
     min: 1
     max: 168
-
   anime_public_watchlists:
     default: true
     client: true
-
   anime_enable_anilist:
     default: true
     client: true
     description: "Enable AniList integration for additional anime metadata (characters, streaming links, relations)"
-
   anime_enable_tmdb:
     default: false
     client: true
     description: "Enable TMDB integration for additional posters, cast info, and videos"
-
   anime_tmdb_api_key:
     default: ""
     secret: true
     description: "TMDB API key (get from https://www.themoviedb.org/settings/api)"
-
   anime_calendar_source:
     default: "anilist"
     enum:
@@ -39,7 +32,6 @@ plugins:
       - "animeschedule"
     client: true
     description: "Source for the anime calendar airing schedule"
-
   anime_animeschedule_api_key:
     default: ""
     secret: true
