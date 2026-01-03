@@ -145,9 +145,15 @@ export default class WatchlistController extends Controller {
         const items = this.filteredModel.map(item => {
             // Access selectionTrigger to make this reactive
             this.selectionTrigger;
+
+            const watched = parseInt(item.episodes_watched) || 0;
+            const total = parseInt(item.total_episodes) || 0;
+            const percentage = total > 0 ? Math.min(Math.round((watched / total) * 100), 100) : 0;
+
             return {
                 ...item,
-                selected: this.selectedIds.has(item.anime_id)
+                selected: this.selectedIds.has(item.anime_id),
+                progress_percentage: percentage
             };
         });
 

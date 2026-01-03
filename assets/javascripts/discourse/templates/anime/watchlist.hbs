@@ -1,179 +1,142 @@
-<div class="anime-watchlist-container mal-style">
-    <h1>My Anime Watchlist</h1>
-
-    {{#if this.model.length}}
-    <div class="watchlist-controls-top">
-        <div class="watchlist-nav-tabs">
-            <button type="button" class="nav-tab {{if (eq this.activeFilter 'all') 'active'}}" {{on "click" (fn
-                this.setActiveFilter 'all' )}}>All Anime</button>
-            <button type="button" class="nav-tab {{if (eq this.activeFilter 'watching') 'active'}}" {{on "click" (fn
-                this.setActiveFilter 'watching' )}}>Currently Watching</button>
-            <button type="button" class="nav-tab {{if (eq this.activeFilter 'completed') 'active'}}" {{on "click" (fn
-                this.setActiveFilter 'completed' )}}>Completed</button>
-            <button type="button" class="nav-tab {{if (eq this.activeFilter 'plan_to_watch') 'active'}}" {{on "click"
-                (fn this.setActiveFilter 'plan_to_watch' )}}>Plan to Watch</button>
-            <button type="button" class="nav-tab {{if (eq this.activeFilter 'on_hold') 'active'}}" {{on "click" (fn
-                this.setActiveFilter 'on_hold' )}}>On Hold</button>
-            <button type="button" class="nav-tab {{if (eq this.activeFilter 'dropped') 'active'}}" {{on "click" (fn
-                this.setActiveFilter 'dropped' )}}>Dropped</button>
-            <div class="nav-tab-search">
-                {{d-icon "magnifying-glass"}}
-                <input type="text" placeholder="Search..." value={{this.searchTerm}} {{on "input"
-                    this.setSearchTerm}} />
-                {{#if this.searchTerm}}
-                <button type="button" class="btn-clear-search" {{on "click" this.clearSearch}}>{{d-icon
-                    "times"}}</button>
-                {{/if}}
-            </div>
+<div class="anime-watchlist-container modern-style">
+    <div class="watchlist-header">
+        <h1>My Anime Watchlist</h1>
+        <div class="nav-tab-search">
+            {{d-icon "magnifying-glass"}}
+            <input type="text" placeholder="Search anime..." value={{this.searchTerm}} {{on "input"
+                this.setSearchTerm}} />
+            {{#if this.searchTerm}}
+            <button type="button" class="btn-clear-search" {{on "click" this.clearSearch}}>{{d-icon "times"}}</button>
+            {{/if}}
         </div>
     </div>
 
-    {{!-- Category Banner --}}
-    <div class="watchlist-category-banner {{this.activeFilter}}">
-        <span class="category-title">{{this.categoryTitle}}</span>
-        <span class="category-count">({{this.filteredModel.length}} entries)</span>
-    </div>
+    {{#if this.model.length}}
+    <div class="watchlist-controls-top">
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <button type="button" class="nav-link {{if (eq this.activeFilter 'all') 'active'}}" {{on "click" (fn
+                    this.setActiveFilter 'all' )}}>All</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link {{if (eq this.activeFilter 'watching') 'active'}}" {{on "click"
+                    (fn this.setActiveFilter 'watching' )}}>Watching</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link {{if (eq this.activeFilter 'completed') 'active'}}" {{on "click"
+                    (fn this.setActiveFilter 'completed' )}}>Completed</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link {{if (eq this.activeFilter 'plan_to_watch') 'active'}}"
+                    {{on "click" (fn this.setActiveFilter 'plan_to_watch' )}}>Plan to Watch</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link {{if (eq this.activeFilter 'on_hold') 'active'}}" {{on "click" (fn
+                    this.setActiveFilter 'on_hold' )}}>On Hold</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link {{if (eq this.activeFilter 'dropped') 'active'}}" {{on "click" (fn
+                    this.setActiveFilter 'dropped' )}}>Dropped</button>
+            </li>
+        </ul>
 
-    {{!-- Bulk Actions Bar --}}
-    {{#if this.editMode}}
-    <div class="watchlist-bulk-actions">
-        <button type="button" class="btn btn-default" {{on "click" this.toggleSelectAll}}>
-            {{#if this.isAllSelected}}Deselect All{{else}}Select All{{/if}}
+        {{#if this.editMode}}
+        <div class="watchlist-bulk-actions">
+            <button type="button" class="btn btn-default" {{on "click" this.toggleSelectAll}}>
+                {{#if this.isAllSelected}}Deselect All{{else}}Select All{{/if}}
+            </button>
+            <button type="button" class="btn btn-danger" {{on "click" this.bulkDelete}} disabled={{not
+                this.selectedIds.size}}>
+                {{d-icon "trash-can"}} ({{this.selectedIds.size}})
+            </button>
+            <button type="button" class="btn btn-default" {{on "click" this.toggleEditMode}}>Cancel</button>
+        </div>
+        {{else}}
+        <button type="button" class="btn btn-flat edit-mode-toggle" {{on "click" this.toggleEditMode}}
+            title="Bulk Edit">
+            {{d-icon "list-check"}}
         </button>
-        <button type="button" class="btn btn-danger" {{on "click" this.bulkDelete}} disabled={{not
-            this.selectedIds.size}}>
-            {{d-icon "trash-can"}} Delete Selected ({{this.selectedIds.size}})
-        </button>
-        <button type="button" class="btn btn-default" {{on "click" this.toggleEditMode}}>Cancel</button>
+        {{/if}}
     </div>
-    {{/if}}
 
     {{#if this.filteredModel.length}}
-    {{!-- Table View --}}
-    <div class="watchlist-table-container">
-        <table class="watchlist-table">
-            <thead>
-                <tr>
-                    <th class="col-num">#</th>
-                    <th class="col-image">Image</th>
-                    <th class="col-title sortable" {{on "click" (fn this.sortBy 'title' )}}>
-                        Anime Title
-                        {{#if (eq this.sortColumn 'title')}}
-                        {{d-icon (if (eq this.sortDirection 'asc') "chevron-up" "chevron-down")}}
-                        {{/if}}
-                    </th>
-                    <th class="col-score sortable" {{on "click" (fn this.sortBy 'score' )}}>
-                        Score
-                        {{#if (eq this.sortColumn 'score')}}
-                        {{d-icon (if (eq this.sortDirection 'asc') "chevron-up" "chevron-down")}}
-                        {{/if}}
-                    </th>
-                    <th class="col-type">Type</th>
-                    <th class="col-progress sortable" {{on "click" (fn this.sortBy 'progress' )}}>
-                        Progress
-                        {{#if (eq this.sortColumn 'progress')}}
-                        {{d-icon (if (eq this.sortDirection 'asc') "chevron-up" "chevron-down")}}
-                        {{/if}}
-                    </th>
-                    <th class="col-actions">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each this.sortedFilteredModel as |item index|}}
-                <tr class="watchlist-row status-{{item.status}} {{if item.selected 'selected'}}"
-                    data-anime-id={{item.anime_id}}>
-                    {{!-- Row Number --}}
-                    <td class="col-num">
-                        {{#if this.editMode}}
-                        <button type="button" class="selection-checkbox" {{on "click" (fn this.toggleSelection
-                            item.anime_id)}}>
-                            {{d-icon (if item.selected "check-square" "square")}}
-                        </button>
-                        {{else}}
-                        {{!-- Row Index (CSS counters can handle this better if add is missing) --}}
-                        <span class="row-index"></span>
-                        {{/if}}
-                    </td>
+    <div class="watchlist-cards-grid">
+        {{#each this.sortedFilteredModel as |item|}}
+        <div class="watchlist-card status-{{item.status}} {{if item.selected 'selected'}}"
+            data-anime-id={{item.anime_id}}>
+            {{#if this.editMode}}
+            <div class="card-selection-overlay" {{on "click" (fn this.toggleSelection item.anime_id)}}>
+                {{d-icon (if item.selected "check-circle" "circle")}}
+            </div>
+            {{/if}}
 
-                    {{!-- Image --}}
-                    <td class="col-image">
-                        <a href="/anime/{{item.anime_id}}">
-                            <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
-                        </a>
-                    </td>
+            <div class="card-image">
+                <a href="/anime/{{item.anime_id}}">
+                    <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
+                </a>
+                <div class="card-type-badge">{{or item.type "TV"}}</div>
+            </div>
 
-                    {{!-- Title --}}
-                    <td class="col-title">
-                        <a href="/anime/{{item.anime_id}}" class="anime-title-link">{{item.title}}</a>
-                        {{#if item.notes}}
-                        <div class="anime-notes">{{item.notes}}</div>
-                        {{/if}}
-                    </td>
+            <div class="card-content">
+                <div class="card-header">
+                    <a href="/anime/{{item.anime_id}}" class="anime-title">{{item.title}}</a>
+                    <div class="card-status-pill {{item.status}}">{{item.status}}</div>
+                </div>
 
-                    {{!-- Score --}}
-                    <td class="col-score">
-                        {{#if item.score}}
-                        <span class="score-badge">{{item.score}}</span>
-                        {{else}}
-                        <span class="score-none">-</span>
-                        {{/if}}
-                    </td>
+                <div class="card-meta">
+                    {{#if item.score}}
+                    <div class="meta-item score">
+                        {{d-icon "star"}} <span>{{item.score}}</span>
+                    </div>
+                    {{/if}}
+                    <div class="meta-item progress-text">
+                        {{d-icon "play"}} <span>{{or item.episodes_watched 0}} / {{or item.total_episodes '?'}}</span>
+                    </div>
+                </div>
 
-                    {{!-- Type --}}
-                    <td class="col-type">
-                        <span class="type-badge">{{or item.type "TV"}}</span>
-                    </td>
+                <div class="card-progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style={{html-safe (concat "width: " (or item.progress_percentage
+                            0) "%" )}}></div>
+                    </div>
+                    <button type="button" class="btn-increment" {{on "click" (fn this.incrementProgress item.anime_id)}}
+                        title="Increment Progress">
+                        {{d-icon "plus"}}
+                    </button>
+                </div>
+            </div>
 
-                    {{!-- Progress --}}
-                    <td class="col-progress">
-                        <span class="progress-current">{{or item.episodes_watched 0}}</span>
-                        <span class="progress-sep">/</span>
-                        <span class="progress-total">{{or item.total_episodes "?"}}</span>
-                        <button type="button" class="btn-increment" title="Add episode" data-anime-id={{item.anime_id}}
-                            {{on "click" this.incrementProgress}}>
-                            {{d-icon "plus"}}
-                        </button>
-                    </td>
-
-                    {{!-- Actions --}}
-                    <td class="col-actions">
-                        <div class="action-buttons">
-                            <div class="status-dropdown">
-                                <button type="button" class="btn-action" data-anime-id={{item.anime_id}} {{on "click"
-                                    this.handleStatusToggle}} title="Change Status">
-                                    {{d-icon "pen"}}
-                                </button>
-                                {{#if (eq this.openDropdownId item.anime_id)}}
-                                <div class="status-dropdown-menu open">
-                                    <button type="button" data-anime-id={{item.anime_id}} data-status="watching"
-                                        {{on "click" this.handleStatusChange}}>{{d-icon "circle-play"}}
-                                        Watching</button>
-                                    <button type="button" data-anime-id={{item.anime_id}} data-status="completed"
-                                        {{on "click" this.handleStatusChange}}>{{d-icon "circle-check"}}
-                                        Completed</button>
-                                    <button type="button" data-anime-id={{item.anime_id}} data-status="plan_to_watch"
-                                        {{on "click" this.handleStatusChange}}>{{d-icon "clock"}} Plan to Watch</button>
-                                    <button type="button" data-anime-id={{item.anime_id}} data-status="on_hold"
-                                        {{on "click" this.handleStatusChange}}>{{d-icon "circle-pause"}} On
-                                        Hold</button>
-                                    <button type="button" data-anime-id={{item.anime_id}} data-status="dropped"
-                                        {{on "click" this.handleStatusChange}}>{{d-icon "trash-can"}} Dropped</button>
-                                </div>
-                                {{/if}}
-                            </div>
-                            <button type="button" class="btn-action btn-delete" data-anime-id={{item.anime_id}}
-                                {{on "click" this.handleDelete}} title="Remove">
-                                {{d-icon "trash-can"}}
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
+            <div class="card-actions">
+                <div class="status-dropdown">
+                    <button type="button" class="btn-flat" data-anime-id={{item.anime_id}} {{on "click"
+                        this.handleStatusToggle}} title="Change Status">
+                        {{d-icon "ellipsis-v"}}
+                    </button>
+                    {{#if (eq this.openDropdownId item.anime_id)}}
+                    <div class="status-dropdown-menu open">
+                        <button type="button" data-anime-id={{item.anime_id}} data-status="watching" {{on "click"
+                            this.handleStatusChange}}>{{d-icon "circle-play"}} Watching</button>
+                        <button type="button" data-anime-id={{item.anime_id}} data-status="completed" {{on "click"
+                            this.handleStatusChange}}>{{d-icon "circle-check"}} Completed</button>
+                        <button type="button" data-anime-id={{item.anime_id}} data-status="plan_to_watch" {{on "click"
+                            this.handleStatusChange}}>{{d-icon "clock"}} Plan to Watch</button>
+                        <button type="button" data-anime-id={{item.anime_id}} data-status="on_hold" {{on "click"
+                            this.handleStatusChange}}>{{d-icon "circle-pause"}} On Hold</button>
+                        <button type="button" data-anime-id={{item.anime_id}} data-status="dropped" {{on "click"
+                            this.handleStatusChange}}>{{d-icon "trash-can"}} Dropped</button>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="btn-delete" data-anime-id={{item.anime_id}} {{on "click"
+                            this.handleDelete}}>{{d-icon "trash-can"}} Remove</button>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+        {{/each}}
     </div>
     {{else}}
-    <div class="watchlist-empty">
+    <div class="watchlist-empty-category">
+        <div class="empty-icon">{{d-icon "magnifying-glass"}}</div>
         <p>No anime found in this category.</p>
     </div>
     {{/if}}
