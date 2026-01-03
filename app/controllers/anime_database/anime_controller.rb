@@ -411,32 +411,36 @@ module AnimeDatabase
         return render json: { error: "This watchlist is private" }, status: 403
       end
 
-      list = DB.query(<<~SQL, user.id)
-        SELECT w.*, c.episodes_total as cache_episodes_total, c.type as cache_type
-        FROM anime_watchlists w
-        LEFT JOIN anime_cache c ON c.mal_id::text = w.anime_id
-        WHERE w.user_id = ?
-        ORDER BY w.updated_at DESC
-      SQL
-      
-      render json: {
-        data: list.map { |row|
-          # Prefer cache count if watchlist count is 0 or missing
-          w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
-          c_total = row.respond_to?(:cache_episodes_total) ? row.cache_episodes_total.to_i : 0
-          total_eps = w_total > 0 ? w_total : c_total
-          
-          {
-            anime_id: row.anime_id,
-            status: row.status,
-            title: row.title,
-            image_url: row.image_url,
-            type: row.respond_to?(:cache_type) && row.cache_type.present? ? row.cache_type : "TV",
-            episodes_watched: row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0,
-            total_episodes: total_eps > 0 ? total_eps : nil
+      begin
+        list = DB.query(<<~SQL, user.id)
+          SELECT w.*, c.episodes_total as cache_episodes_total, c.type as cache_type
+          FROM anime_watchlists w
+          LEFT JOIN anime_cache c ON c.mal_id::text = w.anime_id
+          WHERE w.user_id = ?
+          ORDER BY w.updated_at DESC
+        SQL
+        
+        render json: {
+          data: list.map { |row|
+            # Prefer cache count if watchlist count is 0 or missing
+            w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
+            c_total = row.respond_to?(:cache_episodes_total) ? row.cache_episodes_total.to_i : 0
+            total_eps = w_total > 0 ? w_total : c_total
+            
+            {
+              anime_id: row.anime_id,
+              status: row.status,
+              title: row.title,
+              image_url: row.image_url,
+              type: row.respond_to?(:cache_type) && row.cache_type.present? ? row.cache_type : "TV",
+              episodes_watched: row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0,
+              total_episodes: total_eps > 0 ? total_eps : nil
+            }
           }
         }
-      }
+      rescue => e
+        render json: { error: e.message, backtrace: e.backtrace.first(10) }, status: 500
+      end
     end
 
     def update_watchlist
