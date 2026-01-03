@@ -3762,3 +3762,517 @@
 #anime-characters-section {
   scroll-margin-top: 70px;
 }
+
+// =============================================================================
+// MAL-STYLE WATCHLIST TABLE
+// =============================================================================
+
+.anime-watchlist-container.mal-style {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  // Nav tabs with integrated search
+  .watchlist-nav-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    border-bottom: 2px solid var(--primary-low);
+    margin-bottom: 0;
+    padding-bottom: 0;
+
+    .nav-tab {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--primary-medium);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+
+      &:hover {
+        color: var(--primary);
+      }
+
+      &.active {
+        color: var(--tertiary);
+        border-bottom-color: var(--tertiary);
+      }
+    }
+
+    .nav-tab-search {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--primary-very-low);
+      border-radius: 6px;
+      margin-bottom: 5px;
+
+      .d-icon {
+        color: var(--primary-medium);
+      }
+
+      input {
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 0.85rem;
+        width: 150px;
+        color: var(--primary);
+      }
+
+      .btn-clear-search {
+        padding: 2px;
+        background: none;
+        border: none;
+        color: var(--primary-medium);
+        cursor: pointer;
+      }
+    }
+  }
+
+  // Category Banner
+  .watchlist-category-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--tertiary);
+    color: white;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+
+    .category-count {
+      font-weight: 400;
+      opacity: 0.9;
+      text-transform: none;
+    }
+
+    &.watching {
+      background: #3498db;
+    }
+
+    &.completed {
+      background: #27ae60;
+    }
+
+    &.on_hold {
+      background: #f39c12;
+    }
+
+    &.dropped {
+      background: #7f8c8d;
+    }
+
+    &.plan_to_watch {
+      background: #9b59b6;
+    }
+
+    &.all {
+      background: var(--tertiary);
+    }
+  }
+
+  .watchlist-bulk-actions {
+    display: flex;
+    gap: 10px;
+    padding: 15px 20px;
+    background: var(--primary-very-low);
+    border-bottom: 1px solid var(--primary-low);
+  }
+
+  .watchlist-table-container {
+    overflow-x: auto;
+  }
+
+  .watchlist-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--secondary);
+
+    thead {
+      background: var(--primary-very-low);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+
+      th {
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--primary-medium);
+        border-bottom: 1px solid var(--primary-low);
+        white-space: nowrap;
+
+        &.sortable {
+          cursor: pointer;
+          user-select: none;
+
+          &:hover {
+            color: var(--primary);
+          }
+
+          .d-icon {
+            margin-left: 5px;
+            font-size: 0.75rem;
+          }
+        }
+
+        &.col-num {
+          width: 50px;
+          text-align: center;
+        }
+
+        &.col-image {
+          width: 60px;
+        }
+
+        &.col-title {
+          min-width: 200px;
+        }
+
+        &.col-score {
+          width: 80px;
+          text-align: center;
+        }
+
+        &.col-type {
+          width: 80px;
+          text-align: center;
+        }
+
+        &.col-progress {
+          width: 120px;
+          text-align: center;
+        }
+
+        &.col-actions {
+          width: 100px;
+          text-align: center;
+        }
+      }
+    }
+
+    tbody .watchlist-row {
+      border-left: 4px solid transparent;
+      transition: background 0.15s;
+
+      &:hover {
+        background: var(--primary-very-low);
+      }
+
+      &.selected {
+        background: rgba(var(--tertiary-rgb), 0.15) !important;
+      }
+
+      &.status-watching {
+        border-left-color: #3498db;
+      }
+
+      &.status-completed {
+        border-left-color: #27ae60;
+      }
+
+      &.status-on_hold {
+        border-left-color: #f39c12;
+      }
+
+      &.status-dropped {
+        border-left-color: #7f8c8d;
+      }
+
+      &.status-plan_to_watch {
+        border-left-color: #9b59b6;
+      }
+
+      td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--primary-low);
+        vertical-align: middle;
+
+        &.col-num {
+          text-align: center;
+          color: var(--primary-medium);
+          font-size: 0.85rem;
+
+          .selection-checkbox {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: var(--primary-medium);
+
+            &:hover {
+              color: var(--tertiary);
+            }
+          }
+        }
+
+        &.col-image {
+          padding: 8px;
+
+          img {
+            width: 45px;
+            height: 65px;
+            object-fit: cover;
+            border-radius: 4px;
+            display: block;
+          }
+        }
+
+        &.col-title {
+          .anime-title-link {
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+
+            &:hover {
+              color: var(--tertiary);
+            }
+          }
+
+          .anime-notes {
+            font-size: 0.8rem;
+            color: var(--primary-medium);
+            margin-top: 4px;
+          }
+        }
+
+        &.col-score {
+          text-align: center;
+
+          .score-badge {
+            display: inline-block;
+            background: var(--tertiary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+          }
+
+          .score-none {
+            color: var(--primary-medium);
+          }
+        }
+
+        &.col-type {
+          text-align: center;
+
+          .type-badge {
+            font-size: 0.8rem;
+            color: var(--primary-medium);
+          }
+        }
+
+        &.col-progress {
+          text-align: center;
+          white-space: nowrap;
+
+          .progress-current {
+            color: var(--tertiary);
+            font-weight: 600;
+          }
+
+          .progress-sep {
+            color: var(--primary-medium);
+            margin: 0 2px;
+          }
+
+          .progress-total {
+            color: var(--primary-medium);
+          }
+
+          .btn-increment {
+            background: none;
+            border: 1px solid var(--primary-low);
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin-left: 8px;
+            cursor: pointer;
+            color: var(--tertiary);
+            transition: all 0.15s;
+
+            &:hover {
+              background: var(--tertiary);
+              color: white;
+              border-color: var(--tertiary);
+            }
+          }
+        }
+
+        &.col-actions {
+          .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+
+            .btn-action {
+              background: none;
+              border: 1px solid var(--primary-low);
+              border-radius: 6px;
+              padding: 8px 10px;
+              cursor: pointer;
+              color: var(--primary-medium);
+              transition: all 0.15s;
+
+              &:hover {
+                background: var(--primary-very-low);
+                color: var(--primary);
+              }
+
+              &.btn-delete:hover {
+                background: var(--danger);
+                color: white;
+                border-color: var(--danger);
+              }
+            }
+
+            .status-dropdown {
+              position: relative;
+
+              .status-dropdown-menu {
+                position: absolute;
+                bottom: 100%;
+                right: 0;
+                background: var(--secondary);
+                border: 1px solid var(--primary-low);
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+                min-width: 160px;
+                z-index: 100;
+
+                button {
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  width: 100%;
+                  padding: 10px 15px;
+                  background: none;
+                  border: none;
+                  color: var(--primary);
+                  cursor: pointer;
+                  text-align: left;
+                  font-size: 0.85rem;
+
+                  .d-icon {
+                    width: 16px;
+                    height: 16px;
+                  }
+
+                  &:hover {
+                    background: var(--primary-very-low);
+                  }
+
+                  &:first-child {
+                    border-radius: 8px 8px 0 0;
+                  }
+
+                  &:last-child {
+                    border-radius: 0 0 8px 8px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .watchlist-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--primary-medium);
+  }
+
+  .watchlist-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+
+    .empty-icon {
+      font-size: 3rem;
+      color: var(--primary-low);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--primary-medium);
+      margin-bottom: 20px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .anime-watchlist-container.mal-style {
+    padding: 10px;
+
+    .watchlist-nav-tabs {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav-tab {
+        padding: 10px 14px;
+        font-size: 0.8rem;
+      }
+
+      .nav-tab-search {
+        display: none;
+      }
+    }
+
+    .watchlist-table {
+      font-size: 0.85rem;
+
+      thead th {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+
+        &.col-type,
+        &.col-score {
+          display: none;
+        }
+      }
+
+      tbody td {
+        padding: 8px 10px;
+
+        &.col-type,
+        &.col-score {
+          display: none;
+        }
+
+        &.col-image img {
+          width: 35px;
+          height: 50px;
+        }
+      }
+    }
+  }
+}

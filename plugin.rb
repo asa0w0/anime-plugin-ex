@@ -34,6 +34,13 @@ register_svg_icon "circle"
 register_svg_icon "check-circle"
 register_svg_icon "cog"
 register_svg_icon "gear"
+register_svg_icon "pen"
+register_svg_icon "chevron-up"
+register_svg_icon "chevron-down"
+register_svg_icon "list"
+register_svg_icon "square"
+register_svg_icon "check-square"
+register_svg_icon "magnifying-glass"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)

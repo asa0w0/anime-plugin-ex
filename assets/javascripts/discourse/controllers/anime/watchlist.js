@@ -12,6 +12,8 @@ export default class WatchlistController extends Controller {
     @tracked selectionTrigger = 0;
     @tracked isLoading = false;
     @tracked openDropdownId = null;
+    @tracked sortColumn = "title";
+    @tracked sortDirection = "asc";
 
     // Swipe state (non-tracked for performance)
     _startX = 0;
@@ -121,13 +123,63 @@ export default class WatchlistController extends Controller {
     // Computed getters - Single pass optimization
     get filteredModel() {
         const term = (this.searchTerm || "").trim().toLowerCase();
-        const items = this.model || [];
+        let items = this.model || [];
 
-        if (!term) return items;
+        // Filter by status if not "all"
+        if (this.activeFilter !== "all") {
+            items = items.filter(item => item.status === this.activeFilter);
+        }
 
-        return items.filter(item =>
-            (item.title || "").toLowerCase().includes(term)
-        );
+        // Filter by search term
+        if (term) {
+            items = items.filter(item =>
+                (item.title || "").toLowerCase().includes(term)
+            );
+        }
+
+        return items;
+    }
+
+    // Sorted and filtered model for table display
+    get sortedFilteredModel() {
+        const items = [...this.filteredModel];
+        const col = this.sortColumn;
+        const dir = this.sortDirection === "asc" ? 1 : -1;
+
+        items.sort((a, b) => {
+            let valA, valB;
+
+            if (col === "title") {
+                valA = (a.title || "").toLowerCase();
+                valB = (b.title || "").toLowerCase();
+                return valA.localeCompare(valB) * dir;
+            } else if (col === "score") {
+                valA = a.score || 0;
+                valB = b.score || 0;
+                return (valA - valB) * dir;
+            } else if (col === "progress") {
+                valA = a.episodes_watched || 0;
+                valB = b.episodes_watched || 0;
+                return (valA - valB) * dir;
+            }
+
+            return 0;
+        });
+
+        return items;
+    }
+
+    // Category title for banner
+    get categoryTitle() {
+        const titles = {
+            all: "All Anime",
+            watching: "Currently Watching",
+            completed: "Completed",
+            on_hold: "On Hold",
+            dropped: "Dropped",
+            plan_to_watch: "Plan to Watch"
+        };
+        return titles[this.activeFilter] || "All Anime";
     }
 
     // Single-pass grouping for all status categories
@@ -173,6 +225,52 @@ export default class WatchlistController extends Controller {
     setActiveFilter(filter) {
         this.vibrate(5);
         this.activeFilter = filter;
+    }
+
+    @action
+    sortBy(column) {
+        this.vibrate(5);
+        if (this.sortColumn === column) {
+            // Toggle direction
+            this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
+        } else {
+            this.sortColumn = column;
+            this.sortDirection = "asc";
+        }
+    }
+
+    @action
+    async incrementProgress(event) {
+        const animeId = event.currentTarget.dataset.animeId;
+        this.vibrate(10);
+
+        const item = this.model.find(i => i.anime_id === Number(animeId) || i.anime_id === animeId);
+        if (!item) return;
+
+        const newCount = (item.episodes_watched || 0) + 1;
+
+        try {
+            await ajax("/anime/watchlist", {
+                method: "POST",
+                data: {
+                    anime_id: animeId,
+                    episodes_watched: newCount,
+                    status: item.status
+                }
+            });
+
+            // Update local model
+            item.episodes_watched = newCount;
+
+            // Auto-complete if reached total
+            if (item.total_episodes && newCount >= item.total_episodes) {
+                item.status = "completed";
+            }
+
+            this.model = [...this.model];
+        } catch (error) {
+            console.error("Failed to update progress:", error);
+        }
     }
 
     @action
