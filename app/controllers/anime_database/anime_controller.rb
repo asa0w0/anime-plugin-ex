@@ -531,7 +531,7 @@ module AnimeDatabase
               begin
                 airing_time = Time.parse(item['episodeDate'])
                 
-                # Construct image URL from imageVersionRoute
+                # Construct proper image URL
                 image_url = if item['imageVersionRoute'].present?
                   "https://animeschedule.net/images/#{item['imageVersionRoute']}"
                 else
@@ -539,12 +539,14 @@ module AnimeDatabase
                 end
                 
                 {
-                  "mal_id" => item['route'], # Use route as unique ID since MAL ID not available
+                  "mal_id" => item['route'], # Use route as ID (not numeric!)
+                  "is_numeric_id" => false, # Flag to disable detail page links
                   "title" => item['english'] || item['romaji'] || item['title'],
                   "images" => {
                     "jpg" => { "large_image_url" => image_url }
                   },
                   "episode" => item['episodeNumber'],
+                  "episodes" => item['episodes'],
                   "status" => item['status'],
                   "broadcast" => {
                     "day" => airing_time.strftime("%A"),
@@ -564,7 +566,11 @@ module AnimeDatabase
             nil
           end
         when "jikan"
-          fetch_from_api("https://api.jikan.moe/v4/schedules?limit=50")
+          jikan_response = fetch_from_api("https://api.jikan.moe/v4/schedules?limit=50")
+          if jikan_response.is_a?(Hash) && jikan_response["data"].present?
+            jikan_response["data"].each { |item| item["is_numeric_id"] = true }
+          end
+          jikan_response
         else # anilist or default
           anilist_items = AnilistService.fetch_airing_schedule(7)
           
@@ -577,6 +583,7 @@ module AnimeDatabase
               
               {
                 "mal_id" => media['idMal'],
+                "is_numeric_id" => true, # MAL ID is numeric, can link to detail page
                 "title" => media['title']['english'] || media['title']['romaji'],
                 "images" => {
                   "jpg" => { "large_image_url" => media['coverImage']['large'] }
