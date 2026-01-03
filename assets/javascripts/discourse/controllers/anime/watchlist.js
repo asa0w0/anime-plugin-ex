@@ -219,11 +219,7 @@ export default class WatchlistController extends Controller {
     }
 
     @action
-    toggleStatusDropdown(animeId, event) {
-        if (event) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
+    toggleStatusDropdown(animeId) {
         this.vibrate(5);
 
         if (this.openDropdownId === animeId) {
@@ -234,12 +230,7 @@ export default class WatchlistController extends Controller {
     }
 
     @action
-    async setStatusDirectly(animeId, newStatus, event) {
-        if (event) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
-
+    async setStatusDirectly(animeId, newStatus) {
         this.vibrate(10);
         this.openDropdownId = null;
 
