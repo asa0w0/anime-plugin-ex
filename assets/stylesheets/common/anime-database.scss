@@ -3815,30 +3815,61 @@
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
+      gap: 10px;
+      padding: 4px 14px;
       background: var(--primary-very-low);
-      border-radius: 6px;
+      border: 1px solid var(--primary-low);
+      border-radius: 20px;
+      transition: all 0.2s ease;
+      height: 32px;
+      align-self: center;
+
+      &:hover,
+      &:focus-within {
+        background: var(--primary-low);
+        border-color: var(--tertiary-low);
+        box-shadow: 0 0 0 2px rgba(var(--tertiary-rgb), 0.1);
+      }
 
       .d-icon {
         color: var(--primary-medium);
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
       }
 
       input {
         border: none;
         background: transparent;
         outline: none;
-        font-size: 0.85rem;
-        width: 150px;
+        font-size: 0.9rem;
+        width: 160px;
+        height: 100%;
         color: var(--primary);
+        padding: 0;
+        margin: 0;
+        line-height: 1;
+
+        &::placeholder {
+          color: var(--primary-low-mid);
+        }
       }
 
       .btn-clear-search {
-        padding: 2px;
+        padding: 4px;
         background: none;
         border: none;
         color: var(--primary-medium);
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        border-radius: 50%;
+        transition: background 0.2s;
+
+        &:hover {
+          background: var(--primary-low);
+          color: var(--primary);
+        }
       }
     }
   }
