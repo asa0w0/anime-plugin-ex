@@ -268,9 +268,8 @@ export default class WatchlistController extends Controller {
         if (!confirm("Remove this anime from your watchlist?")) return;
 
         try {
-            await ajax("/anime/watchlist", {
-                method: "DELETE",
-                data: { anime_id: animeId }
+            await ajax(`/anime/watchlist/${animeId}`, {
+                method: "DELETE"
             });
 
             // Remove from local model
