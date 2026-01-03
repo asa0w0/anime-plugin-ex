@@ -4110,8 +4110,8 @@
           }
 
           .btn-increment {
-            background: var(--primary-very-low);
-            border: 1px solid var(--primary-low-mid);
+            background: var(--tertiary-low);
+            border: 1px solid var(--tertiary);
             border-radius: 4px;
             padding: 6px 12px;
             margin-left: 8px;
@@ -4128,7 +4128,7 @@
               color: white;
               border-color: var(--tertiary);
               transform: translateY(-1px);
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+              box-shadow: 0 4px 8px rgba(var(--tertiary-rgb), 0.3);
             }
 
             &:active {
@@ -4150,39 +4150,38 @@
             gap: 8px;
 
             .btn-action {
-              background: var(--primary-low);
-              border: 1px solid var(--primary-medium);
-              border-radius: 8px;
-              padding: 10px 14px;
+              background: var(--primary-very-low);
+              border: 1px solid var(--primary-low-mid);
+              border-radius: 6px;
+              padding: 8px 12px;
               cursor: pointer;
               color: var(--primary-high);
               transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
               display: inline-flex;
               align-items: center;
               justify-content: center;
-              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
               &:hover {
-                background: var(--primary-medium);
+                background: var(--primary-low);
                 color: var(--primary);
-                border-color: var(--primary-high);
+                border-color: var(--primary-medium);
                 transform: translateY(-1px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
               }
 
               &:active {
                 transform: translateY(0);
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                box-shadow: none;
               }
 
               &.btn-delete:hover {
                 background: var(--danger);
                 color: white !important;
-                border-color: var(--danger-medium);
+                border-color: var(--danger);
               }
 
               .d-icon {
-                font-size: 1rem;
+                font-size: 0.95rem;
               }
             }
 
