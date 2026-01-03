@@ -25,6 +25,15 @@ register_svg_icon "circle-check"
 register_svg_icon "circle-pause"
 register_svg_icon "trash-can"
 register_svg_icon "clock"
+register_svg_icon "ellipsis-v"
+register_svg_icon "ellipsis-vertical"
+register_svg_icon "times"
+register_svg_icon "xmark"
+register_svg_icon "check"
+register_svg_icon "circle"
+register_svg_icon "check-circle"
+register_svg_icon "cog"
+register_svg_icon "gear"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
