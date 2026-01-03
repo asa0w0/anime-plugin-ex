@@ -1250,6 +1250,14 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      .d-icon {
+        color: white !important;
+        fill: white !important;
+      }
 
       &:hover {
         background: rgba(0, 0, 0, 0.85);
