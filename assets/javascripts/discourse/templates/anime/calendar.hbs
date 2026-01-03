@@ -33,101 +33,163 @@
 
     <div class="anime-grid {{this.viewMode}}-view">
         {{#each this.animeList as |anime|}}
-        <div class="anime-card-livechart {{unless anime.is_numeric_id 'non-clickable'}}">
-            {{#if anime.is_numeric_id}}
-            <LinkTo @route="anime.show" @model={{anime.mal_id}} class="card-link">
-                {{else}}
-                <div class="card-link-wrapper">
+        {{#if anime.is_numeric_id}}
+        <LinkTo @route="anime.show" @model={{anime.mal_id}} class="anime-card-livechart card-link">
+            <div class="card-poster-section">
+                <img src={{or anime.images.jpg.large_image_url anime.images.jpg.image_url}} alt={{anime.title}}
+                    loading="lazy" onerror="this.src='https://via.placeholder.com/225x350?text=No+Image'" />
+                {{#if anime.countdown}}
+                <div class="countdown-badge">
+                    {{#if anime.episode}}
+                    <span class="ep-num">Ep {{anime.episode}}</span>
                     {{/if}}
-                    <div class="card-poster-section">
-                        <img src={{or anime.images.jpg.large_image_url anime.images.jpg.image_url}} alt={{anime.title}}
-                            loading="lazy" onerror="this.src='https://via.placeholder.com/225x350?text=No+Image'" />
-                        {{#if anime.countdown}}
-                        <div class="countdown-badge">
-                            {{#if anime.episode}}
-                            <span class="ep-num">Ep {{anime.episode}}</span>
-                            {{/if}}
-                            {{d-icon "clock"}} Next episode in {{anime.countdown.formatted}}
-                        </div>
-                        {{else if anime.episode}}
-                        <div class="countdown-badge episode-only">
-                            {{d-icon "play-circle"}} Episode {{anime.episode}}
-                        </div>
-                        {{else if anime.broadcast.day}}
-                        <div class="countdown-badge airing">
-                            {{d-icon "broadcast-tower"}} {{anime.broadcast.day}}
-                            {{#if anime.nextEpisodeTime}}at {{anime.nextEpisodeTime}}{{/if}}
-                        </div>
-                        {{/if}}
+                    {{d-icon "clock"}} Next episode in {{anime.countdown.formatted}}
+                </div>
+                {{else if anime.episode}}
+                <div class="countdown-badge episode-only">
+                    {{d-icon "play-circle"}} Episode {{anime.episode}}
+                </div>
+                {{else if anime.broadcast.day}}
+                <div class="countdown-badge airing">
+                    {{d-icon "broadcast-tower"}} {{anime.broadcast.day}}
+                    {{#if anime.nextEpisodeTime}}at {{anime.nextEpisodeTime}}{{/if}}
+                </div>
+                {{/if}}
+            </div>
+
+            <div class="card-info-section">
+                <h3 class="anime-title">{{anime.title}}</h3>
+
+                {{#if anime.genres}}
+                <div class="anime-genres-subtle">
+                    {{#each anime.genres as |genre index|}}
+                    {{#if (lt index 3)}}
+                    <span class="genre-pill">{{genre.name}}</span>
+                    {{/if}}
+                    {{/each}}
+                </div>
+                {{/if}}
+
+                <div class="anime-metadata">
+                    {{#if anime.studios}}
+                    <div class="meta-item">
+                        <span class="meta-label">Studio:</span>
+                        <span class="meta-value studio-name">{{anime.studios.0.name}}</span>
                     </div>
+                    {{/if}}
 
-                    <div class="card-info-section">
-                        <h3 class="anime-title">{{anime.title}}</h3>
-
-                        {{#if anime.genres}}
-                        <div class="anime-genres-subtle">
-                            {{#each anime.genres as |genre index|}}
-                            {{#if (lt index 3)}}
-                            <span class="genre-pill">{{genre.name}}</span>
-                            {{/if}}
-                            {{/each}}
-                        </div>
-                        {{/if}}
-
-                        <div class="anime-metadata">
-                            {{#if anime.studios}}
-                            <div class="meta-item">
-                                <span class="meta-label">Studio:</span>
-                                <span class="meta-value studio-name">{{anime.studios.0.name}}</span>
-                            </div>
-                            {{/if}}
-
-                            {{#if anime.source}}
-                            <div class="meta-item">
-                                <span class="meta-label">Source:</span>
-                                <span class="meta-value">{{anime.source}}</span>
-                            </div>
-                            {{/if}}
-
-                            {{#if anime.episodes}}
-                            <div class="meta-item">
-                                <span class="meta-label">Episodes:</span>
-                                <span class="meta-value">{{anime.episodes}}</span>
-                            </div>
-                            {{/if}}
-
-                            {{#if anime.score}}
-                            <div class="meta-item">
-                                <span class="meta-label">Score:</span>
-                                <span class="meta-value score">⭐ {{anime.score}}</span>
-                            </div>
-                            {{/if}}
-                        </div>
-
-                        {{#if anime.synopsis}}
-                        <p class="anime-synopsis">{{anime.synopsis}}</p>
-                        {{/if}}
-
-                        <div class="anime-external-links">
-                            {{#if anime.is_numeric_id}}
-                            <a href="https://myanimelist.net/anime/{{anime.mal_id}}" target="_blank" rel="noopener"
-                                class="external-link" title="MyAnimeList">
-                                {{d-icon "external-link-alt"}} MAL
-                            </a>
-                            {{/if}}
-                        </div>
+                    {{#if anime.source}}
+                    <div class="meta-item">
+                        <span class="meta-label">Source:</span>
+                        <span class="meta-value">{{anime.source}}</span>
                     </div>
-                    {{#if anime.is_numeric_id}}
-            </LinkTo>
-            {{else}}
+                    {{/if}}
+
+                    {{#if anime.episodes}}
+                    <div class="meta-item">
+                        <span class="meta-label">Episodes:</span>
+                        <span class="meta-value">{{anime.episodes}}</span>
+                    </div>
+                    {{/if}}
+
+                    {{#if anime.score}}
+                    <div class="meta-item">
+                        <span class="meta-label">Score:</span>
+                        <span class="meta-value score">⭐ {{anime.score}}</span>
+                    </div>
+                    {{/if}}
+                </div>
+
+                {{#if anime.synopsis}}
+                <p class="anime-synopsis">{{anime.synopsis}}</p>
+                {{/if}}
+
+                <div class="anime-external-links">
+                    <a href="https://myanimelist.net/anime/{{anime.mal_id}}" target="_blank" rel="noopener"
+                        class="external-link" title="MyAnimeList">
+                        {{d-icon "external-link-alt"}} MAL
+                    </a>
+                </div>
+            </div>
+        </LinkTo>
+        {{else}}
+        <div class="anime-card-livechart non-clickable">
+            <div class="card-poster-section">
+                <img src={{or anime.images.jpg.large_image_url anime.images.jpg.image_url}} alt={{anime.title}}
+                    loading="lazy" onerror="this.src='https://via.placeholder.com/225x350?text=No+Image'" />
+                {{#if anime.countdown}}
+                <div class="countdown-badge">
+                    {{#if anime.episode}}
+                    <span class="ep-num">Ep {{anime.episode}}</span>
+                    {{/if}}
+                    {{d-icon "clock"}} Next episode in {{anime.countdown.formatted}}
+                </div>
+                {{else if anime.episode}}
+                <div class="countdown-badge episode-only">
+                    {{d-icon "play-circle"}} Episode {{anime.episode}}
+                </div>
+                {{else if anime.broadcast.day}}
+                <div class="countdown-badge airing">
+                    {{d-icon "broadcast-tower"}} {{anime.broadcast.day}}
+                    {{#if anime.nextEpisodeTime}}at {{anime.nextEpisodeTime}}{{/if}}
+                </div>
+                {{/if}}
+            </div>
+
+            <div class="card-info-section">
+                <h3 class="anime-title">{{anime.title}}</h3>
+
+                {{#if anime.genres}}
+                <div class="anime-genres-subtle">
+                    {{#each anime.genres as |genre index|}}
+                    {{#if (lt index 3)}}
+                    <span class="genre-pill">{{genre.name}}</span>
+                    {{/if}}
+                    {{/each}}
+                </div>
+                {{/if}}
+
+                <div class="anime-metadata">
+                    {{#if anime.studios}}
+                    <div class="meta-item">
+                        <span class="meta-label">Studio:</span>
+                        <span class="meta-value studio-name">{{anime.studios.0.name}}</span>
+                    </div>
+                    {{/if}}
+
+                    {{#if anime.source}}
+                    <div class="meta-item">
+                        <span class="meta-label">Source:</span>
+                        <span class="meta-value">{{anime.source}}</span>
+                    </div>
+                    {{/if}}
+
+                    {{#if anime.episodes}}
+                    <div class="meta-item">
+                        <span class="meta-label">Episodes:</span>
+                        <span class="meta-value">{{anime.episodes}}</span>
+                    </div>
+                    {{/if}}
+
+                    {{#if anime.score}}
+                    <div class="meta-item">
+                        <span class="meta-label">Score:</span>
+                        <span class="meta-value score">⭐ {{anime.score}}</span>
+                    </div>
+                    {{/if}}
+                </div>
+
+                {{#if anime.synopsis}}
+                <p class="anime-synopsis">{{anime.synopsis}}</p>
+                {{/if}}
+            </div>
         </div>
         {{/if}}
+        {{else}}
+        <div class="no-anime-message">
+            <p>{{d-icon "info-circle"}} {{#if this.showOnlyWatchlist}}No anime in your watchlist for this
+                season.{{else}}No anime found.{{/if}}</p>
+        </div>
+        {{/each}}
     </div>
-    {{else}}
-    <div class="no-anime-message">
-        <p>{{d-icon "info-circle"}} {{#if this.showOnlyWatchlist}}No anime in your watchlist for this
-            season.{{else}}No anime found.{{/if}}</p>
-    </div>
-    {{/each}}
-</div>
 </div>
