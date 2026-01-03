@@ -10,12 +10,12 @@
                 this.setActiveFilter 'watching' )}}>Currently Watching</button>
             <button type="button" class="nav-tab {{if (eq this.activeFilter 'completed') 'active'}}" {{on "click" (fn
                 this.setActiveFilter 'completed' )}}>Completed</button>
+            <button type="button" class="nav-tab {{if (eq this.activeFilter 'plan_to_watch') 'active'}}" {{on "click"
+                (fn this.setActiveFilter 'plan_to_watch' )}}>Plan to Watch</button>
             <button type="button" class="nav-tab {{if (eq this.activeFilter 'on_hold') 'active'}}" {{on "click" (fn
                 this.setActiveFilter 'on_hold' )}}>On Hold</button>
             <button type="button" class="nav-tab {{if (eq this.activeFilter 'dropped') 'active'}}" {{on "click" (fn
                 this.setActiveFilter 'dropped' )}}>Dropped</button>
-            <button type="button" class="nav-tab {{if (eq this.activeFilter 'plan_to_watch') 'active'}}" {{on "click"
-                (fn this.setActiveFilter 'plan_to_watch' )}}>Plan to Watch</button>
             <div class="nav-tab-search">
                 {{d-icon "magnifying-glass"}}
                 <input type="text" placeholder="Search..." value={{this.searchTerm}} {{on "input"
