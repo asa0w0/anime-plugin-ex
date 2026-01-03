@@ -66,27 +66,28 @@
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
                                 <div class="status-dropdown">
-                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
-                                        this.toggleStatusDropdown item.anime_id)}}>
+                                    <button type="button" class="status-dropdown-toggle" data-anime-id={{item.anime_id}}
+                                        {{on "click" this.handleStatusToggle}}>
                                         {{d-icon "cog"}} Status
                                     </button>
                                     {{#if (eq this.openDropdownId item.anime_id)}}
                                     <div class="status-dropdown-menu open">
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "watching" )}}>Watching</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "completed" )}}>Completed</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "on_hold" )}}>On Hold</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "dropped" )}}>Dropped</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="watching"
+                                            {{on "click" this.handleStatusChange}}>Watching</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="completed"
+                                            {{on "click" this.handleStatusChange}}>Completed</button>
+                                        <button type="button" data-anime-id={{item.anime_id}}
+                                            data-status="plan_to_watch" {{on "click" this.handleStatusChange}}>Plan to
+                                            Watch</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="on_hold"
+                                            {{on "click" this.handleStatusChange}}>On Hold</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="dropped"
+                                            {{on "click" this.handleStatusChange}}>Dropped</button>
                                     </div>
                                     {{/if}}
                                 </div>
-                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                    this.removeFromWatchlist item.anime_id)}}>
+                                <button type="button" class="btn btn-danger btn-small" data-anime-id={{item.anime_id}}
+                                    {{on "click" this.handleDelete}}>
                                     {{d-icon "trash-can"}}
                                 </button>
                             </div>
@@ -134,27 +135,28 @@
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
                                 <div class="status-dropdown">
-                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
-                                        this.toggleStatusDropdown item.anime_id)}}>
+                                    <button type="button" class="status-dropdown-toggle" data-anime-id={{item.anime_id}}
+                                        {{on "click" this.handleStatusToggle}}>
                                         {{d-icon "cog"}} Status
                                     </button>
                                     {{#if (eq this.openDropdownId item.anime_id)}}
                                     <div class="status-dropdown-menu open">
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "watching" )}}>Watching</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "completed" )}}>Completed</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "on_hold" )}}>On Hold</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "dropped" )}}>Dropped</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="watching"
+                                            {{on "click" this.handleStatusChange}}>Watching</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="completed"
+                                            {{on "click" this.handleStatusChange}}>Completed</button>
+                                        <button type="button" data-anime-id={{item.anime_id}}
+                                            data-status="plan_to_watch" {{on "click" this.handleStatusChange}}>Plan to
+                                            Watch</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="on_hold"
+                                            {{on "click" this.handleStatusChange}}>On Hold</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="dropped"
+                                            {{on "click" this.handleStatusChange}}>Dropped</button>
                                     </div>
                                     {{/if}}
                                 </div>
-                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                    this.removeFromWatchlist item.anime_id)}}>
+                                <button type="button" class="btn btn-danger btn-small" data-anime-id={{item.anime_id}}
+                                    {{on "click" this.handleDelete}}>
                                     {{d-icon "trash-can"}}
                                 </button>
                             </div>
@@ -200,27 +202,28 @@
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
                                 <div class="status-dropdown">
-                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
-                                        this.toggleStatusDropdown item.anime_id)}}>
+                                    <button type="button" class="status-dropdown-toggle" data-anime-id={{item.anime_id}}
+                                        {{on "click" this.handleStatusToggle}}>
                                         {{d-icon "cog"}} Status
                                     </button>
                                     {{#if (eq this.openDropdownId item.anime_id)}}
                                     <div class="status-dropdown-menu open">
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "watching" )}}>Watching</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "completed" )}}>Completed</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "on_hold" )}}>On Hold</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "dropped" )}}>Dropped</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="watching"
+                                            {{on "click" this.handleStatusChange}}>Watching</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="completed"
+                                            {{on "click" this.handleStatusChange}}>Completed</button>
+                                        <button type="button" data-anime-id={{item.anime_id}}
+                                            data-status="plan_to_watch" {{on "click" this.handleStatusChange}}>Plan to
+                                            Watch</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="on_hold"
+                                            {{on "click" this.handleStatusChange}}>On Hold</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="dropped"
+                                            {{on "click" this.handleStatusChange}}>Dropped</button>
                                     </div>
                                     {{/if}}
                                 </div>
-                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                    this.removeFromWatchlist item.anime_id)}}>
+                                <button type="button" class="btn btn-danger btn-small" data-anime-id={{item.anime_id}}
+                                    {{on "click" this.handleDelete}}>
                                     {{d-icon "trash-can"}}
                                 </button>
                             </div>
@@ -268,27 +271,28 @@
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
                                 <div class="status-dropdown">
-                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
-                                        this.toggleStatusDropdown item.anime_id)}}>
+                                    <button type="button" class="status-dropdown-toggle" data-anime-id={{item.anime_id}}
+                                        {{on "click" this.handleStatusToggle}}>
                                         {{d-icon "cog"}} Status
                                     </button>
                                     {{#if (eq this.openDropdownId item.anime_id)}}
                                     <div class="status-dropdown-menu open">
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "watching" )}}>Watching</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "completed" )}}>Completed</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "on_hold" )}}>On Hold</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "dropped" )}}>Dropped</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="watching"
+                                            {{on "click" this.handleStatusChange}}>Watching</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="completed"
+                                            {{on "click" this.handleStatusChange}}>Completed</button>
+                                        <button type="button" data-anime-id={{item.anime_id}}
+                                            data-status="plan_to_watch" {{on "click" this.handleStatusChange}}>Plan to
+                                            Watch</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="on_hold"
+                                            {{on "click" this.handleStatusChange}}>On Hold</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="dropped"
+                                            {{on "click" this.handleStatusChange}}>Dropped</button>
                                     </div>
                                     {{/if}}
                                 </div>
-                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                    this.removeFromWatchlist item.anime_id)}}>
+                                <button type="button" class="btn btn-danger btn-small" data-anime-id={{item.anime_id}}
+                                    {{on "click" this.handleDelete}}>
                                     {{d-icon "trash-can"}}
                                 </button>
                             </div>
@@ -336,27 +340,28 @@
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
                                 <div class="status-dropdown">
-                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
-                                        this.toggleStatusDropdown item.anime_id)}}>
+                                    <button type="button" class="status-dropdown-toggle" data-anime-id={{item.anime_id}}
+                                        {{on "click" this.handleStatusToggle}}>
                                         {{d-icon "cog"}} Status
                                     </button>
                                     {{#if (eq this.openDropdownId item.anime_id)}}
                                     <div class="status-dropdown-menu open">
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "watching" )}}>Watching</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "completed" )}}>Completed</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "on_hold" )}}>On Hold</button>
-                                        <button type="button" {{on "click" (fn this.setStatusDirectly
-                                            item.anime_id "dropped" )}}>Dropped</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="watching"
+                                            {{on "click" this.handleStatusChange}}>Watching</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="completed"
+                                            {{on "click" this.handleStatusChange}}>Completed</button>
+                                        <button type="button" data-anime-id={{item.anime_id}}
+                                            data-status="plan_to_watch" {{on "click" this.handleStatusChange}}>Plan to
+                                            Watch</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="on_hold"
+                                            {{on "click" this.handleStatusChange}}>On Hold</button>
+                                        <button type="button" data-anime-id={{item.anime_id}} data-status="dropped"
+                                            {{on "click" this.handleStatusChange}}>Dropped</button>
                                     </div>
                                     {{/if}}
                                 </div>
-                                <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
-                                    this.removeFromWatchlist item.anime_id)}}>
+                                <button type="button" class="btn btn-danger btn-small" data-anime-id={{item.anime_id}}
+                                    {{on "click" this.handleDelete}}>
                                     {{d-icon "trash-can"}}
                                 </button>
                             </div>

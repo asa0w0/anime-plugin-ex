@@ -219,6 +219,70 @@ export default class WatchlistController extends Controller {
     }
 
     @action
+    handleStatusToggle(event) {
+        const animeId = event.currentTarget.dataset.animeId;
+        this.vibrate(5);
+
+        if (this.openDropdownId === animeId) {
+            this.openDropdownId = null;
+        } else {
+            this.openDropdownId = animeId;
+        }
+    }
+
+    @action
+    async handleStatusChange(event) {
+        const animeId = event.currentTarget.dataset.animeId;
+        const newStatus = event.currentTarget.dataset.status;
+
+        this.vibrate(10);
+        this.openDropdownId = null;
+
+        try {
+            await ajax("/anime/watchlist", {
+                method: "POST",
+                data: {
+                    anime_id: animeId,
+                    status: newStatus
+                }
+            });
+
+            // Update local model
+            const item = this.model.find(i => i.anime_id === Number(animeId) || i.anime_id === animeId);
+            if (item) {
+                item.status = newStatus;
+                // Trigger reactivity by creating a new array
+                this.model = [...this.model];
+            }
+        } catch (error) {
+            console.error("Failed to update status:", error);
+            alert("Failed to update status. Please try again.");
+        }
+    }
+
+    @action
+    async handleDelete(event) {
+        const animeId = event.currentTarget.dataset.animeId;
+        this.vibrate(10);
+
+        if (!confirm("Remove this anime from your watchlist?")) return;
+
+        try {
+            await ajax("/anime/watchlist", {
+                method: "DELETE",
+                data: { anime_id: animeId }
+            });
+
+            // Remove from local model
+            this.model = this.model.filter(i => i.anime_id !== Number(animeId) && i.anime_id !== animeId);
+        } catch (error) {
+            console.error("Failed to remove from watchlist:", error);
+            alert("Failed to remove. Please try again.");
+        }
+    }
+
+    // Legacy methods (kept for backward compatibility with other templates)
+    @action
     toggleStatusDropdown(animeId) {
         this.vibrate(5);
 
