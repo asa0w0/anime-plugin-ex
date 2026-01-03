@@ -420,15 +420,12 @@ module AnimeDatabase
         SQL
 
         # Fetch cache info for these anime to get accurate total episodes and types
-        anime_ids = results.map { |r| r.anime_id.to_i }.uniq
+        anime_ids = results.map { |r| r.anime_id.to_i }.uniq.select { |id| id > 0 }
         cache_map = {}
         
         if anime_ids.any?
-          cache_results = DB.query(<<~SQL, anime_ids)
-            SELECT mal_id, episodes_total 
-            FROM anime_cache 
-            WHERE mal_id IN (?)
-          SQL
+          ids_string = anime_ids.join(",")
+          cache_results = DB.query("SELECT mal_id, episodes_total FROM anime_cache WHERE mal_id IN (#{ids_string})")
           
           cache_results.each do |row|
             cache_map[row.mal_id.to_s] = row
@@ -488,7 +485,10 @@ module AnimeDatabase
         DO UPDATE SET 
           status = EXCLUDED.status, 
           episodes_watched = EXCLUDED.episodes_watched,
-          total_episodes = EXCLUDED.total_episodes,
+          total_episodes = CASE 
+            WHEN EXCLUDED.total_episodes > 0 THEN EXCLUDED.total_episodes 
+            ELSE anime_watchlists.total_episodes 
+          END,
           updated_at = EXCLUDED.updated_at
       SQL
 
