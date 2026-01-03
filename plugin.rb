@@ -12,6 +12,7 @@ register_asset "stylesheets/common/anime-database.scss"
 # Load service classes
 require_relative 'lib/anilist_service'
 require_relative 'lib/tmdb_service'
+require_relative 'lib/animeschedule_service'
 
 # Icon registrations
 register_svg_icon "comments"
