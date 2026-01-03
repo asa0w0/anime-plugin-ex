@@ -425,7 +425,7 @@ module AnimeDatabase
         
         if anime_ids.any?
           cache_results = DB.query(<<~SQL, anime_ids)
-            SELECT mal_id, episodes_total, type 
+            SELECT mal_id, episodes_total 
             FROM anime_cache 
             WHERE mal_id IN (?)
           SQL
@@ -452,7 +452,7 @@ module AnimeDatabase
               status: row.status,
               title: row.title,
               image_url: row.image_url,
-              type: cache_entry&.type || "TV",
+              type: "TV",
               episodes_watched: w_watched,
               total_episodes: display_total > 0 ? display_total : nil
             }
