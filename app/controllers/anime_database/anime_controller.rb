@@ -528,26 +528,28 @@ module AnimeDatabase
           if items.present?
             Rails.logger.info("[AnimeSchedule] Mapping #{items.length} items for calendar")
             mapped_anime = items.map do |item|
-              if item['websites'].blank? || item['websites']['myanimelist'].blank?
-                Rails.logger.debug("[AnimeSchedule] Skipping item without MAL ID: #{item['title']}")
-                next
-              end
-              
               begin
-                airing_time = Time.parse(item['episodeDate']).in_time_zone("Tokyo")
+                airing_time = Time.parse(item['episodeDate'])
+                
+                # Construct image URL from imageVersionRoute
+                image_url = if item['imageVersionRoute'].present?
+                  "https://animeschedule.net/images/#{item['imageVersionRoute']}"
+                else
+                  nil
+                end
                 
                 {
-                  "mal_id" => item['websites']['myanimelist'],
-                  "title" => item['title'],
+                  "mal_id" => item['route'], # Use route as unique ID since MAL ID not available
+                  "title" => item['english'] || item['romaji'] || item['title'],
                   "images" => {
-                    "jpg" => { "large_image_url" => item['image'] }
+                    "jpg" => { "large_image_url" => image_url }
                   },
                   "episode" => item['episodeNumber'],
                   "status" => item['status'],
                   "broadcast" => {
                     "day" => airing_time.strftime("%A"),
                     "time" => airing_time.strftime("%H:%M"),
-                    "timezone" => "Asia/Tokyo"
+                    "timezone" => airing_time.zone
                   },
                   "airing_at" => airing_time.to_i
                 }
