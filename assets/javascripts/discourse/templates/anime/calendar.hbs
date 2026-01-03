@@ -40,7 +40,14 @@
                         loading="lazy" />
                     {{#if anime.countdown}}
                     <div class="countdown-badge">
+                        {{#if anime.episode}}
+                        <span class="ep-num">Ep {{anime.episode}}</span>
+                        {{/if}}
                         {{d-icon "clock"}} Next episode in {{anime.countdown.formatted}}
+                    </div>
+                    {{else if anime.episode}}
+                    <div class="countdown-badge episode-only">
+                        {{d-icon "play-circle"}} Episode {{anime.episode}}
                     </div>
                     {{else if anime.broadcast.day}}
                     <div class="countdown-badge airing">

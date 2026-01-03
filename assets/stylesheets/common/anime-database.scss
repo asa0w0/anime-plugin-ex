@@ -3509,6 +3509,38 @@
       display: none;
     }
 
+    .countdown-badge {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      background: rgba(var(--secondary-rgb), 0.9);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 2;
+
+      .ep-num {
+        background: var(--tertiary);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        margin-right: 4px;
+      }
+
+      &.episode-only {
+        background: rgba(var(--tertiary-rgb), 0.9);
+        color: white;
+      }
+    }
+
     .quick-nav-btn {
       flex: 0 0 auto;
       padding: 8px 16px;

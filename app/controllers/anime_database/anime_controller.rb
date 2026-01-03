@@ -518,50 +518,78 @@ module AnimeDatabase
     end
 
     def calendar
-      cache_key = "anime_schedule_anilist"
+      source = SiteSetting.anime_calendar_source
+      cache_key = "anime_schedule_#{source}"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
-        anilist_items = AnilistService.fetch_airing_schedule(7)
-        
-        if anilist_items.present?
-          # Map AniList schedule to Jikan-like structure
-          mapped_anime = anilist_items.map do |item|
-            media = item['media']
-            next if media['idMal'].blank?
-
-            # Convert airingAt to synthesized broadcast
-            airing_time = Time.at(item['airingAt']).in_time_zone("Tokyo")
-            
-            {
-              "mal_id" => media['idMal'],
-              "title" => media['title']['english'] || media['title']['romaji'],
-              "images" => {
-                "jpg" => { "large_image_url" => media['coverImage']['large'] }
-              },
-              "members" => media['popularity'],
-              "score" => media['averageScore'] ? (media['averageScore'].to_f / 10).round(2) : nil,
-              "synopsis" => media['description'],
-              "genres" => (media['genres'] || []).map { |g| { "name" => g } },
-              "status" => media['status'],
-              "broadcast" => {
-                "day" => airing_time.strftime("%A"),
-                "time" => airing_time.strftime("%H:%M"),
-                "timezone" => "Asia/Tokyo"
-              },
-              "airing_at" => item['airingAt'] # Pass through for precise countdown
-            }
-          end.compact
-
-          # Deduplicate by mal_id (e.g. if multiple episodes air in the same week)
-          mapped_anime = mapped_anime.uniq { |a| a['mal_id'] }
-
-          # Sort by popularity to show major titles first
-          mapped_anime.sort_by! { |a| -(a['members'] || 0) }
+        case source
+        when "animeschedule"
+          items = AnimescheduleService.fetch_timetable
+          if items.present?
+            mapped_anime = items.map do |item|
+              next if item['websites'].blank? || item['websites']['myanimelist'].blank?
+              
+              airing_time = Time.parse(item['episodeDate']).in_time_zone("Tokyo")
+              
+              {
+                "mal_id" => item['websites']['myanimelist'],
+                "title" => item['title'],
+                "images" => {
+                  "jpg" => { "large_image_url" => item['image'] }
+                },
+                "episode" => item['episodeNumber'],
+                "status" => item['status'],
+                "broadcast" => {
+                  "day" => airing_time.strftime("%A"),
+                  "time" => airing_time.strftime("%H:%M"),
+                  "timezone" => "Asia/Tokyo"
+                },
+                "airing_at" => Time.parse(item['episodeDate']).to_i
+              }
+            end.compact
+            { "data" => mapped_anime }
+          else
+            nil
+          end
+        when "jikan"
+          fetch_from_api("https://api.jikan.moe/v4/schedules?limit=50")
+        else # anilist or default
+          anilist_items = AnilistService.fetch_airing_schedule(7)
           
-          { "data" => mapped_anime }
-        else
-          # Fallback to Jikan if AniList fails
-          fetch_from_api("https://api.jikan.moe/v4/schedules?limit=25")
+          if anilist_items.present?
+            mapped_anime = anilist_items.map do |item|
+              media = item['media']
+              next if media['idMal'].blank?
+
+              airing_time = Time.at(item['airingAt']).in_time_zone("Tokyo")
+              
+              {
+                "mal_id" => media['idMal'],
+                "title" => media['title']['english'] || media['title']['romaji'],
+                "images" => {
+                  "jpg" => { "large_image_url" => media['coverImage']['large'] }
+                },
+                "members" => media['popularity'],
+                "score" => media['averageScore'] ? (media['averageScore'].to_f / 10).round(2) : nil,
+                "synopsis" => media['description'],
+                "genres" => (media['genres'] || []).map { |g| { "name" => g } },
+                "status" => media['status'],
+                "broadcast" => {
+                  "day" => airing_time.strftime("%A"),
+                  "time" => airing_time.strftime("%H:%M"),
+                  "timezone" => "Asia/Tokyo"
+                },
+                "airing_at" => item['airingAt']
+              }
+            end.compact
+
+            mapped_anime = mapped_anime.uniq { |a| a['mal_id'] }
+            mapped_anime.sort_by! { |a| -(a['members'] || 0) }
+            
+            { "data" => mapped_anime }
+          else
+            fetch_from_api("https://api.jikan.moe/v4/schedules?limit=25")
+          end
         end
       end
 

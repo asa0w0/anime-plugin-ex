@@ -30,3 +30,17 @@ plugins:
     default: ""
     secret: true
     description: "TMDB API key (get from https://www.themoviedb.org/settings/api)"
+
+  anime_calendar_source:
+    default: "anilist"
+    enum:
+      - "anilist"
+      - "jikan"
+      - "animeschedule"
+    client: true
+    description: "Source for the anime calendar airing schedule"
+
+  anime_animeschedule_api_key:
+    default: ""
+    secret: true
+    description: "AnimeSchedule.net API key (Bearer token)"
