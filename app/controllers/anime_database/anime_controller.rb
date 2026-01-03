@@ -6,33 +6,51 @@ module AnimeDatabase
 
     def index
       query = params[:q].presence
-      type = params[:type].presence
-      status = params[:status].presence
-      genres = params[:genre].presence
-      order_by = params[:sort].presence || "score"
-      sort_order = params[:order].presence || "desc"
-
       page = params[:page].presence || 1
       
-      cache_key = "anime_list_search_#{query}_#{type}_#{status}_#{genres}_#{order_by}_#{sort_order}_p#{page}"
+      cache_key = "anime_list_search_v2_#{query}_p#{page}"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
-        if query.present? || type.present? || status.present? || genres.present?
-          url = "https://api.jikan.moe/v4/anime?limit=24&page=#{page}"
-          url += "&q=#{CGI.escape(query)}" if query
-          url += "&type=#{CGI.escape(type)}" if type
-          url += "&status=#{CGI.escape(status)}" if status
-          url += "&genres=#{CGI.escape(genres)}" if genres
-          url += "&order_by=#{CGI.escape(order_by)}&sort=#{CGI.escape(sort_order)}"
-          fetch_from_api(url)
+        if query.present?
+          if SiteSetting.anime_enable_anilist
+            # Search via AniList
+            anilist_results = AnilistService.search(query)
+            
+            # Map AniList to our internal format
+            mapped_data = anilist_results.map do |item|
+              # Generate slug from title
+              title = item.dig('title', 'english') || item.dig('title', 'romaji')
+              slug = title.parameterize
+              
+              {
+                "mal_id" => item['idMal'] || "al-#{item['id']}",
+                "anilist_id" => item['id'],
+                "slug" => slug,
+                "title" => title,
+                "images" => {
+                  "jpg" => { "large_image_url" => item.dig('coverImage', 'large') }
+                },
+                "score" => item['averageScore'] ? (item['averageScore'].to_f / 10).round(2) : nil,
+                "popularity" => item['popularity'],
+                "genres" => (item['genres'] || []).map { |g| { "name" => g } },
+                "synopsis" => item['description'],
+                "status" => item['status'],
+                "is_numeric_id" => item['idMal'].present?
+              }
+            end
+            { "data" => mapped_data }
+          else
+            # Fallback to Jikan
+            url = "https://api.jikan.moe/v4/anime?q=#{CGI.escape(query)}&limit=24&page=#{page}"
+            fetch_from_api(url)
+          end
         else
-          # Fallback to top anime if no filters
+          # Fallback to top anime via Jikan for discovery
           fetch_from_api("https://api.jikan.moe/v4/top/anime?limit=24&page=#{page}")
         end
       end
 
-      # Safety check: Jikan errors often return 'data' as nil or include an 'error' field
-      if response.nil? || response["error"] || !response.is_a?(Hash) || !response["data"]
+      if response.nil? || !response.is_a?(Hash) || !response["data"]
         response = { "data" => [] }
       end
 
@@ -41,25 +59,44 @@ module AnimeDatabase
 
     def show
       id = params[:id]
+      original_id = id
       
-      # If ID is not numeric, treat it as an AnimeSchedule slug/route
-      if id !~ /\A\d+\z/
+      # If ID is not numeric (or our internal al- prefix), treat it as a slug
+      if id !~ /\A\d+\z/ && id !~ /\Aal-\d+\z/
         Rails.logger.info("[Anime Plugin] Resolving slug: #{id}")
-        as_data = AnimescheduleService.fetch_anime_details(id)
         
-        if as_data && as_data["websites"] && as_data["websites"]["mal"]
-          # Extract MAL ID from URL like "myanimelist.net/anime/56877/..."
-          mal_url = as_data["websites"]["mal"]
-          if mal_url =~ /anime\/(\d+)/
-            id = $1
-            Rails.logger.info("[Anime Plugin] Resolved slug #{params[:id]} to MAL ID #{id}")
+        # 1. Try AniList Search by slug (most accurate for new URLs)
+        # We replace hyphens with spaces to help the search engine
+        search_query = id.gsub('-', ' ')
+        anilist_results = AnilistService.search(search_query)
+        match = anilist_results.find { |a| 
+          title = (a.dig('title', 'english') || a.dig('title', 'romaji') || "").parameterize
+          title == id
+        } || anilist_results.first
+
+        if match
+          id = match['idMal'] || "al-#{match['id']}"
+          Rails.logger.info("[Anime Plugin] Resolved slug #{original_id} to ID #{id} via AniList")
+        else
+          # 2. Fallback to AnimeSchedule service
+          as_data = AnimescheduleService.fetch_anime_details(id)
+          if as_data && as_data["websites"] && as_data["websites"]["mal"]
+            mal_url = as_data["websites"]["mal"]
+            if mal_url =~ /anime\/(\d+)/
+              id = $1
+              Rails.logger.info("[Anime Plugin] Resolved slug #{original_id} to MAL ID #{id} via AnimeSchedule")
+            end
           end
         end
       end
       
       begin
         # Try local cache first
-        cached_anime = AnimeDatabase::AnimeCache.find_by(mal_id: id)
+        cached_anime = if id.to_s.start_with?("al-")
+          AnimeDatabase::AnimeCache.find_by(mal_id: id) # We reuse the field or add a new one?
+        else
+          AnimeDatabase::AnimeCache.find_by(mal_id: id)
+        end
         
         if cached_anime && !cached_anime.stale?
           # Fresh cache hit - return immediately without API call
@@ -67,23 +104,37 @@ module AnimeDatabase
           anime_data = cached_anime.to_api_hash
         else
           # Cache miss or stale - fetch from API
-          cache_key = "anime_details_#{id}"
+          cache_key = "anime_details_v2_#{id}"
           
           raw_response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
-            url = "https://api.jikan.moe/v4/anime/#{id}/full"
-            res = fetch_from_api(url)
+            res = nil
             
-            # If /full fails with 404, try the basic endpoint as fallback
-            if res.is_a?(Hash) && res["status"] == 404
-              Rails.logger.warn("[Anime Plugin] /full failed with 404 for ID #{id}, trying basic endpoint...")
-              res = fetch_from_api("https://api.jikan.moe/v4/anime/#{id}")
+            # 1. Try AniList (Primary)
+            if SiteSetting.anime_enable_anilist
+              res = if id.to_s.start_with?("al-")
+                AnilistService.fetch_by_id(id.split("-").last)
+              else
+                AnilistService.fetch_by_mal_id(id)
+              end
+              
+              if res
+                # Map AniList detail to Jikan-like format for frontend compatibility
+                # We'll need a more complete mapping here
+                { "data" => map_anilist_to_internal(res) }
+              end
             end
-
-            if res.is_a?(Hash) && (res["error"] || (res["status"] && res["status"].to_i >= 400) || !res["data"])
-              # Don't cache error responses in Discourse.cache
-              nil
-            else
+            
+            # 2. Fallback to Jikan if AniList failed or disabled
+            if res.nil? && id.to_s !~ /\Aal-/
+              url = "https://api.jikan.moe/v4/anime/#{id}/full"
+              res = fetch_from_api(url)
+              
+              if res.is_a?(Hash) && res["status"] == 404
+                res = fetch_from_api("https://api.jikan.moe/v4/anime/#{id}")
+              end
               res
+            else
+              res # Could still be nil if al- ID and AniList failed
             end
           end
 
@@ -115,6 +166,14 @@ module AnimeDatabase
             tmdb_data = TmdbService.fetch_details(tmdb_search["id"])
           end
         end
+
+        # Set SEO Meta Tags
+        @title = "#{anime_data['title']} | Anime Database"
+        @description = anime_data['synopsis'].to_s.truncate(200)
+        @canonical_url = "#{Discourse.base_url}/anime/#{anime_data['slug'] || id}"
+        
+        # OpenGraph/Twitter Tags (Discourse handles these via headers)
+        response.headers["X-Discourse-Title"] = @title
 
         # Merge AniList data
         if anilist_data
@@ -412,7 +471,14 @@ module AnimeDatabase
               else
                 "https://api.jikan.moe/v4/seasons/now"
               end
-        fetch_from_api(url)
+        res = fetch_from_api(url)
+        if res.is_a?(Hash) && res["data"].present?
+          res["data"].each do |a|
+            a["slug"] = a["title"].to_s.parameterize
+            a["is_numeric_id"] = true
+          end
+        end
+        res
       end
 
       render json: response
@@ -463,10 +529,13 @@ module AnimeDatabase
         # Determine total episodes: favor watchlist, fall back to cache
         display_total = w_total > 0 ? w_total : c_total
 
+        title = row.title || (cache_entry ? "Anime" : "Unknown")
+        
         {
           anime_id: row.anime_id,
+          slug: title.to_s.parameterize,
           status: row.status,
-          title: row.title,
+          title: title,
           image_url: row.image_url,
           type: "TV",
           episodes_watched: w_watched,
@@ -598,7 +667,8 @@ module AnimeDatabase
               
               {
                 "mal_id" => media['idMal'],
-                "is_numeric_id" => true, # MAL ID is numeric, can link to detail page
+                "is_numeric_id" => true,
+                "slug" => (media['title']['english'] || media['title']['romaji']).to_s.parameterize,
                 "title" => media['title']['english'] || media['title']['romaji'],
                 "images" => {
                   "jpg" => { "large_image_url" => media['coverImage']['large'] }
@@ -622,7 +692,15 @@ module AnimeDatabase
             
             { "data" => mapped_anime }
           else
-            fetch_from_api("https://api.jikan.moe/v4/schedules?limit=25")
+            # Jikan fallback also needs slugs
+            res = fetch_from_api("https://api.jikan.moe/v4/schedules?limit=25")
+            if res.is_a?(Hash) && res["data"].present?
+              res["data"].each do |a| 
+                a["slug"] = a["title"].to_s.parameterize
+                a["is_numeric_id"] = true
+              end
+            end
+            res
           end
         end
       end
@@ -646,6 +724,34 @@ module AnimeDatabase
     end
 
     private
+
+    def map_anilist_to_internal(media)
+      title = media.dig('title', 'english') || media.dig('title', 'romaji')
+      slug = title.to_s.parameterize
+      
+      {
+        "mal_id" => media['idMal'] || "al-#{media['id']}",
+        "anilist_id" => media['id'],
+        "slug" => slug,
+        "title" => title,
+        "images" => {
+          "jpg" => {
+            "large_image_url" => media.dig('coverImage', 'large'),
+            "image_url" => media.dig('coverImage', 'medium')
+          }
+        },
+        "banner_image" => media['bannerImage'],
+        "score" => media['averageScore'] ? (media['averageScore'].to_f / 10).round(2) : nil,
+        "popularity" => media['popularity'],
+        "synopsis" => media['description'],
+        "episodes" => media['episodes'],
+        "status" => media['status'],
+        "genres" => (media['genres'] || []).map { |g| { "name" => g } },
+        "studios" => (media.dig('studios', 'nodes') || []).map { |s| { "name" => s['name'] } },
+        "source" => media['source'],
+        "is_numeric_id" => media['idMal'].present?
+      }
+    end
 
     def fetch_from_api(url, retry_count = 2)
       begin

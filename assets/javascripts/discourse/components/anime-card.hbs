@@ -1,5 +1,5 @@
 <div class="anime-card-enhanced">
-    <LinkTo @route="anime.show" @model={{@anime.mal_id}} class="anime-card-link">
+    <LinkTo @route="anime.show" @model={{or @anime.slug @anime.mal_id}} class="anime-card-link">
         <div class="anime-card-image">
             <img src={{@anime.images.jpg.image_url}} alt={{@anime.title}} loading="lazy" />
             <div class="anime-card-rating">

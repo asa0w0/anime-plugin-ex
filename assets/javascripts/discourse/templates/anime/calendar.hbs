@@ -33,7 +33,7 @@
 
     <div class="anime-grid {{this.viewMode}}-view">
         {{#each this.animeList as |anime|}}
-        <LinkTo @route="anime.show" @model={{anime.mal_id}} class="anime-card-livechart card-link">
+        <LinkTo @route="anime.show" @model={{or anime.slug anime.mal_id}} class="anime-card-livechart card-link">
             <div class="card-poster-section">
                 <img src={{or anime.images.jpg.large_image_url anime.images.jpg.image_url}} alt={{anime.title}}
                     loading="lazy" />

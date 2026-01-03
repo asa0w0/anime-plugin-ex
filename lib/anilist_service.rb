@@ -14,11 +14,83 @@ class AnilistService
     cache_key = "anilist_mal_#{mal_id}"
     
     Discourse.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
-      execute_query(mal_id)
+      execute_query({ malId: mal_id.to_i })
     end
   rescue => e
     Rails.logger.error("AniList API error for MAL ID #{mal_id}: #{e.message}")
     nil
+  end
+
+  def self.fetch_by_id(anilist_id)
+    return nil unless SiteSetting.anime_enable_anilist
+    return nil if anilist_id.blank?
+
+    cache_key = "anilist_id_#{anilist_id}"
+    
+    Discourse.cache.fetch(cache_key, expires_in: CACHE_DURATION) do
+      execute_query({ id: anilist_id.to_i })
+    end
+  rescue => e
+    Rails.logger.error("AniList API error for ID #{anilist_id}: #{e.message}")
+    nil
+  end
+
+  def self.search(search_query)
+    return [] unless SiteSetting.anime_enable_anilist
+    return [] if search_query.blank?
+
+    query = <<~GRAPHQL
+      query ($search: String) {
+        Page(page: 1, perPage: 20) {
+          media(search: $search, type: ANIME) {
+            id
+            idMal
+            title {
+              romaji
+              english
+              native
+            }
+            coverImage {
+              large
+              medium
+            }
+            bannerImage
+            averageScore
+            popularity
+            description
+            season
+            seasonYear
+            format
+            status
+            genres
+          }
+        }
+      }
+    GRAPHQL
+
+    uri = URI(ENDPOINT)
+    http = Net::HTTP.new(uri.hostname, uri.port)
+    http.use_ssl = true
+    
+    request = Net::HTTP::Post.new(uri)
+    request['Content-Type'] = 'application/json'
+    request.body = {
+      query: query,
+      variables: { search: search_query }
+    }.to_json
+
+    response = http.request(request)
+
+    if response.code == '200'
+      data = JSON.parse(response.body)
+      data.dig('data', 'Page', 'media') || []
+    else
+      Rails.logger.warn("[AniList] Search API returned #{response.code}")
+      []
+    end
+  rescue => e
+    Rails.logger.error("[AniList] Search error: #{e.message}")
+    []
   end
 
   def self.fetch_airing_schedule(days = 7)
@@ -89,20 +161,55 @@ class AnilistService
 
   private
 
-  def self.execute_query(mal_id)
+  def self.execute_query(variables)
     query = <<~GRAPHQL
-      query ($malId: Int) {
-        Media(idMal: $malId, type: ANIME) {
+      query ($id: Int, $malId: Int) {
+        Media(id: $id, idMal: $malId, type: ANIME) {
           id
+          idMal
           siteUrl
+          title {
+            romaji
+            english
+            native
+          }
+          type
+          format
+          status
+          description
+          startDate { year month day }
+          endDate { year month day }
+          season
+          seasonYear
+          episodes
+          source
+          studios(isMain: true) {
+            nodes {
+              name
+              siteUrl
+            }
+          }
+          duration
+          chapters
+          volumes
+          countryOfOrigin
+          isAdult
+          genres
+          synonyms
           averageScore
           popularity
           favourites
-          episodes
+          trending
           tags {
             name
             rank
           }
+          coverImage {
+            large
+            medium
+            color
+          }
+          bannerImage
           characters(page: 1, perPage: 12, sort: ROLE) {
             nodes {
               id
@@ -159,7 +266,7 @@ class AnilistService
     request['Accept'] = 'application/json'
     request.body = {
       query: query,
-      variables: { malId: mal_id.to_i }
+      variables: variables
     }.to_json
 
     response = http.request(request)
