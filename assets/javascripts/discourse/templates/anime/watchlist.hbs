@@ -48,6 +48,7 @@
     </div>
     {{/if}}
 
+    {{#if this.filteredModel.length}}
     {{!-- Table View --}}
     <div class="watchlist-table-container">
         <table class="watchlist-table">
@@ -171,12 +172,11 @@
             </tbody>
         </table>
     </div>
-
-    {{#unless this.filteredModel.length}}
+    {{else}}
     <div class="watchlist-empty">
         <p>No anime found in this category.</p>
     </div>
-    {{/unless}}
+    {{/if}}
 
     {{else}}
     <div class="watchlist-empty-state">
