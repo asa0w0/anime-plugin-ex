@@ -534,7 +534,7 @@ module AnimeDatabase
 
     def calendar
       source = SiteSetting.anime_calendar_source
-      cache_key = "anime_schedule_#{source}_v4"
+      cache_key = "anime_schedule_#{source}_v5"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         case source
@@ -546,9 +546,9 @@ module AnimeDatabase
               begin
                 airing_time = Time.parse(item['episodeDate'])
                 
-                # Construct proper image URL
+                # Construct proper image URL from production CDN
                 image_url = if item['imageVersionRoute'].present?
-                  "https://animeschedule.net/images/#{item['imageVersionRoute']}"
+                  "https://img.animeschedule.net/production/assets/public/img/#{item['imageVersionRoute']}"
                 else
                   nil
                 end
