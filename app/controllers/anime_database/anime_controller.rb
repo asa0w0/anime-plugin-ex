@@ -410,61 +410,56 @@ module AnimeDatabase
       if user != current_user && !SiteSetting.anime_public_watchlists
         return render json: { error: "This watchlist is private" }, status: 403
       end
+      # Fetch watchlist entries
+      results = DB.query(<<~SQL, user.id)
+        SELECT * FROM anime_watchlists 
+        WHERE user_id = ? 
+        ORDER BY updated_at DESC
+      SQL
 
-      begin
-        # Fetch watchlist entries
-        results = DB.query(<<~SQL, user.id)
-          SELECT * FROM anime_watchlists 
-          WHERE user_id = ? 
-          ORDER BY updated_at DESC
-        SQL
-
-        # Fetch cache info for these anime to get accurate total episodes and types
-        anime_ids = results.map { |r| r.anime_id.to_i }.uniq.select { |id| id > 0 }
-        cache_map = {}
+      # Fetch cache info for these anime to get accurate total episodes and types
+      anime_ids = results.map { |r| r.anime_id.to_i }.uniq.select { |id| id > 0 }
+      cache_map = {}
+      
+      if anime_ids.any?
+        ids_string = anime_ids.join(",")
+        cache_results = DB.query("SELECT mal_id, episodes_total FROM anime_cache WHERE mal_id IN (#{ids_string})")
         
-        if anime_ids.any?
-          ids_string = anime_ids.join(",")
-          cache_results = DB.query("SELECT mal_id, episodes_total FROM anime_cache WHERE mal_id IN (#{ids_string})")
-          
-          cache_results.each do |row|
-            cache_map[row.mal_id.to_s] = row
-          end
+        cache_results.each do |row|
+          cache_map[row.mal_id.to_s] = row
         end
-
-        # Build the response data
-        response_data = results.map { |row|
-          cache_entry = cache_map[row.anime_id.to_s]
-          
-          # Safe column access in case migrations haven't run or columns are missing
-          w_watched = row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0
-          w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
-          c_total = cache_entry ? cache_entry.episodes_total.to_i : 0
-          
-          # Determine total episodes: favor watchlist, fall back to cache
-          display_total = w_total > 0 ? w_total : c_total
-
-          {
-            anime_id: row.anime_id,
-            status: row.status,
-            title: row.title,
-            image_url: row.image_url,
-            type: "TV",
-            episodes_watched: w_watched,
-            total_episodes: display_total > 0 ? display_total : nil
-          }
-        }
-        
-        # Queue background job to fill in missing episode counts (non-blocking)
-        missing_ids = response_data.select { |item| item[:total_episodes].nil? }.map { |item| item[:anime_id] }
-        if missing_ids.any?
-          Jobs.enqueue(:anime_database_watchlist_sync, anime_ids: missing_ids.first(10))
-        end
-        
-        render json: { data: response_data }
-      rescue => e
-        render json: { error: e.message, debug_trace: e.backtrace.first(5) }, status: 500
       end
+
+      # Build the response data
+      response_data = results.map { |row|
+        cache_entry = cache_map[row.anime_id.to_s]
+        
+        # Safe column access in case migrations haven't run or columns are missing
+        w_watched = row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0
+        w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
+        c_total = cache_entry ? cache_entry.episodes_total.to_i : 0
+        
+        # Determine total episodes: favor watchlist, fall back to cache
+        display_total = w_total > 0 ? w_total : c_total
+
+        {
+          anime_id: row.anime_id,
+          status: row.status,
+          title: row.title,
+          image_url: row.image_url,
+          type: "TV",
+          episodes_watched: w_watched,
+          total_episodes: display_total > 0 ? display_total : nil
+        }
+      }
+      
+      # Queue background job to fill in missing episode counts (non-blocking)
+      missing_ids = response_data.select { |item| item[:total_episodes].nil? }.map { |item| item[:anime_id] }
+      if missing_ids.any?
+        Jobs.enqueue(:watchlist_sync_job, anime_ids: missing_ids.first(10))
+      end
+      
+      render json: { data: response_data }
     end
 
     def update_watchlist

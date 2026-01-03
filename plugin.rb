@@ -116,6 +116,7 @@ after_initialize do
   require_relative "app/jobs/anime_database/anime_sync_job"
   require_relative "app/jobs/anime_database/episode_sync_job"
   require_relative "app/jobs/anime_database/airing_anime_sync_job"
+  require_relative "app/jobs/anime_database/watchlist_sync_job"
 
   module ::AnimeDatabase
     class Engine < ::Rails::Engine

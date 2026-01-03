@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Jobs
-  class AnimeDatabaseWatchlistSync < ::Jobs::Base
+  class WatchlistSyncJob < ::Jobs::Base
     sidekiq_options queue: 'low'
 
     def execute(args)
