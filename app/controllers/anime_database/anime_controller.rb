@@ -42,6 +42,21 @@ module AnimeDatabase
     def show
       id = params[:id]
       
+      # If ID is not numeric, treat it as an AnimeSchedule slug/route
+      if id !~ /\A\d+\z/
+        Rails.logger.info("[Anime Plugin] Resolving slug: #{id}")
+        as_data = AnimescheduleService.fetch_anime_details(id)
+        
+        if as_data && as_data["websites"] && as_data["websites"]["mal"]
+          # Extract MAL ID from URL like "myanimelist.net/anime/56877/..."
+          mal_url = as_data["websites"]["mal"]
+          if mal_url =~ /anime\/(\d+)/
+            id = $1
+            Rails.logger.info("[Anime Plugin] Resolved slug #{params[:id]} to MAL ID #{id}")
+          end
+        end
+      end
+      
       begin
         # Try local cache first
         cached_anime = AnimeDatabase::AnimeCache.find_by(mal_id: id)
@@ -519,7 +534,7 @@ module AnimeDatabase
 
     def calendar
       source = SiteSetting.anime_calendar_source
-      cache_key = "anime_schedule_#{source}_v3"
+      cache_key = "anime_schedule_#{source}_v4"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         case source
