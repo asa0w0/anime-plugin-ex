@@ -519,7 +519,7 @@ module AnimeDatabase
 
     def calendar
       source = SiteSetting.anime_calendar_source
-      cache_key = "anime_schedule_#{source}_v2"
+      cache_key = "anime_schedule_#{source}_v3"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         case source
