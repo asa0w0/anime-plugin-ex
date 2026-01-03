@@ -65,6 +65,26 @@
                         <div class="anime-card-image">
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
+                                <div class="status-dropdown">
+                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
+                                        this.toggleStatusDropdown item.anime_id)}}>
+                                        {{d-icon "ellipsis-v"}}
+                                    </button>
+                                    {{#if (eq this.openDropdownId item.anime_id)}}
+                                    <div class="status-dropdown-menu open">
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "watching" )}}>Watching</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "completed" )}}>Completed</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "on_hold" )}}>On Hold</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "dropped" )}}>Dropped</button>
+                                    </div>
+                                    {{/if}}
+                                </div>
                                 <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                     this.removeFromWatchlist item.anime_id)}}>
                                     {{d-icon "trash-can"}}
@@ -113,6 +133,26 @@
                         <div class="anime-card-image">
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
+                                <div class="status-dropdown">
+                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
+                                        this.toggleStatusDropdown item.anime_id)}}>
+                                        {{d-icon "ellipsis-v"}}
+                                    </button>
+                                    {{#if (eq this.openDropdownId item.anime_id)}}
+                                    <div class="status-dropdown-menu open">
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "watching" )}}>Watching</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "completed" )}}>Completed</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "on_hold" )}}>On Hold</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "dropped" )}}>Dropped</button>
+                                    </div>
+                                    {{/if}}
+                                </div>
                                 <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                     this.removeFromWatchlist item.anime_id)}}>
                                     {{d-icon "trash-can"}}
@@ -159,6 +199,26 @@
                         <div class="anime-card-image">
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
+                                <div class="status-dropdown">
+                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
+                                        this.toggleStatusDropdown item.anime_id)}}>
+                                        {{d-icon "ellipsis-v"}}
+                                    </button>
+                                    {{#if (eq this.openDropdownId item.anime_id)}}
+                                    <div class="status-dropdown-menu open">
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "watching" )}}>Watching</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "completed" )}}>Completed</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "on_hold" )}}>On Hold</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "dropped" )}}>Dropped</button>
+                                    </div>
+                                    {{/if}}
+                                </div>
                                 <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                     this.removeFromWatchlist item.anime_id)}}>
                                     {{d-icon "trash-can"}}
@@ -207,6 +267,26 @@
                         <div class="anime-card-image">
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
+                                <div class="status-dropdown">
+                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
+                                        this.toggleStatusDropdown item.anime_id)}}>
+                                        {{d-icon "ellipsis-v"}}
+                                    </button>
+                                    {{#if (eq this.openDropdownId item.anime_id)}}
+                                    <div class="status-dropdown-menu open">
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "watching" )}}>Watching</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "completed" )}}>Completed</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "on_hold" )}}>On Hold</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "dropped" )}}>Dropped</button>
+                                    </div>
+                                    {{/if}}
+                                </div>
                                 <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                     this.removeFromWatchlist item.anime_id)}}>
                                     {{d-icon "trash-can"}}
@@ -255,6 +335,26 @@
                         <div class="anime-card-image">
                             <img src={{item.image_url}} alt={{item.title}} loading="lazy" />
                             <div class="item-actions">
+                                <div class="status-dropdown">
+                                    <button type="button" class="status-dropdown-toggle" {{on "click" (fn
+                                        this.toggleStatusDropdown item.anime_id)}}>
+                                        {{d-icon "ellipsis-v"}}
+                                    </button>
+                                    {{#if (eq this.openDropdownId item.anime_id)}}
+                                    <div class="status-dropdown-menu open">
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "watching" )}}>Watching</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "completed" )}}>Completed</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "plan_to_watch" )}}>Plan to Watch</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "on_hold" )}}>On Hold</button>
+                                        <button type="button" {{on "click" (fn this.setStatusDirectly
+                                            item.anime_id "dropped" )}}>Dropped</button>
+                                    </div>
+                                    {{/if}}
+                                </div>
                                 <button type="button" class="btn btn-danger btn-small" {{on "click" (fn
                                     this.removeFromWatchlist item.anime_id)}}>
                                     {{d-icon "trash-can"}}

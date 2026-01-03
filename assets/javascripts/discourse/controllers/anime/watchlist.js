@@ -11,6 +11,7 @@ export default class WatchlistController extends Controller {
     @tracked selectedIds = new Set();
     @tracked selectionTrigger = 0;
     @tracked isLoading = false;
+    @tracked openDropdownId = null;
 
     // Swipe state (non-tracked for performance)
     _startX = 0;
@@ -215,6 +216,53 @@ export default class WatchlistController extends Controller {
             (this.model || []).forEach(item => this.selectedIds.add(item.anime_id));
         }
         this.selectionTrigger++;
+    }
+
+    @action
+    toggleStatusDropdown(animeId, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        this.vibrate(5);
+
+        if (this.openDropdownId === animeId) {
+            this.openDropdownId = null;
+        } else {
+            this.openDropdownId = animeId;
+        }
+    }
+
+    @action
+    async setStatusDirectly(animeId, newStatus, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+
+        this.vibrate(10);
+        this.openDropdownId = null;
+
+        try {
+            await ajax("/anime/watchlist", {
+                method: "POST",
+                data: {
+                    anime_id: animeId,
+                    status: newStatus
+                }
+            });
+
+            // Update local model
+            const item = this.model.find(i => i.anime_id === Number(animeId) || i.anime_id === animeId);
+            if (item) {
+                item.status = newStatus;
+                // Trigger reactivity by creating a new array
+                this.model = [...this.model];
+            }
+        } catch (error) {
+            console.error("Failed to update status:", error);
+            alert("Failed to update status. Please try again.");
+        }
     }
 
     @action
