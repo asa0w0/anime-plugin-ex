@@ -254,8 +254,14 @@ export default class WatchlistController extends Controller {
     }
 
     @action
-    async incrementProgress(event) {
-        const animeId = event.currentTarget.dataset.animeId;
+    async incrementProgress(animeIdOrEvent) {
+        // Handle both old event-based calls and new direct ID calls
+        const animeId = typeof animeIdOrEvent === 'string' || typeof animeIdOrEvent === 'number'
+            ? animeIdOrEvent
+            : animeIdOrEvent?.currentTarget?.dataset?.animeId;
+
+        if (!animeId) return;
+
         this.vibrate(10);
 
         const item = this.model.find(i => i.anime_id === Number(animeId) || i.anime_id === animeId);
