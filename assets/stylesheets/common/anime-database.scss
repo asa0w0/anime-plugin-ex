@@ -3871,15 +3871,17 @@
       background: #27ae60;
     }
 
-    &.on_hold {
+    &.on_hold,
+    &.on-hold {
       background: #f39c12;
     }
 
     &.dropped {
-      background: #7f8c8d;
+      background: #e74c3c;
     }
 
-    &.plan_to_watch {
+    &.plan_to_watch,
+    &.planned {
       background: #9b59b6;
     }
 
@@ -3984,23 +3986,25 @@
       }
 
       &.status-watching {
-        border-left-color: #3498db;
+        border-left-color: #3498db !important;
       }
 
       &.status-completed {
-        border-left-color: #27ae60;
+        border-left-color: #27ae60 !important;
       }
 
-      &.status-on_hold {
-        border-left-color: #f39c12;
+      &.status-on_hold,
+      &.status-on-hold {
+        border-left-color: #f39c12 !important;
       }
 
       &.status-dropped {
-        border-left-color: #7f8c8d;
+        border-left-color: #e74c3c !important;
       }
 
-      &.status-plan_to_watch {
-        border-left-color: #9b59b6;
+      &.status-plan_to_watch,
+      &.status-planned {
+        border-left-color: #9b59b6 !important;
       }
 
       td {
@@ -4106,19 +4110,27 @@
           }
 
           .btn-increment {
-            background: none;
-            border: 1px solid var(--primary-low);
+            background: var(--primary-very-low);
+            border: 1px solid var(--primary-low-mid);
             border-radius: 4px;
-            padding: 4px 8px;
+            padding: 4px 10px;
             margin-left: 8px;
             cursor: pointer;
             color: var(--tertiary);
             transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
 
             &:hover {
               background: var(--tertiary);
               color: white;
               border-color: var(--tertiary);
+            }
+
+            .d-icon {
+              width: 12px;
+              height: 12px;
             }
           }
         }
@@ -4130,17 +4142,21 @@
             gap: 8px;
 
             .btn-action {
-              background: none;
-              border: 1px solid var(--primary-low);
+              background: var(--primary-very-low);
+              border: 1px solid var(--primary-low-mid);
               border-radius: 6px;
-              padding: 8px 10px;
+              padding: 8px 12px;
               cursor: pointer;
-              color: var(--primary-medium);
+              color: var(--primary-high);
               transition: all 0.15s;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
 
               &:hover {
-                background: var(--primary-very-low);
+                background: var(--primary-low);
                 color: var(--primary);
+                border-color: var(--primary-medium);
               }
 
               &.btn-delete:hover {
