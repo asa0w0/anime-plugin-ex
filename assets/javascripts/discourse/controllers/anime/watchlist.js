@@ -255,7 +255,27 @@ export default class WatchlistController extends Controller {
         const item = this.model.find(i => i.anime_id === Number(animeId) || i.anime_id === animeId);
         if (!item) return;
 
-        const newCount = (item.episodes_watched || 0) + 1;
+        const currentCount = item.episodes_watched || 0;
+        const totalEpisodes = item.total_episodes || 0;
+
+        // Prevent incrementing beyond total episodes
+        if (totalEpisodes > 0 && currentCount >= totalEpisodes) {
+            this.vibrate([20, 50, 20]); // Error feedback
+            return;
+        }
+
+        const newCount = currentCount + 1;
+        let newStatus = item.status;
+
+        // Auto-set to "watching" when starting to track (from 0 to 1)
+        if (currentCount === 0 && item.status !== "watching" && item.status !== "completed") {
+            newStatus = "watching";
+        }
+
+        // Auto-set to "completed" when reaching total episodes
+        if (totalEpisodes > 0 && newCount >= totalEpisodes) {
+            newStatus = "completed";
+        }
 
         try {
             await ajax("/anime/watchlist", {
@@ -263,20 +283,19 @@ export default class WatchlistController extends Controller {
                 data: {
                     anime_id: animeId,
                     episodes_watched: newCount,
-                    total_episodes: item.total_episodes || 0,
-                    status: item.status
+                    total_episodes: totalEpisodes,
+                    status: newStatus
                 }
             });
 
             // Update local model
             item.episodes_watched = newCount;
-
-            // Auto-complete if reached total
-            if (item.total_episodes && newCount >= item.total_episodes) {
-                item.status = "completed";
-            }
+            item.status = newStatus;
 
             this.model = [...this.model];
+
+            // Success feedback
+            this.vibrate(newStatus === "completed" ? [10, 30, 10, 30, 10] : 10);
         } catch (error) {
             console.error("Failed to update progress:", error);
         }
