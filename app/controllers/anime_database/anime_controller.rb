@@ -42,11 +42,25 @@ module AnimeDatabase
           else
             # Fallback to Jikan
             url = "https://api.jikan.moe/v4/anime?q=#{CGI.escape(query)}&limit=24&page=#{page}"
-            fetch_from_api(url)
+            res = fetch_from_api(url)
+            if res.is_a?(Hash) && res["data"].present?
+              res["data"].each do |a|
+                a["slug"] = a["title"].to_s.parameterize
+                a["is_numeric_id"] = true
+              end
+            end
+            res
           end
         else
           # Fallback to top anime via Jikan for discovery
-          fetch_from_api("https://api.jikan.moe/v4/top/anime?limit=24&page=#{page}")
+          res = fetch_from_api("https://api.jikan.moe/v4/top/anime?limit=24&page=#{page}")
+          if res.is_a?(Hash) && res["data"].present?
+            res["data"].each do |a|
+              a["slug"] = a["title"].to_s.parameterize
+              a["is_numeric_id"] = true
+            end
+          end
+          res
         end
       end
 
@@ -64,188 +78,107 @@ module AnimeDatabase
       # If ID is not numeric (or our internal al- prefix), treat it as a slug
       if id !~ /\A\d+\z/ && id !~ /\Aal-\d+\z/
         Rails.logger.info("[Anime Plugin] Resolving slug: #{id}")
-        
-        # 1. Try AniList Search by slug (most accurate for new URLs)
-        # We replace hyphens with spaces to help the search engine
         search_query = id.gsub('-', ' ')
         anilist_results = AnilistService.search(search_query)
         match = anilist_results.find { |a| 
-          title = (a.dig('title', 'english') || a.dig('title', 'romaji') || "").parameterize
-          title == id
+          (a.dig('title', 'english') || "").parameterize == id || 
+          (a.dig('title', 'romaji') || "").parameterize == id
         } || anilist_results.first
 
         if match
           id = match['idMal'] || "al-#{match['id']}"
-          Rails.logger.info("[Anime Plugin] Resolved slug #{original_id} to ID #{id} via AniList")
         else
-          # 2. Fallback to AnimeSchedule service
+          # Fallback to AnimeSchedule
           as_data = AnimescheduleService.fetch_anime_details(id)
           if as_data && as_data["websites"] && as_data["websites"]["mal"]
             mal_url = as_data["websites"]["mal"]
-            if mal_url =~ /anime\/(\d+)/
-              id = $1
-              Rails.logger.info("[Anime Plugin] Resolved slug #{original_id} to MAL ID #{id} via AnimeSchedule")
-            end
+            id = $1 if mal_url =~ /anime\/(\d+)/
           end
         end
       end
       
       begin
-        # Try local cache first
-        cached_anime = if id.to_s.start_with?("al-")
-          AnimeDatabase::AnimeCache.find_by(mal_id: id) # We reuse the field or add a new one?
-        else
-          AnimeDatabase::AnimeCache.find_by(mal_id: id)
-        end
+        # 1. Try local cache first
+        cached_anime = AnimeDatabase::AnimeCache.find_by(mal_id: id)
         
         if cached_anime && !cached_anime.stale?
-          # Fresh cache hit - return immediately without API call
-          Rails.logger.debug("[Anime Plugin] Local cache hit for ID #{id}")
           anime_data = cached_anime.to_api_hash
         else
-          # Cache miss or stale - fetch from API
-          cache_key = "anime_details_v2_#{id}"
-          
+          # 2. Fetch from APIs
+          cache_key = "anime_details_v3_#{id}"
           raw_response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
             res = nil
-            
-            # 1. Try AniList (Primary)
+            # Try AniList Primary
             if SiteSetting.anime_enable_anilist
-              res = if id.to_s.start_with?("al-")
-                AnilistService.fetch_by_id(id.split("-").last)
-              else
-                AnilistService.fetch_by_mal_id(id)
-              end
-              
-              if res
-                # Map AniList detail to Jikan-like format for frontend compatibility
-                # We'll need a more complete mapping here
-                { "data" => map_anilist_to_internal(res) }
-              end
+              res = id.to_s.start_with?("al-") ? 
+                    AnilistService.fetch_by_id(id.split("-").last) : 
+                    AnilistService.fetch_by_mal_id(id)
             end
             
-            # 2. Fallback to Jikan if AniList failed or disabled
-            if res.nil? && id.to_s !~ /\Aal-/
-              url = "https://api.jikan.moe/v4/anime/#{id}/full"
-              res = fetch_from_api(url)
-              
-              if res.is_a?(Hash) && res["status"] == 404
-                res = fetch_from_api("https://api.jikan.moe/v4/anime/#{id}")
-              end
-              res
+            if res
+              { "data" => map_anilist_to_internal(res) }
+            elsif id.to_s !~ /\Aal-/
+              # Fallback to Jikan
+              jikan_res = fetch_from_api("https://api.jikan.moe/v4/anime/#{id}/full")
+              jikan_res = fetch_from_api("https://api.jikan.moe/v4/anime/#{id}") if jikan_res&.dig("status") == 404
+              jikan_res
             else
-              res # Could still be nil if al- ID and AniList failed
+              nil
             end
           end
 
-          if raw_response.nil? || !raw_response.is_a?(Hash) || !raw_response["data"]
-            # API failed - try to return stale cache if available
-            if cached_anime
-              Rails.logger.warn("[Anime Plugin] API failed for ID #{id}, returning stale cache")
-              anime_data = cached_anime.to_api_hash
-            else
-              Rails.logger.warn("[Anime Plugin] API data missing and no cache for ID #{id}")
-              Discourse.cache.delete(cache_key) # Ensure we don't keep a null entry
-              return render json: { error: "Anime data not available", status: 404 }, status: 404
-            end
-          else
+          if raw_response&.dig("data")
             anime_data = raw_response["data"].dup
-            
-            # Queue background sync to update local persistent cache
-            Jobs.enqueue(:anime_sync_job, mal_id: id)
+            Jobs.enqueue(:anime_sync_job, mal_id: id) if id.to_s =~ /\A\d+\z/
+          elsif cached_anime
+            anime_data = cached_anime.to_api_hash
+          else
+            return render json: { error: "Anime data not available" }, status: 404
           end
         end
 
-        # Fetch additional data from AniList and TMDB
-        anilist_data = AnilistService.fetch_by_mal_id(id)
-        tmdb_data = nil
-        
-        if SiteSetting.anime_enable_tmdb && anime_data["title"]
+        # Ensure slug is present for SEO
+        anime_data["slug"] ||= (anime_data["title"] || "").parameterize
+
+        # Add TMDB data if enabled and missing
+        if SiteSetting.anime_enable_tmdb && !anime_data["tmdb"]
           tmdb_search = TmdbService.search_anime(anime_data["title"])
-          if tmdb_search && tmdb_search["id"]
-            tmdb_data = TmdbService.fetch_details(tmdb_search["id"])
+          if tmdb_search&.dig("id")
+            tmdb_details = TmdbService.fetch_details(tmdb_search["id"])
+            if tmdb_details
+              anime_data["tmdb"] = {
+                id: tmdb_details["id"],
+                backdrop_path: tmdb_details["backdrop_path"],
+                poster_path: tmdb_details["poster_path"],
+                cast: tmdb_details.dig("credits", "cast")&.take(10),
+                videos: tmdb_details.dig("videos", "results")
+              }
+            end
           end
         end
 
-        # Set SEO Meta Tags
-        @title = "#{anime_data['title']} | Anime Database"
-        @description = anime_data['synopsis'].to_s.truncate(200)
-        @canonical_url = "#{Discourse.base_url}/anime/#{anime_data['slug'] || id}"
-        
-        # OpenGraph/Twitter Tags (Discourse handles these via headers)
-        response.headers["X-Discourse-Title"] = @title
-
-        # Merge AniList data
-        if anilist_data
-          anime_data["anilist"] = {
-            id: anilist_data["id"],
-            url: anilist_data["siteUrl"],
-            score: anilist_data["averageScore"],
-            popularity: anilist_data["popularity"],
-            favourites: anilist_data["favourites"],
-            tags: anilist_data["tags"],
-            characters: anilist_data["characters"]&.dig("nodes"),
-            relations: anilist_data["relations"]&.dig("edges"),
-            streaming: anilist_data["streamingEpisodes"],
-            external_links: anilist_data["externalLinks"]
-          }
-        end
-
-        # Merge TMDB data
-        if tmdb_data
-          anime_data["tmdb"] = {
-            id: tmdb_data["id"],
-            backdrop_path: tmdb_data["backdrop_path"],
-            poster_path: tmdb_data["poster_path"],
-            cast: tmdb_data.dig("credits", "cast")&.take(10),
-            crew: tmdb_data.dig("credits", "crew")&.take(5),
-            videos: tmdb_data.dig("videos", "results"),
-            posters: tmdb_data.dig("images", "posters")&.take(6),
-            backdrops: tmdb_data.dig("images", "backdrops")&.take(6)
-          }
-        end
-
-        # Find general topics (exclude those with episode numbers)
+        # Discussions & Watchlist
         topic_ids = ::TopicCustomField.where(name: "anime_mal_id", value: id.to_s).pluck(:topic_id)
         episode_topic_ids = ::TopicCustomField.where(name: "anime_episode_number", topic_id: topic_ids).pluck(:topic_id)
-        general_topic_ids = topic_ids - episode_topic_ids
+        topics = ::Topic.where(id: topic_ids - episode_topic_ids, deleted_at: nil).order(created_at: :desc).limit(20)
         
-        topics = ::Topic.where(id: general_topic_ids, deleted_at: nil).order(created_at: :desc).limit(20)
+        anime_data["topics"] = topics.map { |t| { id: t.id, title: t.title, slug: t.slug, post_count: t.posts_count, last_posted_at: t.last_posted_at } }
         
-        topics_data = topics.map do |t|
-          {
-            id: t.id,
-            title: t.title,
-            slug: t.slug,
-            post_count: t.posts_count,
-            last_posted_at: t.last_posted_at
-          }
-        end
-
-        # Add watchlist status if user is logged in
-        watchlist_details = nil
         if current_user
           row = DB.query("SELECT status, episodes_watched, total_episodes FROM anime_watchlists WHERE user_id = ? AND anime_id = ?", current_user.id, id.to_s).first
-          if row
-            watchlist_details = {
-              status: row.status,
-              episodes_watched: row.episodes_watched || 0,
-              total_episodes: row.total_episodes || 0
-            }
-          end
+          anime_data["watchlist_status"] = { status: row.status, episodes_watched: row.episodes_watched || 0, total_episodes: row.total_episodes || 0 } if row
         end
 
-        # Merge local data into anime_data
-        # ...
-
-        # Merge local data into anime_data
-        anime_data["topics"] = topics_data
-        anime_data["watchlist_status"] = watchlist_details
+        # SEO
+        @title = "#{anime_data['title']} | Anime Database"
+        @description = anime_data['synopsis'].to_s.truncate(200)
+        @canonical_url = "#{Discourse.base_url}/anime/#{anime_data['slug']}"
+        response.headers["X-Discourse-Title"] = @title
 
         render json: { "data" => anime_data }
       rescue => e
-        Rails.logger.error("Anime Plugin Show Error: #{e.message}\n#{e.backtrace.join("\n")}")
-        render json: { error: "Internal Server Error", message: e.message }, status: 500
+        Rails.logger.error("Anime Plugin Show Error: #{e.message}\n#{e.backtrace.first(10).join("\n")}")
+        render json: { error: "Internal Server Error" }, status: 500
       end
     end
 
@@ -749,7 +682,15 @@ module AnimeDatabase
         "genres" => (media['genres'] || []).map { |g| { "name" => g } },
         "studios" => (media.dig('studios', 'nodes') || []).map { |s| { "name" => s['name'] } },
         "source" => media['source'],
-        "is_numeric_id" => media['idMal'].present?
+        "is_numeric_id" => media['idMal'].present?,
+        "anilist" => {
+          "id" => media["id"],
+          "url" => media["siteUrl"],
+          "characters" => media.dig("characters", "nodes"),
+          "relations" => media.dig("relations", "edges"),
+          "external_links" => media["externalLinks"],
+          "streaming" => media["streamingEpisodes"]
+        }
       }
     end
 

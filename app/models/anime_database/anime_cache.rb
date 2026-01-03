@@ -77,6 +77,7 @@ module AnimeDatabase
       
       {
         'mal_id' => mal_id,
+        'slug' => title.to_s.parameterize,
         'title' => title,
         'title_english' => title_english,
         'title_japanese' => title_japanese,
