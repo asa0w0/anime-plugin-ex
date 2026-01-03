@@ -412,34 +412,54 @@ module AnimeDatabase
       end
 
       begin
-        list = DB.query(<<~SQL, user.id)
-          SELECT w.*, c.episodes_total as cache_episodes_total, c.type as cache_type
-          FROM anime_watchlists w
-          LEFT JOIN anime_cache c ON c.mal_id::text = w.anime_id
-          WHERE w.user_id = ?
-          ORDER BY w.updated_at DESC
+        # Fetch watchlist entries
+        results = DB.query(<<~SQL, user.id)
+          SELECT * FROM anime_watchlists 
+          WHERE user_id = ? 
+          ORDER BY updated_at DESC
         SQL
+
+        # Fetch cache info for these anime to get accurate total episodes and types
+        anime_ids = results.map { |r| r.anime_id.to_i }.uniq
+        cache_map = {}
         
+        if anime_ids.any?
+          cache_results = DB.query(<<~SQL, anime_ids)
+            SELECT mal_id, episodes_total, type 
+            FROM anime_cache 
+            WHERE mal_id IN (?)
+          SQL
+          
+          cache_results.each do |row|
+            cache_map[row.mal_id.to_s] = row
+          end
+        end
+
         render json: {
-          data: list.map { |row|
-            # Prefer cache count if watchlist count is 0 or missing
-            w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
-            c_total = row.respond_to?(:cache_episodes_total) ? row.cache_episodes_total.to_i : 0
-            total_eps = w_total > 0 ? w_total : c_total
+          data: results.map { |row|
+            cache_entry = cache_map[row.anime_id.to_s]
             
+            # Safe column access in case migrations haven't run or columns are missing
+            w_watched = row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0
+            w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
+            c_total = cache_entry ? cache_entry.episodes_total.to_i : 0
+            
+            # Determine total episodes: favor watchlist, fall back to cache
+            display_total = w_total > 0 ? w_total : c_total
+
             {
               anime_id: row.anime_id,
               status: row.status,
               title: row.title,
               image_url: row.image_url,
-              type: row.respond_to?(:cache_type) && row.cache_type.present? ? row.cache_type : "TV",
-              episodes_watched: row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0,
-              total_episodes: total_eps > 0 ? total_eps : nil
+              type: cache_entry&.type || "TV",
+              episodes_watched: w_watched,
+              total_episodes: display_total > 0 ? display_total : nil
             }
           }
         }
       rescue => e
-        render json: { error: e.message, backtrace: e.backtrace.first(10) }, status: 500
+        render json: { error: e.message, debug_trace: e.backtrace.first(5) }, status: 500
       end
     end
 
