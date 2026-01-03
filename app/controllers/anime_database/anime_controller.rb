@@ -432,29 +432,49 @@ module AnimeDatabase
           end
         end
 
-        render json: {
-          data: results.map { |row|
-            cache_entry = cache_map[row.anime_id.to_s]
-            
-            # Safe column access in case migrations haven't run or columns are missing
-            w_watched = row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0
-            w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
-            c_total = cache_entry ? cache_entry.episodes_total.to_i : 0
-            
-            # Determine total episodes: favor watchlist, fall back to cache
-            display_total = w_total > 0 ? w_total : c_total
+        # Build the response data
+        response_data = results.map { |row|
+          cache_entry = cache_map[row.anime_id.to_s]
+          
+          # Safe column access in case migrations haven't run or columns are missing
+          w_watched = row.respond_to?(:episodes_watched) ? row.episodes_watched.to_i : 0
+          w_total = row.respond_to?(:total_episodes) ? row.total_episodes.to_i : 0
+          c_total = cache_entry ? cache_entry.episodes_total.to_i : 0
+          
+          # Determine total episodes: favor watchlist, fall back to cache
+          display_total = w_total > 0 ? w_total : c_total
 
-            {
-              anime_id: row.anime_id,
-              status: row.status,
-              title: row.title,
-              image_url: row.image_url,
-              type: "TV",
-              episodes_watched: w_watched,
-              total_episodes: display_total > 0 ? display_total : nil
-            }
+          {
+            anime_id: row.anime_id,
+            status: row.status,
+            title: row.title,
+            image_url: row.image_url,
+            type: "TV",
+            episodes_watched: w_watched,
+            total_episodes: display_total > 0 ? display_total : nil
           }
         }
+        
+        # For items with missing total_episodes, try to fetch from Jikan API (limit to 3 to avoid slowdown)
+        missing_items = response_data.select { |item| item[:total_episodes].nil? }.first(3)
+        missing_items.each do |item|
+          begin
+            jikan_data = fetch_from_api("https://api.jikan.moe/v4/anime/#{item[:anime_id]}")
+            if jikan_data && jikan_data["data"]
+              episodes = jikan_data["data"]["episodes"].to_i
+              if episodes > 0
+                item[:total_episodes] = episodes
+                # Also update the watchlist entry for future loads
+                DB.exec("UPDATE anime_watchlists SET total_episodes = ? WHERE anime_id = ?", episodes, item[:anime_id].to_s)
+              end
+            end
+            sleep(0.35) # Rate limit for Jikan API
+          rescue => e
+            # Silently fail - we'll show ? for this anime
+          end
+        end
+        
+        render json: { data: response_data }
       rescue => e
         render json: { error: e.message, debug_trace: e.backtrace.first(5) }, status: 500
       end
@@ -470,6 +490,12 @@ module AnimeDatabase
       image_url = params[:image_url]
       episodes_watched = params[:episodes_watched].to_i
       total_episodes = params[:total_episodes].to_i
+      
+      # If total_episodes is 0, try to fetch from cache
+      if total_episodes == 0
+        cache_entry = DB.query_single("SELECT episodes_total FROM anime_cache WHERE mal_id = ?", anime_id.to_i).first
+        total_episodes = cache_entry.to_i if cache_entry
+      end
 
       # Validate status enum
       # ...
