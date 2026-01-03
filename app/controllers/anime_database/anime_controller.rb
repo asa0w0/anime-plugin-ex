@@ -455,23 +455,10 @@ module AnimeDatabase
           }
         }
         
-        # For items with missing total_episodes, try to fetch from Jikan API (limit to 3 to avoid slowdown)
-        missing_items = response_data.select { |item| item[:total_episodes].nil? }.first(3)
-        missing_items.each do |item|
-          begin
-            jikan_data = fetch_from_api("https://api.jikan.moe/v4/anime/#{item[:anime_id]}")
-            if jikan_data && jikan_data["data"]
-              episodes = jikan_data["data"]["episodes"].to_i
-              if episodes > 0
-                item[:total_episodes] = episodes
-                # Also update the watchlist entry for future loads
-                DB.exec("UPDATE anime_watchlists SET total_episodes = ? WHERE anime_id = ?", episodes, item[:anime_id].to_s)
-              end
-            end
-            sleep(0.35) # Rate limit for Jikan API
-          rescue => e
-            # Silently fail - we'll show ? for this anime
-          end
+        # Queue background job to fill in missing episode counts (non-blocking)
+        missing_ids = response_data.select { |item| item[:total_episodes].nil? }.map { |item| item[:anime_id] }
+        if missing_ids.any?
+          Jobs.enqueue(:anime_database_watchlist_sync, anime_ids: missing_ids.first(10))
         end
         
         render json: { data: response_data }
