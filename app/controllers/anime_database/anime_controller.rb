@@ -28,7 +28,10 @@ module AnimeDatabase
                 "slug" => slug,
                 "title" => title,
                 "images" => {
-                  "jpg" => { "large_image_url" => item.dig('coverImage', 'large') }
+                  "jpg" => { 
+                    "large_image_url" => item.dig('coverImage', 'large'),
+                    "image_url" => item.dig('coverImage', 'large')
+                  }
                 },
                 "score" => item['averageScore'] ? (item['averageScore'].to_f / 10).round(2) : nil,
                 "popularity" => item['popularity'],
@@ -556,7 +559,10 @@ module AnimeDatabase
                   "is_numeric_id" => false, # Flag to disable detail page links
                   "title" => item['english'] || item['romaji'] || item['title'],
                   "images" => {
-                    "jpg" => { "large_image_url" => image_url }
+                    "jpg" => { 
+                      "large_image_url" => image_url,
+                      "image_url" => image_url
+                    }
                   },
                   "episode" => item['episodeNumber'],
                   "episodes" => item['episodes'],
@@ -743,12 +749,19 @@ module AnimeDatabase
       return data if image_map.empty?
       
       items.each do |item|
+        # Skip if mal_id is not present or an al- prefix (AniList internal)
+        next if item["mal_id"].blank? || item["mal_id"].to_s.start_with?("al-")
+        
         mid = item["mal_id"].to_i
         if mid > 0 && image_map[mid]
           url = image_map[mid]
+          # Ensure absolute URL if it's a relative path
+          url = "#{Discourse.base_url}#{url}" if url.start_with?("/")
+          
           if item["images"] && item["images"]["jpg"]
             item["images"]["jpg"]["large_image_url"] = url
             item["images"]["jpg"]["image_url"] = url
+            Rails.logger.debug("[Anime Plugin] Merged local image for #{mid}: #{url}")
           end
           # Also check for flat image_url (watchlist)
           item["image_url"] = url if item.key?("image_url")
