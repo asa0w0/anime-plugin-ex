@@ -42,6 +42,8 @@ register_svg_icon "list"
 register_svg_icon "square"
 register_svg_icon "check-square"
 register_svg_icon "magnifying-glass"
+register_svg_icon "sync"
+register_svg_icon "spinner"
 
 after_initialize do
   register_topic_custom_field_type("anime_mal_id", :string)
