@@ -48,6 +48,7 @@ module Jobs
         themes: extract_names(data['themes']),
         demographics: extract_names(data['demographics']),
         raw_jikan: data,
+        raw_anilist: fetch_anilist_data(mal_id, data['title']),
         last_api_sync_at: Time.current,
         created_at: Time.current,
         updated_at: Time.current
@@ -175,6 +176,27 @@ module Jobs
     def extract_names(items)
       return [] unless items.is_a?(Array)
       items.map { |item| item['name'] }.compact
+    end
+
+    def fetch_anilist_data(mal_id, title)
+      # Try MAL ID lookup first as it's more accurate
+      res = AnilistService.fetch_by_mal_id(mal_id)
+      # Fallback to search if MAL ID fails
+      res ||= AnilistService.search(title).first if title.present?
+      
+      return {} unless res
+      
+      {
+        "anilist" => {
+          "id" => res["id"],
+          "url" => res["siteUrl"],
+          "streaming" => res["streamingEpisodes"],
+          "external_links" => res["externalLinks"]
+        },
+        "streaming" => (res['externalLinks'] || []).select { |l| 
+          ["Netflix", "Crunchyroll", "Hulu", "Disney Plus", "Amazon", "Funimation", "HIDIVE"].include?(l['site'])
+        }.map { |l| { "name" => l['site'], "url" => l['url'] } }
+      }
     end
   end
 end

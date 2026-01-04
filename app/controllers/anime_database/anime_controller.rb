@@ -253,61 +253,59 @@ module AnimeDatabase
       
       if cached_episodes.present? && anime_cache && !anime_cache.episodes_stale?
         # Fresh cache hit - use local data
-        Rails.logger.debug("[Anime Plugin] Local episode cache hit for anime_id=#{anime_id}")
         api_episodes = cached_episodes.map(&:to_api_hash)
-        jikan_streaming = anime_cache.raw_jikan&.dig("streaming") || []
+        jikan_streaming = (anime_cache.raw_anilist&.dig("streaming") || []) + (anime_cache.raw_jikan&.dig("streaming") || [])
       else
         # Cache miss or stale - fetch from API
-        cache_key = "anime_episodes_list_v4_#{anime_id}"
+        cache_key = "anime_episodes_v6_#{anime_id}"
         jikan_streaming = []
         
-        api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
-          # Also need streaming info for episodes from Jikan if possible
-          full_res = fetch_from_api("https://api.jikan.moe/v4/anime/#{anime_id}/full") if anime_id.to_s =~ /\A\d+\z/
-          jikan_streaming = full_res&.dig("data", "streaming") || []
+        api_episodes = Discourse.cache.read(cache_key)
+        
+        # If cache is missing OR suspiciously empty for an aired show
+        if api_episodes.nil? || (api_episodes.empty? && (anime_cache&.episodes_total || 0) > 0)
+          Rails.logger.warn("[Anime Plugin] Episode cache miss/empty for #{anime_id}. Fetching...")
+          
+          # 1. Try Jikan
           all_episodes = []
-          page = 1
-          has_next = true
-          fetch_success = false
-          max_pages = 3
-
-          Rails.logger.info("[Anime Plugin] Fetching episodes for anime_id=#{anime_id} from API...")
-
-          while has_next && page <= max_pages
-            url = "https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}"
-            response = fetch_from_api(url)
-            
-            if response.is_a?(Hash) && response["data"].is_a?(Array)
-              all_episodes.concat(response["data"])
-              has_next = response.dig("pagination", "has_next_page") || false
-              fetch_success = true
-              
-              Rails.logger.debug("[Anime Plugin] Fetched page #{page} for anime_id=#{anime_id}. Found #{response["data"].length} episodes.")
-            else
-              Rails.logger.error("[Anime Plugin] Failed to fetch episodes page #{page} for anime_id=#{anime_id}")
-              break
+          if anime_id.to_s =~ /\A\d+\z/
+            page = 1
+            has_next = true
+            while has_next && page <= 3
+              res = fetch_from_api("https://api.jikan.moe/v4/anime/#{anime_id}/episodes?page=#{page}")
+              if res.is_a?(Hash) && res["data"].is_a?(Array)
+                all_episodes.concat(res["data"])
+                has_next = res.dig("pagination", "has_next_page") || false
+              else
+                break
+              end
+              page += 1
             end
-            
-            page += 1
           end
-
-          if fetch_success && (all_episodes.present? || page > 1)
-            # Queue background sync to update local cache
+          
+          # 2. Try TMDB fallback if Jikan failed
+          if all_episodes.empty? && SiteSetting.anime_enable_tmdb
+             tmdb_res = TmdbService.search_anime(anime_cache&.title || params[:id])
+             if tmdb_res&.dig("id")
+               details = TmdbService.fetch_details(tmdb_res["id"])
+               # Map TMDB seasons to flat episode list if needed
+               # (For now, just a placeholder as Jikan is primary)
+             end
+          end
+          
+          if all_episodes.present?
+            Discourse.cache.write(cache_key, all_episodes, expires_in: 24.hours)
+            api_episodes = all_episodes
             Jobs.enqueue(:episode_sync_job, mal_id: anime_id)
-            all_episodes
-          else
-            nil
           end
         end
 
+        # Get streaming info from cache if available
+        jikan_streaming = (anime_cache&.raw_anilist&.dig("streaming") || []) + (anime_cache&.raw_jikan&.dig("streaming") || [])
         api_episodes ||= []
         
-        # Fallback to stale local cache if API failed
         if api_episodes.empty? && cached_episodes.present?
-          Rails.logger.warn("[Anime Plugin] API failed, using stale local cache for anime_id=#{anime_id}")
           api_episodes = cached_episodes.map(&:to_api_hash)
-        elsif api_episodes.empty?
-          Rails.logger.warn("[Anime Plugin] Episode list is empty for anime_id=#{anime_id}")
         end
       end
       
@@ -362,7 +360,7 @@ module AnimeDatabase
 
       Rails.logger.info("[Anime Plugin] Returning #{merged_episodes.length} merged episodes for anime_id=#{anime_id} (API: #{api_episodes.length}, Local extras: #{merged_episodes.length - api_episodes.length})")
 
-      render json: { episodes: merged_episodes }
+      render json: { episodes: merged_episodes, streaming: jikan_streaming }
     rescue => e
       Rails.logger.error("Anime Plugin Episodes Error: #{e.message}")
       render json: { episodes: [] }
@@ -738,12 +736,24 @@ module AnimeDatabase
       return id if id.blank?
       return id if id =~ /\A\d+\z/ || id =~ /\Aal-\d+\z/
 
+      # 0. Try local cache first (highly recommended for performance and consistency)
+      cached = AnimeDatabase::AnimeCache.find_by(slug: id)
+      if cached
+        Rails.logger.debug("[Anime Plugin] Resolved slug '#{id}' from local cache to ID: #{cached.mal_id}")
+        return cached.mal_id.to_s
+      end
+
       # Handle slugs by searching AniList/AnimeSchedule
       Rails.logger.info("[Anime Plugin] Resolving slug: #{id}")
       
       # Try AniList first
       search_query = id.gsub('-', ' ')
-      anilist_results = AnilistService.search(search_query)
+      anilist_results = []
+      begin
+        anilist_results = AnilistService.search(search_query)
+      rescue => e
+        Rails.logger.error("[Anime Plugin] AniList search error during resolution: #{e.message}")
+      end
       
       match = nil
       if anilist_results.present?
@@ -760,18 +770,22 @@ module AnimeDatabase
       if match
         resolved_id = match['idMal'] || "al-#{match['id']}"
         Rails.logger.info("[Anime Plugin] Resolved slug '#{id}' to ID: #{resolved_id}")
-        return resolved_id
+        return resolved_id.to_s
       end
 
       # Fallback to AnimeSchedule
-      as_data = AnimescheduleService.fetch_anime_details(id)
-      if as_data && as_data["websites"] && as_data["websites"]["mal"]
-        mal_url = as_data["websites"]["mal"]
-        if mal_url =~ /anime\/(\d+)/
-          resolved_id = $1
-          Rails.logger.info("[Anime Plugin] Resolved slug '#{id}' via AnimeSchedule to ID: #{resolved_id}")
-          return resolved_id
+      begin
+        as_data = AnimescheduleService.fetch_anime_details(id)
+        if as_data && as_data["websites"] && as_data["websites"]["mal"]
+          mal_url = as_data["websites"]["mal"]
+          if mal_url =~ /anime\/(\d+)/
+            resolved_id = $1
+            Rails.logger.info("[Anime Plugin] Resolved slug '#{id}' via AnimeSchedule to ID: #{resolved_id}")
+            return resolved_id.to_s
+          end
         end
+      rescue => e
+        Rails.logger.error("[Anime Plugin] AnimeSchedule resolution error: #{e.message}")
       end
       
       Rails.logger.warn("[Anime Plugin] Could not resolve slug: #{id}")

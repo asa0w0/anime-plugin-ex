@@ -107,6 +107,8 @@ module AnimeDatabase
         'producers' => (producers || []).map { |p| { 'name' => p } },
         'themes' => (themes || []).map { |t| { 'name' => t } },
         'demographics' => (demographics || []).map { |d| { 'name' => d } },
+        'anilist' => raw_anilist&.dig('anilist'),
+        'streaming' => raw_anilist&.dig('streaming'),
         '_cached' => true,
         '_cached_at' => last_api_sync_at&.iso8601,
         '_local_image' => local_image_url.present?
