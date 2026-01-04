@@ -24,6 +24,7 @@ export default class ShowController extends Controller {
     }
 
     slugify(text) {
+        if (!text) return "";
         return text
             .toString()
             .toLowerCase()
@@ -153,6 +154,10 @@ export default class ShowController extends Controller {
 
     @action
     createDiscussion(type = "general", episode = null) {
+        if (!this.model) {
+            return;
+        }
+
         // Use the appropriate category based on discussion type
         let categoryId;
         if (episode) {
@@ -183,7 +188,9 @@ export default class ShowController extends Controller {
             ? `anime-episode-${this.model.mal_id}-${episode.episode_number}`
             : `anime-${type}-${this.model.mal_id}`;
 
-        const animeTag = this.slugify(this.model.title);
+        const animeTag = this.model.title ? this.slugify(this.model.title) : "";
+        const malIdString = this.model.mal_id ? this.model.mal_id.toString() : "";
+        const episodeNumString = (episode && episode.episode_number) ? episode.episode_number.toString() : null;
 
         const composerOpts = {
             action: "createTopic",
@@ -193,8 +200,8 @@ export default class ShowController extends Controller {
             topicBody: body,
             tags: [animeTag],
             topicCustomFields: {
-                anime_mal_id: this.model.mal_id.toString(),
-                anime_episode_number: episode ? episode.episode_number.toString() : null
+                anime_mal_id: malIdString,
+                anime_episode_number: episodeNumString
             }
         };
 
