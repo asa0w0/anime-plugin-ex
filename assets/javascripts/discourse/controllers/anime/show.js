@@ -209,7 +209,7 @@ export default class ShowController extends Controller {
     }
 
     buildEpisodeBody(episode) {
-        const animeUrl = `${window.location.origin}/anime/${this.model.mal_id}`;
+        const animeUrl = `${window.location.origin}/anime/${this.model.slug || this.model.mal_id}`;
         const imageUrl = this.model.images?.jpg?.large_image_url || this.model.images?.jpg?.image_url;
         const score = this.model.score || "N/A";
         const totalEpisodes = this.model.episodes || "?";
@@ -241,7 +241,7 @@ export default class ShowController extends Controller {
     }
 
     buildGeneralBody(isEpisode) {
-        const animeUrl = `${window.location.origin}/anime/${this.model.mal_id}`;
+        const animeUrl = `${window.location.origin}/anime/${this.model.slug || this.model.mal_id}`;
         const imageUrl = this.model.images?.jpg?.large_image_url || this.model.images?.jpg?.image_url;
         const score = this.model.score || "N/A";
         const totalEpisodes = this.model.episodes || "?";
