@@ -254,7 +254,11 @@ module AnimeDatabase
       if cached_episodes.present? && anime_cache && !anime_cache.episodes_stale?
         # Fresh cache hit - use local data
         api_episodes = cached_episodes.map(&:to_api_hash)
-        jikan_streaming = (anime_cache.raw_anilist&.dig("streaming") || []) + (anime_cache.raw_jikan&.dig("streaming") || [])
+        jikan_streaming = []
+        if anime_cache
+          jikan_streaming += (anime_cache.raw_anilist&.dig("streaming") || [])
+          jikan_streaming += (anime_cache.raw_jikan&.dig("streaming") || [])
+        end
       else
         # Cache miss or stale - fetch from API
         cache_key = "anime_episodes_v6_#{anime_id}"
@@ -301,7 +305,11 @@ module AnimeDatabase
         end
 
         # Get streaming info from cache if available
-        jikan_streaming = (anime_cache&.raw_anilist&.dig("streaming") || []) + (anime_cache&.raw_jikan&.dig("streaming") || [])
+        jikan_streaming = []
+        if anime_cache
+          jikan_streaming += (anime_cache.raw_anilist&.dig("streaming") || [])
+          jikan_streaming += (anime_cache.raw_jikan&.dig("streaming") || [])
+        end
         api_episodes ||= []
         
         if api_episodes.empty? && cached_episodes.present?
@@ -737,10 +745,21 @@ module AnimeDatabase
       return id if id =~ /\A\d+\z/ || id =~ /\Aal-\d+\z/
 
       # 0. Try local cache first (highly recommended for performance and consistency)
-      cached = AnimeDatabase::AnimeCache.find_by(slug: id)
-      if cached
-        Rails.logger.debug("[Anime Plugin] Resolved slug '#{id}' from local cache to ID: #{cached.mal_id}")
-        return cached.mal_id.to_s
+      begin
+        cached = nil
+        if AnimeDatabase::AnimeCache.column_names.include?("slug")
+          cached = AnimeDatabase::AnimeCache.find_by(slug: id)
+        end
+        
+        # Fallback to title matching if slug not found or column missing
+        cached ||= AnimeDatabase::AnimeCache.where("LOWER(title) = ?", id.gsub('-', ' ')).first
+        
+        if cached
+          Rails.logger.debug("[Anime Plugin] Resolved slug '#{id}' from local cache to ID: #{cached.mal_id}")
+          return cached.mal_id.to_s
+        end
+      rescue => e
+        Rails.logger.warn("[Anime Plugin] Local cache resolution failed for '#{id}': #{e.message}")
       end
 
       # Handle slugs by searching AniList/AnimeSchedule

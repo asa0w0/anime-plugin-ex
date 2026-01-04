@@ -52,6 +52,8 @@ module Jobs
         last_api_sync_at: Time.current,
         created_at: Time.current,
         updated_at: Time.current
+      }.tap { |h|
+        h[:slug] = data['title'].to_s.parameterize if AnimeDatabase::AnimeCache.column_names.include?("slug")
       }, unique_by: :mal_id)
       
       Rails.logger.info("[AnimeSyncJob] Successfully synced anime #{mal_id}: #{data['title']}")
