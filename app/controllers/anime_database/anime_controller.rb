@@ -72,6 +72,7 @@ module AnimeDatabase
           a["is_numeric_id"] = true if a["is_numeric_id"].nil?
           a
         end
+        merge_local_images(response["data"])
       end
 
       render json: response
@@ -149,6 +150,7 @@ module AnimeDatabase
 
         # Ensure slug is present for SEO
         anime_data["slug"] ||= (anime_data["title"] || "").parameterize
+        merge_local_images(anime_data)
 
         # Add TMDB data if enabled and missing
         if SiteSetting.anime_enable_tmdb && !anime_data["tmdb"]
@@ -430,6 +432,7 @@ module AnimeDatabase
           a["slug"] = title.to_s.parameterize if a["slug"].blank? && title.present?
           a["is_numeric_id"] = true if a["is_numeric_id"].nil?
         end
+        merge_local_images(response["data"])
       end
 
       render json: response
@@ -500,6 +503,7 @@ module AnimeDatabase
         Jobs.enqueue(:watchlist_sync_job, anime_ids: missing_ids.first(10))
       end
       
+      merge_local_images(response_data)
       render json: { data: response_data }
     end
 
@@ -660,6 +664,7 @@ module AnimeDatabase
         response["data"].each do |a|
           a["slug"] ||= (a["title"] || a["title_english"] || a["title_japanese"]).to_s.parameterize if a["slug"].blank?
         end
+        merge_local_images(response["data"])
       end
 
       # Ensure response is a Hash
@@ -716,6 +721,35 @@ module AnimeDatabase
           "streaming" => media["streamingEpisodes"]
         }
       }
+    end
+
+    def merge_local_images(data)
+      return data if data.blank?
+      
+      items = data.is_a?(Array) ? data : [data]
+      mal_ids = items.map { |a| a["mal_id"].to_i }.select { |id| id > 0 }.uniq
+      return data if mal_ids.empty?
+      
+      # Batch fetch local images
+      cache_data = DB.query("SELECT mal_id, local_image_url FROM anime_cache WHERE mal_id IN (#{mal_ids.join(',')}) AND local_image_url IS NOT NULL")
+      image_map = cache_data.each_with_object({}) { |r, h| h[r.mal_id.to_i] = r.local_image_url }
+      
+      return data if image_map.empty?
+      
+      items.each do |item|
+        mid = item["mal_id"].to_i
+        if mid > 0 && image_map[mid]
+          url = image_map[mid]
+          if item["images"] && item["images"]["jpg"]
+            item["images"]["jpg"]["large_image_url"] = url
+            item["images"]["jpg"]["image_url"] = url
+          end
+          # Also check for flat image_url (watchlist)
+          item["image_url"] = url if item.key?("image_url")
+        end
+      end
+      
+      data
     end
 
     def fetch_from_api(url, retry_count = 2)

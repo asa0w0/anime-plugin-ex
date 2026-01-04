@@ -91,6 +91,8 @@ module Jobs
           follow_redirect: true
         )
         
+        sleep(0.5) # Be polite to Jikan/MyAnimeList CDNs
+        
         return unless tempfile
         
         # Determine filename
