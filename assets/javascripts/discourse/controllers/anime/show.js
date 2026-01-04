@@ -78,8 +78,33 @@ export default class ShowController extends Controller {
 
             // 2. Process AniList deep links and override/add
             anilistStreaming.forEach((s) => {
-                const titleMatch = s.title.match(/Episode\s+(\d+)/i) || s.title.match(/^(\d+)/);
-                const epNum = titleMatch ? parseInt(titleMatch[1], 10) : null;
+                // Robust episode number extraction
+                let epNum = null;
+                const title = s.title || "";
+
+                // Try specific patterns first
+                const patterns = [
+                    /Episode\s+(\d+)/i,
+                    /Ep\.\s*(\d+)/i,
+                    /EP\s+(\d+)/i,
+                    /-\s*(\d+)\s*$/ // Trailing number e.g. "Re:Zero S3 - 01"
+                ];
+
+                for (const regex of patterns) {
+                    const match = title.match(regex);
+                    if (match) {
+                        epNum = parseInt(match[1], 10);
+                        break;
+                    }
+                }
+
+                // If no specific pattern matched, try any single number in title
+                if (epNum === null) {
+                    const match = title.match(/(\d+)/);
+                    if (match) {
+                        epNum = parseInt(match[1], 10);
+                    }
+                }
 
                 if (epNum === ep.episode_number) {
                     const domain = new URL(s.url).hostname;

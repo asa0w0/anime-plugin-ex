@@ -682,6 +682,9 @@ module AnimeDatabase
             "image_url" => media.dig('coverImage', 'medium')
           }
         },
+        "streaming" => (media['externalLinks'] || []).select { |l| 
+          ["Netflix", "Crunchyroll", "Hulu", "Disney Plus", "Amazon", "Funimation", "HIDIVE"].include?(l['site'])
+        }.map { |l| { "name" => l['site'], "url" => l['url'] } },
         "banner_image" => media['bannerImage'],
         "score" => media['averageScore'] ? (media['averageScore'].to_f / 10).round(2) : nil,
         "popularity" => media['popularity'],
