@@ -2073,11 +2073,18 @@
 
     .anime-search-bar {
       width: 100%;
+      flex: 1;
 
       input {
-        padding: 12px 15px 12px 40px;
+        padding: 12px 15px 12px 42px;
         font-size: 1.1em;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        height: 48px;
+        box-sizing: border-box;
+      }
+
+      .d-icon-magnifying-glass {
+        left: 15px;
       }
     }
   }
@@ -2100,15 +2107,78 @@
 
   &.expanded {
     .search-section {
+      display: flex;
+      gap: 12px;
       width: 100%;
+      align-items: stretch;
+      justify-content: center;
+
+      .anime-search-bar {
+        flex: 1;
+        max-width: 600px;
+      }
+
+      .watchlist-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 20px;
+        height: 48px;
+        border-radius: 8px;
+        font-weight: 600;
+        white-space: nowrap;
+        background: var(--tertiary);
+        color: white;
+        border: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(var(--tertiary-rgb), 0.2);
+
+        .d-icon {
+          color: white !important;
+          fill: white !important;
+        }
+
+        &:hover {
+          background: var(--tertiary-hover);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(var(--tertiary-rgb), 0.3);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: stretch;
+
+        .anime-search-bar {
+          max-width: none;
+        }
+
+        .watchlist-btn {
+          width: 100%;
+        }
+      }
     }
   }
+}
 
-  .search-section {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    align-items: center;
+.anime-header {
+  margin-bottom: 25px;
+  text-align: center;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, var(--tertiary) 0%, #a29bfe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
   }
 }
 
@@ -4604,7 +4674,7 @@
 // Ensure cards are full width on mobile
 @media (max-width: 600px) {
   .anime-watchlist-container.modern-style .watchlist-cards-grid {
-    grid-template-columns: 1f !important;
+    grid-template-columns: 1fr !important;
     display: flex;
     flex-direction: column;
     gap: 15px;

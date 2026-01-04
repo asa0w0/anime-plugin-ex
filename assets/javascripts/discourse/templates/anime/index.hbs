@@ -1,19 +1,19 @@
 <div class="anime-database-container">
-  <div class="anime-header-actions">
+  <div class="anime-header">
     <h1>Anime Database</h1>
-    <LinkTo @route="anime.watchlist" class="btn btn-default">
-      {{d-icon "list"}} My Watchlist
-    </LinkTo>
   </div>
 
   <div class="anime-controls {{if this.showFilters 'expanded' 'collapsed'}}">
     <div class="search-section">
       <AnimeSearchBar @value={{this.q}} @onChange={{this.updateSearch}} />
+      <LinkTo @route="anime.watchlist" class="btn btn-default watchlist-btn">
+        {{d-icon "list"}} My Watchlist
+      </LinkTo>
     </div>
 
     <button type="button" class="btn-advanced-search" {{on "click" this.toggleFilters}}>
       {{#if this.showFilters}}
-      {{d-icon "minus"}} Advanced Search
+      {{d-icon "minus"}} Hide Filters
       {{else}}
       {{d-icon "plus"}} Advanced Search
       {{/if}}
