@@ -1,6 +1,7 @@
 // Variables for consistent premium look
 :root {
   // Layout & Spacing
+  --anime-search-height: 42px;
   --anime-card-radius: 16px;
   --anime-card-radius-sm: 10px;
   --anime-spacing-xs: 5px;
@@ -2074,18 +2075,6 @@
     .anime-search-bar {
       width: 100%;
       flex: 1;
-
-      input {
-        padding: 12px 15px 12px 42px;
-        font-size: 1.1em;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        height: 48px;
-        box-sizing: border-box;
-      }
-
-      .d-icon-magnifying-glass {
-        left: 15px;
-      }
     }
   }
 
@@ -2124,7 +2113,8 @@
         justify-content: center;
         gap: 8px;
         padding: 0 20px;
-        height: 48px;
+        height: var(--anime-search-height);
+        box-sizing: border-box;
         border-radius: 8px;
         font-weight: 600;
         white-space: nowrap;
@@ -2157,11 +2147,34 @@
         .anime-search-bar {
           max-width: none;
         }
-
-        .watchlist-btn {
-          width: 100%;
-        }
       }
+    }
+  }
+
+  .btn-advanced-search {
+    align-self: flex-end;
+    margin-right: 5px;
+    background: none;
+    border: none;
+    color: var(--tertiary);
+    font-weight: 600;
+    font-size: 0.9em;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--tertiary-very-low);
+      color: var(--tertiary-hover);
+    }
+
+    .d-icon {
+      font-size: 0.85em;
+      margin-bottom: 1px;
     }
   }
 }
@@ -2182,71 +2195,56 @@
   }
 }
 
-.btn-advanced-search {
-  align-self: flex-end;
-  margin-right: 5px;
-  background: none;
-  border: none;
-  color: var(--tertiary);
-  font-weight: 600;
-  font-size: 0.9em;
-  padding: 5px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--tertiary-very-low);
-    color: var(--tertiary-hover);
-  }
-
-  .d-icon {
-    font-size: 0.85em;
-    margin-bottom: 1px;
-  }
-}
-
 .anime-search-bar {
   flex: 1;
   position: relative;
 
   .search-input-wrapper {
+    display: flex;
+    align-items: center;
     position: relative;
     width: 100%;
+    height: var(--anime-search-height);
+    background: var(--secondary);
+    border: 1px solid var(--primary-low);
+    border-radius: 8px;
+    padding: 0 12px;
+    gap: 10px;
+    box-sizing: border-box;
+    transition: all 0.2s;
+
+    &:focus-within {
+      border-color: var(--tertiary);
+      box-shadow: 0 0 0 3px var(--tertiary-low);
+    }
 
     .d-icon-magnifying-glass {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
       color: var(--primary-medium);
       pointer-events: none;
       z-index: 5;
+      font-size: 0.95em;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     input {
-      width: 100%;
-      padding: 10px 15px 10px 35px;
-      border: 1px solid var(--primary-low);
-      border-radius: 8px;
-      background: var(--secondary);
-      transition: all 0.2s;
+      flex: 1;
+      height: 100%;
+      padding: 0;
+      border: none !important;
+      background: transparent !important;
+      font-size: 1rem;
+      color: var(--primary);
+      box-shadow: none !important;
 
       &:focus {
         outline: none;
-        border-color: var(--tertiary);
-        box-shadow: 0 0 0 3px var(--tertiary-low);
       }
     }
 
     .btn-clear {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
       background: none;
       border: none;
       color: var(--primary-medium);
@@ -2254,6 +2252,8 @@
       cursor: pointer;
       display: flex;
       align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
 
       &:hover {
         color: var(--primary);
