@@ -8,7 +8,7 @@ module AnimeDatabase
       query = params[:q].presence
       page = params[:page].presence || 1
       
-      cache_key = "anime_list_search_v2_#{query}_p#{page}"
+      cache_key = "anime_list_search_v6_#{query}_p#{page}"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         if query.present?
@@ -64,8 +64,15 @@ module AnimeDatabase
         end
       end
 
-      if response.nil? || !response.is_a?(Hash) || !response["data"]
-        response = { "data" => [] }
+      if response.is_a?(Hash) && response["data"].present?
+        response = response.deep_dup
+        response["debug_slug_fix_applied"] = true
+        response["data"] = response["data"].map do |a|
+          title = a["title"] || a["title_english"] || a["title_japanese"]
+          a["slug"] = title.to_s.parameterize if a["slug"].blank? && title.present?
+          a["is_numeric_id"] = true if a["is_numeric_id"].nil?
+          a
+        end
       end
 
       render json: response
@@ -393,9 +400,9 @@ module AnimeDatabase
       end
       
       cache_key = if year.present? && season.present?
-                    "anime_seasons_#{year}_#{season}"
+                    "anime_seasons_v2_#{year}_#{season}"
                   else
-                    "anime_seasons_now"
+                    "anime_seasons_now_v4"
                   end
 
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
@@ -407,11 +414,19 @@ module AnimeDatabase
         res = fetch_from_api(url)
         if res.is_a?(Hash) && res["data"].present?
           res["data"].each do |a|
-            a["slug"] = a["title"].to_s.parameterize
+            a["slug"] ||= a["title"].to_s.parameterize
             a["is_numeric_id"] = true
           end
         end
         res
+      end
+
+      if response.is_a?(Hash) && response["data"].present?
+        response["data"].each do |a|
+          title = a["title"] || a["title_english"] || a["title_japanese"]
+          a["slug"] = title.to_s.parameterize if a["slug"].blank? && title.present?
+          a["is_numeric_id"] = true if a["is_numeric_id"].nil?
+        end
       end
 
       render json: response
@@ -466,7 +481,7 @@ module AnimeDatabase
         
         {
           anime_id: row.anime_id,
-          slug: title.to_s.parameterize,
+          slug: (title || row.title).to_s.parameterize,
           status: row.status,
           title: title,
           image_url: row.image_url,
@@ -536,7 +551,7 @@ module AnimeDatabase
 
     def calendar
       source = SiteSetting.anime_calendar_source
-      cache_key = "anime_schedule_#{source}_v5"
+      cache_key = "anime_calendar_v6_#{source}"
       
       response = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
         case source
@@ -635,6 +650,12 @@ module AnimeDatabase
             end
             res
           end
+        end
+      end
+
+      if response.is_a?(Hash) && response["data"].present?
+        response["data"].each do |a|
+          a["slug"] ||= (a["title"] || a["title_english"] || a["title_japanese"]).to_s.parameterize if a["slug"].blank?
         end
       end
 
