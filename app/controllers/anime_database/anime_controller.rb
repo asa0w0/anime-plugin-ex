@@ -325,18 +325,20 @@ module AnimeDatabase
         .index_by(&:episode_number)
 
       # Merge API data with local discussions
-      merged_episodes = api_episodes.map do |ep|
-        ep_num = ep["mal_id"]
+      merged_episodes = api_episodes.map.with_index do |ep, index|
+        # Use 'mal_id' as episode number, fallback to index+1 if mal_id is missing or suspicious
+        # In Jikan v4 episodes, mal_id IS the episode number.
+        ep_num = (ep["mal_id"] || ep["episode"] || (index + 1)).to_i
         local_et = local_discussions[ep_num]
 
         {
           episode_number: ep_num,
-          title: ep["title"],
+          title: ep["title"] || "Episode #{ep_num}",
           title_japanese: ep["title_japanese"],
           duration: ep["duration"],
           aired_at: ep["aired"] || local_et&.aired_at,
-          filler: ep["filler"],
-          recap: ep["recap"],
+          filler: ep["filler"] || false,
+          recap: ep["recap"] || false,
           forum_topic: local_et ? {
             topic_id: local_et.topic_id,
             topic_title: local_et.topic&.title,
@@ -752,7 +754,12 @@ module AnimeDatabase
         end
         
         # Fallback to title matching if slug not found or column missing
-        cached ||= AnimeDatabase::AnimeCache.where("LOWER(title) = ?", id.gsub('-', ' ')).first
+        # We strip non-alphanumeric to be more robust (Solo Leveling -> sololeveling)
+        clean_id = id.downcase.gsub(/[^a-z0-9]/, '')
+        cached ||= AnimeDatabase::AnimeCache.all.find { |a| 
+          (a.title || "").downcase.gsub(/[^a-z0-9]/, '') == clean_id ||
+          (a.title_english || "").downcase.gsub(/[^a-z0-9]/, '') == clean_id
+        }
         
         if cached
           Rails.logger.debug("[Anime Plugin] Resolved slug '#{id}' from local cache to ID: #{cached.mal_id}")

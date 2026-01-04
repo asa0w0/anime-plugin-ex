@@ -57,6 +57,16 @@ export default class ShowController extends Controller {
         return episodes.slice(start, start + this.episodesPerPage);
     }
 
+    safeGetHostname(url) {
+        if (!url || typeof url !== "string") return "";
+        try {
+            const absoluteUrl = url.startsWith("http") ? url : `https://${url}`;
+            return new URL(absoluteUrl).hostname;
+        } catch (e) {
+            return "";
+        }
+    }
+
     get enhancedEpisodes() {
         const episodes = this.model?.episodeDiscussions || [];
         const anilistStreaming = this.model?.anilist?.streaming || [];
@@ -67,17 +77,20 @@ export default class ShowController extends Controller {
 
             // 1. Process Jikan series links as base providers
             jikanStreaming.forEach((s) => {
-                const domain = new URL(s.url).hostname;
+                if (!s || !s.url) return;
+                const domain = this.safeGetHostname(s.url);
                 providers.set(s.name, {
                     site: s.name,
                     url: s.url,
-                    faviconUrl: `https://www.google.com/s2/favicons?domain=${domain}&sz=32`,
+                    faviconUrl: domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=32` : null,
                     type: "series"
                 });
             });
 
             // 2. Process AniList deep links and override/add
             anilistStreaming.forEach((s) => {
+                if (!s || !s.url) return;
+
                 // Robust episode number extraction
                 let epNum = null;
                 const title = s.title || "";
@@ -107,12 +120,12 @@ export default class ShowController extends Controller {
                 }
 
                 if (epNum === ep.episode_number) {
-                    const domain = new URL(s.url).hostname;
+                    const domain = this.safeGetHostname(s.url);
                     // Prefer deep links over series links for matched episodes
                     providers.set(s.site, {
                         site: s.site,
                         url: s.url,
-                        faviconUrl: `https://www.google.com/s2/favicons?domain=${domain}&sz=32`,
+                        faviconUrl: domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=32` : null,
                         type: "episode"
                     });
                 }
