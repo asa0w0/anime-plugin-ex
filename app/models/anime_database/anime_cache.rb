@@ -94,7 +94,8 @@ module AnimeDatabase
         'status' => api_status_string,
         'aired' => {
           'from' => aired_from&.iso8601,
-          'to' => aired_to&.iso8601
+          'to' => aired_to&.iso8601,
+          'string' => format_aired_string(aired_from, aired_to)
         },
         'season' => season,
         'year' => year,
@@ -114,6 +115,15 @@ module AnimeDatabase
     
     private
     
+    def format_aired_string(from, to)
+      return "N/A" if from.nil?
+      
+      from_str = from.strftime("%b %-d, %Y")
+      to_str = to ? to.strftime("%b %-d, %Y") : "?"
+      
+      "#{from_str} to #{to_str}"
+    end
+
     def api_status_string
       case airing_status
       when 'airing' then 'Currently Airing'

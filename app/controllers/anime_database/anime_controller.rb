@@ -159,8 +159,9 @@ module AnimeDatabase
         end
 
         # SEO
-        @title = "#{anime_data['title']} | Anime Database"
-        @description = anime_data['synopsis'].to_s.truncate(200)
+        title_text = anime_data['title_english'] || anime_data['title']
+        @title = "#{title_text} | Anime Database"
+        @description = (anime_data['synopsis'] || "").truncate(200)
         @canonical_url = "#{Discourse.base_url}/anime/#{anime_data['slug']}"
         response.headers["X-Discourse-Title"] = @title
 
@@ -254,11 +255,16 @@ module AnimeDatabase
         # Fresh cache hit - use local data
         Rails.logger.debug("[Anime Plugin] Local episode cache hit for anime_id=#{anime_id}")
         api_episodes = cached_episodes.map(&:to_api_hash)
+        jikan_streaming = anime_cache.raw_jikan&.dig("streaming") || []
       else
         # Cache miss or stale - fetch from API
         cache_key = "anime_episodes_list_v4_#{anime_id}"
+        jikan_streaming = []
         
         api_episodes = Discourse.cache.fetch(cache_key, expires_in: SiteSetting.anime_api_cache_duration.hours) do
+          # Also need streaming info for episodes from Jikan if possible
+          full_res = fetch_from_api("https://api.jikan.moe/v4/anime/#{anime_id}/full") if anime_id.to_s =~ /\A\d+\z/
+          jikan_streaming = full_res&.dig("data", "streaming") || []
           all_episodes = []
           page = 1
           has_next = true
@@ -695,6 +701,11 @@ module AnimeDatabase
         "studios" => (media.dig('studios', 'nodes') || []).map { |s| { "name" => s['name'] } },
         "source" => media['source'],
         "is_numeric_id" => media['idMal'].present?,
+        "aired" => {
+          "from" => media.dig('startDate', 'year') ? Date.new(media.dig('startDate', 'year'), media.dig('startDate', 'month') || 1, media.dig('startDate', 'day') || 1).iso8601 : nil,
+          "to" => media.dig('endDate', 'year') ? Date.new(media.dig('endDate', 'year'), media.dig('endDate', 'month') || 1, media.dig('endDate', 'day') || 1).iso8601 : nil,
+          "string" => format_anilist_date(media['startDate'], media['endDate'])
+        },
         "anilist" => {
           "id" => media["id"],
           "url" => media["siteUrl"],
@@ -706,6 +717,23 @@ module AnimeDatabase
       }
     end
 
+    def format_anilist_date(start, _end)
+      return "N/A" unless start && start['year']
+      
+      month_names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+      month = month_names[start['month'] || 0]
+      day = start['day']
+      year = start['year']
+      
+      if day && start['month']
+        "#{month} #{day}, #{year}"
+      elsif start['month']
+        "#{month} #{year}"
+      else
+        year.to_s
+      end
+    end
+
     def resolve_params_id(id)
       return id if id.blank?
       return id if id =~ /\A\d+\z/ || id =~ /\Aal-\d+\z/
@@ -713,28 +741,40 @@ module AnimeDatabase
       # Handle slugs by searching AniList/AnimeSchedule
       Rails.logger.info("[Anime Plugin] Resolving slug: #{id}")
       
-      # Try AniList first (fastest/most accurate for our needs)
+      # Try AniList first
       search_query = id.gsub('-', ' ')
       anilist_results = AnilistService.search(search_query)
       
-      match = anilist_results.find { |a| 
-        english_title = a.dig('title', 'english')
-        romaji_title = a.dig('title', 'romaji')
-        (english_title.present? && english_title.parameterize == id) || 
-        (romaji_title.present? && romaji_title.parameterize == id)
-      } if anilist_results.present?
+      match = nil
+      if anilist_results.present?
+        match = anilist_results.find { |a| 
+          english_title = a.dig('title', 'english')
+          romaji_title = a.dig('title', 'romaji')
+          (english_title.present? && english_title.parameterize == id) || 
+          (romaji_title.present? && romaji_title.parameterize == id)
+        }
+        
+        match ||= anilist_results.first
+      end
       
-      match ||= anilist_results&.first
-      
-      return match['idMal'] || "al-#{match['id']}" if match
-      
+      if match
+        resolved_id = match['idMal'] || "al-#{match['id']}"
+        Rails.logger.info("[Anime Plugin] Resolved slug '#{id}' to ID: #{resolved_id}")
+        return resolved_id
+      end
+
       # Fallback to AnimeSchedule
       as_data = AnimescheduleService.fetch_anime_details(id)
       if as_data && as_data["websites"] && as_data["websites"]["mal"]
         mal_url = as_data["websites"]["mal"]
-        return $1 if mal_url =~ /anime\/(\d+)/
+        if mal_url =~ /anime\/(\d+)/
+          resolved_id = $1
+          Rails.logger.info("[Anime Plugin] Resolved slug '#{id}' via AnimeSchedule to ID: #{resolved_id}")
+          return resolved_id
+        end
       end
       
+      Rails.logger.warn("[Anime Plugin] Could not resolve slug: #{id}")
       id # Return original if everything fails
     end
 
