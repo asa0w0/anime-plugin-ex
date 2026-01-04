@@ -23,7 +23,20 @@ export default class ShowRoute extends Route {
 
     setupController(controller, model) {
         super.setupController(controller, model);
-        // Reset episode pagination when switching anime
-        controller.set("episodePage", 1);
+        // Reset state when switching anime
+        controller.setProperties({
+            episodePage: 1,
+            _manualStatus: null,
+            fabMenuOpen: false,
+            synopsisExpanded: false,
+            activeVideo: null
+        });
+
+        // Initialize selectedStatus for intuitive UX
+        if (model.watchlist_status) {
+            controller.set("selectedStatus", null);
+        } else {
+            controller.set("selectedStatus", "plan_to_watch");
+        }
     }
 }

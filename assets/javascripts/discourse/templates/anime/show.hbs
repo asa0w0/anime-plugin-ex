@@ -48,12 +48,20 @@
                             }}>Dropped</option>
                     </select>
 
-                    <button type="button" class="btn btn-primary" {{on "click" this.saveToWatchlist}} disabled={{not (or
-                        this.selectedStatus this.watchlistStatus)}}>
-                        {{#if this.watchlistStatus}}
-                        Update
+                    <button type="button"
+                        class="btn btn-primary add-to-watchlist-btn {{if this.saving 'is-saving'}} {{if this.addedToWatchlist 'is-success'}}"
+                        {{on "click" this.saveToWatchlist}} disabled={{or this.saving (not (or this.selectedStatus
+                        this.watchlistStatus))}}>
+                        {{#if this.saving}}
+                        {{d-icon "spinner" class="fa-spin"}} Saving...
+                        {{else if this.addedToWatchlist}}
+                        {{d-icon "check"}} Added!
                         {{else}}
-                        Add to Watchlist
+                        {{#if this.watchlistStatus}}
+                        {{d-icon "sync"}} Update
+                        {{else}}
+                        {{d-icon "plus"}} Add to Watchlist
+                        {{/if}}
                         {{/if}}
                     </button>
                 </div>

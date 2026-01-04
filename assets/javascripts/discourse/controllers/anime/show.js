@@ -15,6 +15,8 @@ export default class ShowController extends Controller {
     @tracked activeVideo = null; // For video modal
     @tracked synopsisExpanded = false; // For collapsible synopsis
     @tracked fabMenuOpen = false; // For FAB status menu
+    @tracked saving = false; // For loading spinner
+    @tracked addedToWatchlist = false; // For success feedback
 
     get backdropUrl() {
         if (this.model?.tmdb?.backdrop_path) {
@@ -167,10 +169,11 @@ export default class ShowController extends Controller {
 
     @action
     async saveToWatchlist() {
-        if (!this.currentUser || !this.selectedStatus) {
+        if (!this.currentUser || !this.selectedStatus || this.saving) {
             return;
         }
 
+        this.saving = true;
         try {
             await ajax("/anime/watchlist", {
                 type: "POST",
@@ -178,15 +181,23 @@ export default class ShowController extends Controller {
                     anime_id: this.model.mal_id,
                     status: this.selectedStatus,
                     title: this.model.title,
-                    image_url: this.model.images.jpg.image_url,
+                    image_url: this.model.images?.jpg?.image_url || this.model.image_url,
                     episodes_watched: 0,
                     total_episodes: this.model.episodes || 0,
                 }
             });
             this._manualStatus = this.selectedStatus;
             this.selectedStatus = null;
+            this.addedToWatchlist = true;
+
+            // Show success for 3 seconds
+            setTimeout(() => {
+                this.addedToWatchlist = false;
+            }, 3000);
         } catch (error) {
             console.error("Error updating watchlist:", error);
+        } finally {
+            this.saving = false;
         }
     }
 
