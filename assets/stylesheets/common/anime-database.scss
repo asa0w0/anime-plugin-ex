@@ -2120,7 +2120,7 @@
         white-space: nowrap;
         background: var(--tertiary);
         color: white;
-        border: none;
+        border: 1px solid transparent; // Added border to match input's box-model
         transition: all 0.2s ease;
         box-shadow: 0 4px 12px rgba(var(--tertiary-rgb), 0.2);
 
@@ -2222,11 +2222,12 @@
       color: var(--primary-medium);
       pointer-events: none;
       z-index: 5;
-      font-size: 0.95em;
+      font-size: 1.1em; // Slightly larger for better visual balance
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      line-height: 1;
     }
 
     input {
@@ -2238,6 +2239,7 @@
       font-size: 1rem;
       color: var(--primary);
       box-shadow: none !important;
+      line-height: var(--anime-search-height); // Match height for perfect text centering
 
       &:focus {
         outline: none;
