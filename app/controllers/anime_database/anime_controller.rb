@@ -66,7 +66,6 @@ module AnimeDatabase
 
       if response.is_a?(Hash) && response["data"].present?
         response = response.deep_dup
-        response["debug_slug_fix_applied"] = true
         response["data"] = response["data"].map do |a|
           title = a["title"] || a["title_english"] || a["title_japanese"]
           a["slug"] = title.to_s.parameterize if a["slug"].blank? && title.present?
