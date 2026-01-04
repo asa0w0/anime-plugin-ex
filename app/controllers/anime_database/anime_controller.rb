@@ -87,9 +87,13 @@ module AnimeDatabase
         search_query = id.gsub('-', ' ')
         anilist_results = AnilistService.search(search_query)
         match = anilist_results.find { |a| 
-          (a.dig('title', 'english') || "").parameterize == id || 
-          (a.dig('title', 'romaji') || "").parameterize == id
-        } || anilist_results.first
+          english_title = a.dig('title', 'english')
+          romaji_title = a.dig('title', 'romaji')
+          (english_title.present? && english_title.parameterize == id) || 
+          (romaji_title.present? && romaji_title.parameterize == id)
+        } if anilist_results.present?
+        
+        match ||= anilist_results&.first
 
         if match
           id = match['idMal'] || "al-#{match['id']}"

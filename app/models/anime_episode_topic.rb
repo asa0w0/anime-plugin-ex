@@ -33,7 +33,7 @@ module AnimeDatabase
         **Episode**: #{episode_number}
         **Air Date**: #{aired_at&.strftime('%B %d, %Y') || 'Unknown'}
 
-        [View Anime Details](/anime/#{anime_id})
+        [View Anime Details](/anime/#{anime_title.to_s.parameterize.presence || anime_id})
 
         ---
         **Discuss the episode below! Please use spoiler tags for major plot points.**
