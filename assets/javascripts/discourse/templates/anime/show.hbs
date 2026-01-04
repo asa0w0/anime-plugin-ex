@@ -95,7 +95,7 @@
 
     <div class="anime-synopsis {{unless this.synopsisExpanded 'collapsed'}}">
         <h2>Synopsis</h2>
-        <p class="synopsis-text">{{this.model.synopsis}}</p>
+        <p class="synopsis-text">{{{this.model.synopsis}}}</p>
         <button type="button" class="btn-expand-synopsis" {{on "click" this.toggleSynopsis}}>
             {{#if this.synopsisExpanded}}
             {{d-icon "chevron-up"}} Weniger anzeigen
@@ -104,6 +104,40 @@
             {{/if}}
         </button>
     </div>
+
+    {{#if (or this.model.anilist.streamingEpisodes.length this.model.anilist.external_links.length)}}
+    <div class="anime-streaming-section">
+        <h2>{{d-icon "play-circle"}} Watch Online</h2>
+        <div class="streaming-links-grid">
+            {{#each this.model.anilist.streamingEpisodes as |stream|}}
+            <a href={{stream.url}} target="_blank" rel="noopener" class="streaming-link-card">
+                {{#if stream.thumbnail}}
+                <img src={{stream.thumbnail}} alt={{stream.site}} class="stream-thumb" />
+                {{else}}
+                <div class="stream-placeholder">{{d-icon "play"}}</div>
+                {{/if}}
+                <div class="stream-info">
+                    <span class="stream-site">{{stream.site}}</span>
+                    <span class="stream-title">{{stream.title}}</span>
+                </div>
+            </a>
+            {{/each}}
+
+            {{#each this.model.anilist.external_links as |link|}}
+            {{#if (or (eq link.site "Netflix") (eq link.site "Crunchyroll") (eq link.site "Hulu") (eq link.site "Disney
+            Plus") (eq link.site "Amazon"))}}
+            <a href={{link.url}} target="_blank" rel="noopener" class="streaming-link-card external-provider">
+                <div class="stream-info">
+                    <span class="stream-site">{{d-icon "external-link-alt"}} {{link.site}}</span>
+                    <span class="stream-title">Full Series</span>
+                </div>
+            </a>
+            {{/if}}
+            {{/each}}
+        </div>
+    </div>
+    {{/if}}
+
 
     {{#if this.model.trailer.embed_url}}
     {{#if (or (includes this.model.trailer.embed_url "youtube.com") (includes this.model.trailer.embed_url
