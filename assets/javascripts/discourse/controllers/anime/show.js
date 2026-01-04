@@ -158,9 +158,14 @@ export default class ShowController extends Controller {
             return;
         }
 
+        // In Ember, if called via {{on "click"}}, the last argument is the event.
+        // We need to ensure we only treat 'episode' as such if it's an actual episode object.
+        const isActualEpisode = episode && typeof episode === 'object' && episode.episode_number !== undefined;
+        const targetEpisode = isActualEpisode ? episode : null;
+
         // Use the appropriate category based on discussion type
         let categoryId;
-        if (episode) {
+        if (targetEpisode) {
             // Episode discussions use anime_episode_category
             categoryId = parseInt(this.siteSettings.anime_episode_category, 10);
         } else {
@@ -168,29 +173,29 @@ export default class ShowController extends Controller {
             categoryId = parseInt(this.siteSettings.anime_database_category, 10);
         }
 
-        const isEpisode = type === "episodes";
+        const isEpisodeType = type === "episodes";
 
         let title, body;
 
-        if (episode) {
+        if (targetEpisode) {
             // Episode-specific discussion
-            title = `[Anime] ${this.model.title} - Episode ${episode.episode_number} Discussion`;
-            body = this.buildEpisodeBody(episode);
+            title = `[Anime] ${this.model.title} - Episode ${targetEpisode.episode_number} Discussion`;
+            body = this.buildEpisodeBody(targetEpisode);
         } else {
             // General discussion
-            title = isEpisode
+            title = isEpisodeType
                 ? `Episodes Discussion: ${this.model.title}`
                 : `Discussion: ${this.model.title}`;
-            body = this.buildGeneralBody(isEpisode);
+            body = this.buildGeneralBody(isEpisodeType);
         }
 
-        const draftKey = episode
-            ? `anime-episode-${this.model.mal_id}-${episode.episode_number}`
+        const draftKey = targetEpisode
+            ? `anime-episode-${this.model.mal_id}-${targetEpisode.episode_number}`
             : `anime-${type}-${this.model.mal_id}`;
 
         const animeTag = this.model.title ? this.slugify(this.model.title) : "";
         const malIdString = this.model.mal_id ? this.model.mal_id.toString() : "";
-        const episodeNumString = (episode && episode.episode_number) ? episode.episode_number.toString() : null;
+        const episodeNumString = targetEpisode ? targetEpisode.episode_number.toString() : null;
 
         const composerOpts = {
             action: "createTopic",
