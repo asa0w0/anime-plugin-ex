@@ -79,34 +79,8 @@ module AnimeDatabase
     end
 
     def show
-      id = params[:id]
-      original_id = id
+      id = resolve_params_id(params[:id])
       
-      # If ID is not numeric (or our internal al- prefix), treat it as a slug
-      if id !~ /\A\d+\z/ && id !~ /\Aal-\d+\z/
-        Rails.logger.info("[Anime Plugin] Resolving slug: #{id}")
-        search_query = id.gsub('-', ' ')
-        anilist_results = AnilistService.search(search_query)
-        match = anilist_results.find { |a| 
-          english_title = a.dig('title', 'english')
-          romaji_title = a.dig('title', 'romaji')
-          (english_title.present? && english_title.parameterize == id) || 
-          (romaji_title.present? && romaji_title.parameterize == id)
-        } if anilist_results.present?
-        
-        match ||= anilist_results&.first
-
-        if match
-          id = match['idMal'] || "al-#{match['id']}"
-        else
-          # Fallback to AnimeSchedule
-          as_data = AnimescheduleService.fetch_anime_details(id)
-          if as_data && as_data["websites"] && as_data["websites"]["mal"]
-            mal_url = as_data["websites"]["mal"]
-            id = $1 if mal_url =~ /anime\/(\d+)/
-          end
-        end
-      end
       
       begin
         # 1. Try local cache first
@@ -267,7 +241,7 @@ module AnimeDatabase
     end
     
     def episodes
-      anime_id = params[:id]
+      anime_id = resolve_params_id(params[:id])
       
       # Try local cache first
       cached_episodes = AnimeDatabase::AnimeEpisodeCache.for_anime(anime_id).to_a
@@ -721,6 +695,38 @@ module AnimeDatabase
           "streaming" => media["streamingEpisodes"]
         }
       }
+    end
+
+    def resolve_params_id(id)
+      return id if id.blank?
+      return id if id =~ /\A\d+\z/ || id =~ /\Aal-\d+\z/
+
+      # Handle slugs by searching AniList/AnimeSchedule
+      Rails.logger.info("[Anime Plugin] Resolving slug: #{id}")
+      
+      # Try AniList first (fastest/most accurate for our needs)
+      search_query = id.gsub('-', ' ')
+      anilist_results = AnilistService.search(search_query)
+      
+      match = anilist_results.find { |a| 
+        english_title = a.dig('title', 'english')
+        romaji_title = a.dig('title', 'romaji')
+        (english_title.present? && english_title.parameterize == id) || 
+        (romaji_title.present? && romaji_title.parameterize == id)
+      } if anilist_results.present?
+      
+      match ||= anilist_results&.first
+      
+      return match['idMal'] || "al-#{match['id']}" if match
+      
+      # Fallback to AnimeSchedule
+      as_data = AnimescheduleService.fetch_anime_details(id)
+      if as_data && as_data["websites"] && as_data["websites"]["mal"]
+        mal_url = as_data["websites"]["mal"]
+        return $1 if mal_url =~ /anime\/(\d+)/
+      end
+      
+      id # Return original if everything fails
     end
 
     def merge_local_images(data)
