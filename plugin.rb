@@ -43,6 +43,9 @@ register_svg_icon "square"
 register_svg_icon "check-square"
 register_svg_icon "magnifying-glass"
 register_svg_icon "sync"
+register_svg_icon "arrows-rotate"
+register_svg_icon "rotate"
+register_svg_icon "redo"
 register_svg_icon "spinner"
 
 after_initialize do
