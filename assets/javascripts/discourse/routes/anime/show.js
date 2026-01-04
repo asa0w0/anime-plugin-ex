@@ -16,7 +16,8 @@ export default class ShowRoute extends Route {
 
         return {
             ...animeData,
-            episodeDiscussions: results.episodes?.episodes || []
+            episodeDiscussions: results.episodes?.episodes || [],
+            streaming: results.episodes?.streaming || []
         };
     }
 
