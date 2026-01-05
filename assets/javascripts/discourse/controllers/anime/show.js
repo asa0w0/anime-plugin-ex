@@ -35,6 +35,13 @@ export default class ShowController extends Controller {
         return url.includes("youtube.com") || url.includes("youtube-nocookie.com");
     }
 
+    get trailerUrl() {
+        const url = this.model?.trailer?.embed_url;
+        if (!url) return null;
+        const separator = url.includes("?") ? "&" : "?";
+        return `${url}${separator}autoplay=0&rel=0`;
+    }
+
     slugify(text) {
         if (!text) return "";
         return text

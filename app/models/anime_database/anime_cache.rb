@@ -108,6 +108,7 @@ module AnimeDatabase
         'producers' => (producers || []).map { |p| { 'name' => p } },
         'themes' => (themes || []).map { |t| { 'name' => t } },
         'demographics' => (demographics || []).map { |d| { 'name' => d } },
+        'trailer' => raw_jikan&.dig('trailer'),
         'anilist' => raw_anilist&.dig('anilist'),
         'streaming' => raw_anilist&.dig('streaming'),
         '_cached' => true,
