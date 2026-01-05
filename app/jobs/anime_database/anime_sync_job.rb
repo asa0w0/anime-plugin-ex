@@ -49,6 +49,7 @@ module Jobs
         demographics: extract_names(data['demographics']),
         raw_jikan: data,
         raw_anilist: fetch_anilist_data(mal_id, data['title']),
+        anime_type: data['type'],
         last_api_sync_at: Time.current,
         created_at: Time.current,
         updated_at: Time.current

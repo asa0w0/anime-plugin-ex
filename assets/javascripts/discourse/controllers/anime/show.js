@@ -25,6 +25,16 @@ export default class ShowController extends Controller {
         return null;
     }
 
+    get isMovie() {
+        return this.model?.type === "Movie";
+    }
+
+    get isYoutubeTrailer() {
+        const url = this.model?.trailer?.embed_url;
+        if (!url) return false;
+        return url.includes("youtube.com") || url.includes("youtube-nocookie.com");
+    }
+
     slugify(text) {
         if (!text) return "";
         return text

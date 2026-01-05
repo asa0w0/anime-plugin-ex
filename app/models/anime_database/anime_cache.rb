@@ -99,6 +99,7 @@ module AnimeDatabase
         },
         'season' => season,
         'year' => year,
+        'type' => anime_type,
         'source' => source,
         'rating' => rating,
         'duration' => duration_minutes ? "#{duration_minutes} min per ep" : nil,

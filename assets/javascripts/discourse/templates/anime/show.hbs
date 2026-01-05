@@ -22,8 +22,11 @@
                 <span class="label">User Score</span>
             </div>
             <div class="anime-meta">
+                <p><strong>Type:</strong> {{or this.model.type "N/A"}}</p>
                 <p><strong>Status:</strong> {{or this.model.status "N/A"}}</p>
+                {{#unless this.isMovie}}
                 <p><strong>Episodes:</strong> {{or this.model.episodes "N/A"}}</p>
+                {{/unless}}
                 <p><strong>Aired:</strong> {{or this.model.aired.string "N/A"}}</p>
             </div>
             <div class="anime-genres">
@@ -87,7 +90,7 @@
         </button>
         {{/if}}
         <button type="button" class="quick-nav-btn" {{on "click" (fn this.scrollToSection "anime-episodes-section" )}}>
-            {{d-icon "film"}} Episoden
+            {{d-icon "film"}} {{if this.isMovie "Medien" "Episoden"}}
         </button>
         {{#if this.model.anilist.characters}}
         <button type="button" class="quick-nav-btn" {{on "click" (fn this.scrollToSection "anime-characters-section"
@@ -147,9 +150,7 @@
     {{/if}}
 
 
-    {{#if this.model.trailer.embed_url}}
-    {{#if (or (includes this.model.trailer.embed_url "youtube.com") (includes this.model.trailer.embed_url
-    "youtube-nocookie.com"))}}
+    {{#if this.isYoutubeTrailer}}
     <div id="anime-trailer-section" class="anime-trailer">
         <h2>Trailer</h2>
         <div class="anime-video-container">
@@ -159,10 +160,9 @@
     </div>
 
     {{/if}}
-    {{/if}}
 
     <div id="anime-episodes-section" class="anime-episodes-section">
-        <h2>{{d-icon "film"}} Episodes & Discussions</h2>
+        <h2>{{d-icon "film"}} {{if this.isMovie "Related Media & Discussions" "Episodes & Discussions"}}</h2>
         {{#if this.model.episodeDiscussions.length}}
         <div class="episode-discussions-list">
             {{#each this.paginatedEpisodes as |episode|}}

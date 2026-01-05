@@ -1,41 +1,39 @@
 # Anime Database Plugin Cache Management
 
-This plugin uses a local cache to store anime and episode data for improved performance and to avoid rate-limiting from external APIs (Jikan/MyAnimeList and AniList).
+This plugin uses a local cache to store anime and episode data for improved performance and to avoid rate-limiting from external APIs.
 
 ## Rake Tasks
 
-You can manage the cache using the following rake tasks from your Discourse root directory:
-
-### Clear Cache
-Completely removes all cached anime and episode data. The data will be re-fetched the next time a user visits the respective pages.
+### Development
+In a local development environment, you can run:
 ```bash
 bundle exec rake anime_database:clear_cache
 ```
 
-### Refresh Cache (Recommended)
-Marks all cached entries as "stale". This triggers a background update when an anime is accessed, but allows the UI to show the old data in the meantime for a seamless experience.
+### Production (Discourse Container)
+In a production environment (after running `./launcher enter app`), you **must** run the tasks as the `discourse` user and specify the environment `RAILS_ENV=production`. 
+
+If you run as `root`, the database connection will fail with a "Peer authentication failed" error.
+
+**Correct Command:**
 ```bash
-bundle exec rake anime_database:refresh_cache
+sudo -u discourse RAILS_ENV=production bundle exec rake anime_database:clear_cache
 ```
 
-### Sync Airing Anime
-Manually triggers a background sync for all anime currently marked as "airing" in the database.
-```bash
-bundle exec rake anime_database:sync_airing
-```
+---
 
-### Sync Specific Anime
-Refresh a single anime by its MyAnimeList ID.
-```bash
-bundle exec rake anime_database:sync_anime[MAL_ID]
-```
-*Example: `bundle exec rake anime_database:sync_anime[54857]` (Re:Zero Season 3)*
+## Available Commands
 
-## Stale Thresholds
-The plugin automatically considers data stale after certain periods:
-- **Currently Airing**: 6 hours
-- **Finished Airing**: 7 days
-- **Upcoming**: 24 hours
-- **Episodes**: 6 hours (for airing anime)
+| Command | Description |
+| :--- | :--- |
+| `anime_database:clear_cache` | Completely removes all cached anime and episode data. |
+| `anime_database:refresh_cache` | Marks all cached entries as "stale" to trigger background refresh on next access. |
+| `anime_database:sync_airing` | Manually triggers a background sync for all currently airing anime. |
+| `anime_database:sync_anime[MAL_ID]` | Refreshes a single anime by its ID (e.g., `sync_anime[54857]`). |
 
-When data is stale, the library will return the cached version immediately and queue a background job to update it from the APIs.
+*Note: In production, always prefix with `sudo -u discourse RAILS_ENV=production `.*
+
+## Automatic Refresh Thresholds
+- **Currently Airing**: Updates every 6 hours
+- **Finished Airing**: Updates every 7 days
+- **Upcoming**: Updates every 24 hours
