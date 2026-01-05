@@ -194,6 +194,7 @@ module Jobs
           "id" => res["id"],
           "url" => res["siteUrl"],
           "streaming" => res["streamingEpisodes"],
+          "trailer" => res["trailer"],
           "external_links" => res["externalLinks"]
         },
         "streaming" => (res['externalLinks'] || []).select { |l| 

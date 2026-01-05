@@ -108,7 +108,7 @@ module AnimeDatabase
         'producers' => (producers || []).map { |p| { 'name' => p } },
         'themes' => (themes || []).map { |t| { 'name' => t } },
         'demographics' => (demographics || []).map { |d| { 'name' => d } },
-        'trailer' => raw_jikan&.dig('trailer'),
+        'trailer' => raw_jikan&.dig('trailer') || map_anilist_trailer(raw_anilist&.dig('anilist', 'trailer')),
         'anilist' => raw_anilist&.dig('anilist'),
         'streaming' => raw_anilist&.dig('streaming'),
         '_cached' => true,
@@ -135,6 +135,16 @@ module AnimeDatabase
       when 'upcoming' then 'Not yet aired'
       else airing_status
       end
+    end
+
+    def map_anilist_trailer(trailer_data)
+      return nil unless trailer_data && trailer_data['site'] == 'youtube'
+      
+      {
+        "youtube_id" => trailer_data['id'],
+        "url" => "https://www.youtube.com/watch?v=#{trailer_data['id']}",
+        "embed_url" => "https://www.youtube-nocookie.com/embed/#{trailer_data['id']}"
+      }
     end
   end
 end

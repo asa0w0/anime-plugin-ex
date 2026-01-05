@@ -247,6 +247,11 @@ class AnilistService
             url
             site
           }
+          trailer {
+            id
+            site
+            thumbnail
+          }
           externalLinks {
             site
             url

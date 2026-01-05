@@ -708,6 +708,15 @@ module AnimeDatabase
         "genres" => (media['genres'] || []).map { |g| { "name" => g } },
         "studios" => (media.dig('studios', 'nodes') || []).map { |s| { "name" => s['name'] } },
         "source" => media['source'],
+        "trailer" => if media['trailer'] && media.dig('trailer', 'site') == 'youtube'
+          {
+            "youtube_id" => media.dig('trailer', 'id'),
+            "url" => "https://www.youtube.com/watch?v=#{media.dig('trailer', 'id')}",
+            "embed_url" => "https://www.youtube-nocookie.com/embed/#{media.dig('trailer', 'id')}"
+          }
+        else
+          nil
+        end,
         "is_numeric_id" => media['idMal'].present?,
         "aired" => {
           "from" => media.dig('startDate', 'year') ? Date.new(media.dig('startDate', 'year'), media.dig('startDate', 'month') || 1, media.dig('startDate', 'day') || 1).iso8601 : nil,
