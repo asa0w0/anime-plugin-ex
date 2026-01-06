@@ -2068,13 +2068,44 @@
     align-items: center;
 
     .search-section {
+      display: flex;
       width: 100%;
-      max-width: 600px;
-    }
+      max-width: 700px;
+      gap: 12px;
+      align-items: stretch;
 
-    .anime-search-bar {
-      width: 100%;
-      flex: 1;
+      .anime-search-bar {
+        flex: 1;
+      }
+
+      .watchlist-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 20px;
+        height: var(--anime-search-height);
+        box-sizing: border-box;
+        border-radius: 8px;
+        font-weight: 600;
+        white-space: nowrap;
+        background: var(--tertiary);
+        color: white;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(var(--tertiary-rgb), 0.2);
+
+        .d-icon {
+          color: white !important;
+          fill: white !important;
+        }
+
+        &:hover {
+          background: var(--tertiary-hover);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(var(--tertiary-rgb), 0.3);
+        }
+      }
     }
   }
 
@@ -2239,7 +2270,7 @@
       font-size: 1rem;
       color: var(--primary);
       box-shadow: none !important;
-      line-height: var(--anime-search-height); // Match height for perfect text centering
+      line-height: normal; // Use normal for better baseline alignment with icon
 
       &:focus {
         outline: none;
