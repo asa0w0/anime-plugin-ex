@@ -2233,14 +2233,13 @@
   .search-input-wrapper {
     display: flex;
     align-items: center;
-    position: relative;
     width: 100%;
     height: var(--anime-search-height);
     background: var(--secondary);
     border: 1px solid var(--primary-low);
     border-radius: 8px;
     padding: 0 12px;
-    gap: 10px;
+    gap: 8px;
     box-sizing: border-box;
     transition: all 0.2s;
 
@@ -2251,30 +2250,27 @@
 
     .d-icon-magnifying-glass {
       color: var(--primary-medium);
-      pointer-events: none;
-      font-size: 1rem;
+      font-size: 14px;
+      line-height: 1;
       flex-shrink: 0;
-      width: 1rem;
-      height: 1rem;
-      margin-top: 2px; // Push icon down to align with text baseline
-
-      svg {
-        display: block;
-        width: 100%;
-        height: 100%;
-      }
     }
 
     input {
       flex: 1;
       height: 100%;
       padding: 0;
+      margin: 0;
       border: none !important;
       background: transparent !important;
-      font-size: 1rem;
+      font-size: 14px;
+      line-height: 1;
       color: var(--primary);
       box-shadow: none !important;
-      line-height: normal; // Use normal for better baseline alignment with icon
+      vertical-align: middle;
+
+      &::placeholder {
+        color: var(--primary-medium);
+      }
 
       &:focus {
         outline: none;
